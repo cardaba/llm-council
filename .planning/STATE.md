@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-09T10:32:52Z"
+last_updated: "2026-05-09T10:46:27Z"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
-  percent: 50
+  completed_plans: 3
+  percent: 75
 ---
 
 # State: LLM Council — Personal Edition
@@ -28,27 +28,27 @@ progress:
 
 ## Current Focus
 
-Phase 01 in progress. Plans 01 (SEC-01) and 02 (CONV-01) shipped. Plans 03-04 (CONV-02/03) still pending.
+Phase 01 in progress. Plans 01 (SEC-01), 02 (CONV-01), and 03 (CONV-02) shipped. Plan 04 (CONV-03) still pending.
 
 ## Current Position
 
 Phase: 01 (Hardening & Conversation Management) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 - **Phase:** 1 — Hardening & Conversation Management (in progress)
-- **Plan:** Next is `01-03-PLAN.md` (PATCH endpoint + inline rename, CONV-02)
+- **Plan:** Next is `01-04-PLAN.md` (search input progresivo con debounce y content fallback, CONV-03)
 - **Status:** Executing Phase 01
-- **Progress:** 2/4 plans complete in Phase 1; 0/4 phases complete overall
+- **Progress:** 3/4 plans complete in Phase 1; 0/4 phases complete overall
 
 ```
-[##--] 50% — Phase 1 plan 2 of 4 complete
+[###-] 75% — Phase 1 plan 3 of 4 complete
 ```
 
 ## Phase Progression
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Hardening & Conversation Management | In progress (2/4 plans) |
+| 1 | Hardening & Conversation Management | In progress (3/4 plans) |
 | 2 | UX Research & Design Brief | Pending |
 | 3 | Quality Dial & Pragmatic Deep Research | Pending |
 | 4 | Visual Identity Implementation | Pending |
@@ -57,15 +57,16 @@ Plan: 3 of 4
 
 - Phases planned: 4
 - Phases complete: 0
-- Plans complete: 2
+- Plans complete: 3
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 2/21 (SEC-01, CONV-01)
+- Requirements satisfied: 3/21 (SEC-01, CONV-01, CONV-02)
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
 | 01 | 01 | ~18 min | 2 | 2 | 2026-05-09 |
 | 01 | 02 | ~9 min  | 3 | 10 | 2026-05-09 |
+| 01 | 03 | ~7 min  | 2 | 5  | 2026-05-09 |
 
 ## Accumulated Context
 
@@ -89,10 +90,15 @@ Plan: 3 of 4
 - **Phase 01 / Plan 02:** No body scroll lock when modal opens — backdrop covers the viewport visually; avoids side-effect risk.
 - **Phase 01 / Plan 02:** `confirmDelete()` closes the modal BEFORE awaiting `api.deleteConversation` so the user does not see a half-applied state during the network call.
 - **Phase 01 / Plan 02:** `handleDeleteConversation` resets `currentConversationId`/`currentConversation` to null BEFORE awaiting the network call when the deleted conversation was the active one (RESEARCH §Pitfall 7 + D-12 — guarantees the welcome state renders immediately).
+- **Phase 01 / Plan 03:** Backend body validation via Pydantic `Field(min_length=1, max_length=200)` — empty/oversized titles get a 422 from the framework BEFORE the handler runs, so the handler never sees malformed input.
+- **Phase 01 / Plan 03:** intentRef pattern (RESEARCH §Pattern 4) is the single coordination point between keydown and blur. Enter/Escape both trigger blur synthetically; handleBlur is the only place that decides commit vs cancel — eliminates the double-fire that a naive design would produce.
+- **Phase 01 / Plan 03:** Lifetime-based remount of the rename input (RenameInput mounted only while isEditing===true) replaces the original 'reset draftTitle in useEffect' shape that React 19's react-hooks/set-state-in-effect rule rejects. Same external behaviour, cleaner under React 19 lint, and naturally robust to rapid Rename target switches.
+- **Phase 01 / Plan 03:** ConversationItem extracted as a sub-component within Sidebar.jsx (CD-04 permits) once the row's edit-mode JSX pushed the inline shape past readable.
+- **Phase 01 / Plan 03:** Trim happens client-side; backend stores titles verbatim (symmetric with how `add_user_message` stores message bodies as-is). Empty / unchanged titles cancel silently in the UI without invoking the PATCH.
 
 ### Open Todos
 
-- Run `/gsd-execute-phase 1` (or equivalent) to launch Plan 03 (CONV-02: PATCH endpoint + inline rename).
+- Run `/gsd-execute-phase 1` (or equivalent) to launch Plan 04 (CONV-03: progressive search input with debounce + optional content-fallback).
 
 ### Blockers
 
@@ -108,29 +114,27 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-09):** Completed `01-02-PLAN.md` — CONV-01 delete with confirmation. Three task commits plus a hook-driven baseline commit (`e26a52d`, `7139b03`, `5b41fb3`, `24b072c`). SUMMARY at `.planning/phases/01-hardening-conversation-management/01-02-SUMMARY.md`.
+**Last session (2026-05-09):** Completed `01-03-PLAN.md` — CONV-02 inline rename with intentRef race resolution. Two task commits (`6d2bfc6`, `9d4bcbe`). SUMMARY at `.planning/phases/01-hardening-conversation-management/01-03-SUMMARY.md`.
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/01-hardening-conversation-management/01-02-SUMMARY.md` for the Modal/Menu APIs and the safe-delete sequence Plan 03 will mirror for rename.
-3. Reading `.planning/phases/01-hardening-conversation-management/01-03-PLAN.md` (PATCH endpoint + inline rename).
-4. Running the executor on Plan 03 (CONV-02).
+2. Reading `.planning/phases/01-hardening-conversation-management/01-03-SUMMARY.md` for the PATCH endpoint shape and the intentRef pattern Plan 04 may want to leave alone.
+3. Reading `.planning/phases/01-hardening-conversation-management/01-04-PLAN.md` (progressive search + debounce + content fallback).
+4. Running the executor on Plan 04 (CONV-03).
 
 **Files most recently touched by GSD tooling:**
 
-- `frontend/src/components/Modal.jsx` + `Modal.css` (Plan 02 — created)
-- `frontend/src/components/Menu.jsx` + `Menu.css` (Plan 02 — created)
-- `frontend/src/components/Sidebar.jsx` + `Sidebar.css` (Plan 02 — wired three-dot trigger + modal flow)
-- `frontend/src/App.jsx` (Plan 02 — handleDeleteConversation)
-- `frontend/src/api.js` (Plan 02 — api.deleteConversation)
-- `backend/main.py` (Plan 02 — DELETE handler appended)
-- `.planning/phases/01-hardening-conversation-management/01-02-SUMMARY.md` (Plan 02 summary)
-- `.planning/phases/01-hardening-conversation-management/deferred-items.md` (pre-existing eslint errors logged)
+- `backend/main.py` (Plan 03 — PATCH handler + UpdateConversationRequest)
+- `frontend/src/api.js` (Plan 03 — api.renameConversation)
+- `frontend/src/App.jsx` (Plan 03 — handleRenameConversation + onRenameConversation prop)
+- `frontend/src/components/Sidebar.jsx` (Plan 03 — RenameInput + ConversationItem + Rename menu item + editingId state)
+- `frontend/src/components/Sidebar.css` (Plan 03 — .conversation-title-input)
+- `.planning/phases/01-hardening-conversation-management/01-03-SUMMARY.md` (Plan 03 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (progress table)
-- `.planning/REQUIREMENTS.md` (CONV-01 marked complete)
+- `.planning/ROADMAP.md` (progress table + plan checkbox)
+- `.planning/REQUIREMENTS.md` (CONV-02 marked complete)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-09 after Plan 01-02 completion.*
+*Last updated: 2026-05-09 after Plan 01-03 completion.*
