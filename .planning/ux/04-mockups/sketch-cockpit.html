@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LLM Council — Sketch: Tactical cockpit</title>
+<!--
+  THROWAWAY SKETCH — Direction B: Tactical cockpit
+  Phase 2 / UX research. NOT production code. NOT to be lifted verbatim by Phase 4.
+  Source of truth for tokens: .planning/ux/03-redesign-proposal.md § Direction B.
+  Source of truth for structure: .planning/ux/04-mockups/wireframes.md (canonical IA).
+  Idioma: prosa visible en inglés (UI real será EN); comentarios en español.
+  Default theme: DARK — el habitat natural de la dirección B (Raycast-flavored).
+-->
+<style>
+  /* ============================================================
+     Direction B · Tactical cockpit · tokens
+     Tokens copiados textualmente del Plan 03 § Direction B.
+     ============================================================ */
+
+  :root[data-theme="light"] {
+    --color-bg-primary: #F5F6F8;
+    --color-bg-secondary: #E8EAEF;
+    --color-bg-elevated: #FFFFFF;
+    --color-bg-instrument: #1A1F2A;
+    --color-fg-primary: #0F1419;
+    --color-fg-secondary: #4A535F;
+    --color-fg-muted: #828B96;
+    --color-fg-on-instrument: #E8EAEF;
+    --color-accent: #0090C9;
+    --color-accent-bright: #00B5E8;
+    --color-status-active: #D88A1F;
+    --color-status-done: #16A34A;
+    --color-status-failed: #DC2626;
+    --color-border-subtle: #D4D8DF;
+    --color-border-strong: #1A1F2A;
+    --color-focus-ring: rgba(0, 181, 232, 0.5);
+  }
+
+  :root[data-theme="dark"] {
+    --color-bg-primary: #0B0E14;
+    --color-bg-secondary: #0F1319;
+    --color-bg-elevated: #161B23;
+    --color-bg-instrument: #1F2630;
+    --color-fg-primary: #E8EAEF;
+    --color-fg-secondary: #A4ACB7;
+    --color-fg-muted: #6B7380;
+    --color-fg-on-instrument: #E8EAEF;
+    --color-accent: #22C7F0;
+    --color-accent-bright: #5BD9F5;
+    --color-status-active: #EAB54A;
+    --color-status-done: #3FCB6E;
+    --color-status-failed: #F26F65;
+    --color-border-subtle: #1F2630;
+    --color-border-strong: #3A4250;
+    --color-focus-ring: rgba(34, 199, 240, 0.55);
+  }
+
+  /* Familias — Plan 03 § Direction B: mono-everything UI + IBM Plex Sans body. */
+  :root {
+    --font-mono: "JetBrains Mono", "JetBrains Mono Variable", "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    --font-sans: "IBM Plex Sans", "IBM Plex Sans Variable", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--color-bg-primary);
+    color: var(--color-fg-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 100ms ease-out, color 100ms ease-out;
+  }
+  button { font: inherit; cursor: pointer; }
+
+  /* ============================================================
+     Layout shell — densidad alta
+     ============================================================ */
+  .app-shell {
+    display: grid;
+    grid-template-rows: 44px 56px 1fr;
+    grid-template-columns: 260px 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar status"
+      "sidebar main";
+    min-height: 100vh;
+  }
+
+  .app-header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--color-border-strong);
+    background: var(--color-bg-secondary);
+  }
+  .brand {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-fg-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-bracket { color: var(--color-accent); }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .conn-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-status-done);
+    box-shadow: 0 0 6px var(--color-status-done);
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed;
+    top: 8px;
+    right: 16px;
+    z-index: 100;
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  .theme-toggle:hover {
+    border-color: var(--color-accent-bright);
+    box-shadow: 0 0 0 1px var(--color-accent-bright), inset 0 0 12px rgba(34, 199, 240, 0.08);
+  }
+
+  /* ============================================================
+     Sidebar — densidad alta
+     ============================================================ */
+  .sidebar {
+    grid-area: sidebar;
+    background: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-border-strong);
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+  }
+  .new-conversation-btn {
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    transition: border-color 100ms ease-out, box-shadow 100ms ease-out;
+  }
+  .new-conversation-btn:hover {
+    border-color: var(--color-accent-bright);
+    box-shadow: inset 0 0 12px rgba(34, 199, 240, 0.08);
+  }
+  .search-input {
+    width: 100%;
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    transition: border-color 100ms ease-out, box-shadow 100ms ease-out;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  .search-input::placeholder { color: var(--color-fg-muted); }
+
+  .keymap-hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    padding: 0 4px;
+    letter-spacing: 0.04em;
+  }
+  .kbd {
+    display: inline-block;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 2px;
+    padding: 0 4px;
+    font-size: 9px;
+    color: var(--color-fg-secondary);
+  }
+
+  .sidebar-section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    padding: 8px 4px 2px;
+  }
+
+  .conversation-list { display: flex; flex-direction: column; gap: 1px; }
+  .conversation-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background-color 100ms ease-out, border-left-color 120ms ease-out;
+  }
+  .conversation-item:hover {
+    background: var(--color-bg-instrument);
+    border-left-color: var(--color-accent);
+  }
+  .conversation-item.active {
+    background: var(--color-bg-instrument);
+    border-left-color: var(--color-accent);
+  }
+  .conversation-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .conversation-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    letter-spacing: 0.02em;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+  .status-dot.active {
+    background: var(--color-status-active);
+    animation: cockpit-pulse 1200ms ease-in-out infinite;
+  }
+  .status-dot.done { background: var(--color-status-done); }
+  .status-dot.failed { background: var(--color-status-failed); }
+  @keyframes cockpit-pulse {
+    0%, 100% { opacity: 0.5; box-shadow: 0 0 0 0 var(--color-status-active); }
+    50%      { opacity: 1.0; box-shadow: 0 0 6px 1px var(--color-status-active); }
+  }
+
+  /* Three-dot — persistente en TODAS las filas (cockpit power-user) */
+  .three-dot {
+    background: transparent;
+    color: var(--color-fg-muted);
+    border: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+    font-size: 14px;
+    line-height: 1;
+    transition: color 100ms ease-out, background-color 100ms ease-out;
+  }
+  .three-dot:hover {
+    color: var(--color-accent);
+    background: rgba(34, 199, 240, 0.12);
+  }
+
+  .menu-popover-pop {
+    position: absolute;
+    background: var(--color-bg-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    padding: 4px 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    min-width: 180px;
+    z-index: 20;
+  }
+  .menu-popover-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-fg-on-instrument);
+    border-left: 2px solid transparent;
+    transition: background-color 100ms ease-out, border-left-color 120ms ease-out;
+  }
+  .menu-popover-item:hover {
+    background: rgba(34, 199, 240, 0.12);
+    border-left-color: var(--color-accent);
+  }
+  .menu-popover-item .shortcut {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-fg-muted);
+  }
+
+  /* ============================================================
+     Status grid sticky — el elemento característico de Direction B
+     ============================================================ */
+  .status-grid {
+    grid-area: status;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-border-strong);
+    background: var(--color-bg-secondary);
+  }
+  .instrument-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 2px 8px;
+    padding: 6px 10px;
+    background: var(--color-bg-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+  }
+  .instrument-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-fg-on-instrument);
+  }
+  .instrument-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .instrument-time {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-on-instrument);
+    grid-column: 1 / -1;
+  }
+
+  /* ============================================================
+     Main panel
+     ============================================================ */
+  .main-panel {
+    grid-area: main;
+    overflow-y: auto;
+    padding: 16px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .user-message {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .user-meta-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 2px;
+    padding: 1px 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+  .user-prompt {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--color-fg-primary);
+  }
+
+  /* Stage panel común */
+  .stage {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .stage-title {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-fg-secondary);
+    margin: 0 0 10px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    padding-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .stage-title .stage-num { color: var(--color-accent); }
+
+  /* Stage 1 tabs */
+  .stage-tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 4px;
+    margin-bottom: 12px;
+    background: var(--color-bg-secondary);
+  }
+  .stage-tab {
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-fg-secondary);
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--color-border-subtle);
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+    transition: background-color 100ms ease-out, color 100ms ease-out;
+  }
+  .stage-tab:hover {
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+  }
+  .stage-tab.active {
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border-bottom: 2px solid var(--color-accent);
+  }
+  .stage-tab.failed {
+    color: var(--color-status-failed);
+    text-decoration: line-through;
+  }
+  .tab-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stage-content {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--color-fg-primary);
+    max-width: 72ch;
+  }
+  .stage-content p { margin: 0 0 10px; }
+  .stage-content code {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--color-bg-secondary);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* Reasoning chip terminal-style */
+  .reasoning-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--color-fg-secondary);
+    transition: border-color 120ms ease-out, color 120ms ease-out;
+  }
+  .reasoning-chip:hover {
+    border-color: var(--color-accent);
+    color: var(--color-fg-primary);
+  }
+  .reasoning-chip .plus { color: var(--color-accent); font-weight: 600; }
+
+  .reasoning-panel {
+    margin-top: 10px;
+    background: var(--color-bg-secondary);
+    border-left: 2px solid var(--color-status-active);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-fg-secondary);
+    transition: max-height 140ms ease-out, opacity 140ms ease-out;
+  }
+  .reasoning-panel-header {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-status-active);
+    margin-bottom: 6px;
+  }
+
+  /* Stage 2 — densa, dashboard-style */
+  .deanon-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 3px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-fg-secondary);
+  }
+  .deanon-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .deanon-pair .label-tag {
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 2px;
+    padding: 1px 6px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .deanon-pair strong {
+    color: var(--color-fg-primary);
+    font-weight: 700;
+  }
+
+  .aggregate-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .aggregate-table th, .aggregate-table td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .aggregate-table th {
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-secondary);
+  }
+  .aggregate-table td.rank { color: var(--color-accent); font-weight: 700; }
+  .aggregate-table td .meta-chip { font-size: 9px; }
+
+  /* Stage 3 — border-top accent + label uppercase */
+  .stage-synthesis {
+    border: 1px solid var(--color-border-subtle);
+    border-top: 2px solid var(--color-accent);
+    background: var(--color-bg-elevated);
+    padding: 14px 16px;
+    border-radius: 4px;
+  }
+  .stage-synthesis .stage-title {
+    border-bottom: none;
+    margin-bottom: 8px;
+  }
+  .final-label {
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-left: 2px solid var(--color-accent);
+    border-radius: 2px;
+    padding: 2px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+  .download-btn {
+    margin-top: 14px;
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  .download-btn:hover {
+    border-color: var(--color-accent-bright);
+    box-shadow: 0 0 0 1px var(--color-accent-bright), inset 0 0 12px rgba(34, 199, 240, 0.10);
+  }
+
+  /* ============================================================
+     Input dock + Quality toggle (B = chip cromado prominent)
+     ============================================================ */
+  .input-dock {
+    position: sticky;
+    bottom: 0;
+    border-top: 1px solid var(--color-border-strong);
+    background: var(--color-bg-secondary);
+    padding: 12px 24px 16px;
+  }
+  .input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .input-textarea {
+    width: 100%;
+    min-height: 56px;
+    background: var(--color-bg-instrument);
+    color: var(--color-fg-on-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  .input-textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  .input-textarea::placeholder { color: var(--color-fg-muted); }
+
+  .input-row {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .quality-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .quality-toggle-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+  .quality-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .quality-option {
+    background: var(--color-bg-instrument);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+    padding: 8px 10px;
+    text-align: left;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 4px;
+    cursor: pointer;
+    transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  .quality-option:hover {
+    border-color: var(--color-accent-bright);
+    box-shadow: 0 0 0 1px var(--color-accent-bright), inset 0 0 12px rgba(34, 199, 240, 0.08);
+  }
+  .quality-option.selected {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  .quality-option-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-fg-on-instrument);
+  }
+  .cost-chip {
+    display: inline-block;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 2px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-on-instrument);
+    width: fit-content;
+    transition: color 120ms ease-out, border-color 120ms ease-out;
+  }
+  .quality-option:hover .cost-chip,
+  .quality-option.selected .cost-chip {
+    color: var(--color-accent-bright);
+    border-color: var(--color-accent);
+  }
+  .cost-hint {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+  .quality-option.warning .cost-hint {
+    color: var(--color-status-active);
+  }
+  .state-radio {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+  .quality-option.selected .state-radio {
+    color: var(--color-status-done);
+  }
+
+  .send-btn {
+    background: var(--color-accent);
+    color: #0B0E14;
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    padding: 0 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    align-self: stretch;
+    transition: background-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  .send-btn:hover {
+    background: var(--color-accent-bright);
+    box-shadow: 0 0 12px rgba(34, 199, 240, 0.5);
+  }
+  .send-btn .send-cost {
+    font-weight: 600;
+    color: var(--color-bg-instrument);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============================================================
+     Footer disclaimer — D-15
+     ============================================================ */
+  .throwaway-footer {
+    border-top: 1px dashed var(--color-border-strong);
+    padding: 12px 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-secondary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .throwaway-footer strong { color: var(--color-status-active); }
+</style>
+</head>
+<body>
+
+<!--
+  THROWAWAY SKETCH — Direction B disclaimer (también en HTML para grep).
+  Phase 4 NO debe lift CSS verbatim.
+-->
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  [ THEME ]
+</button>
+
+<div class="app-shell">
+
+  <header class="app-header" role="banner">
+    <div class="brand">
+      <span class="brand-bracket">[</span>
+      <span>LLM·COUNCIL</span>
+      <span class="brand-bracket">]</span>
+    </div>
+    <div class="header-meta">
+      <span><span class="conn-dot" aria-hidden="true"></span> ONLINE</span>
+      <span>v0.4.2</span>
+      <span>Direction B · Cockpit</span>
+    </div>
+  </header>
+
+  <aside class="sidebar" role="complementary" aria-label="Conversations">
+
+    <button class="new-conversation-btn" aria-label="New conversation">
+      [ + NEW SESSION ]
+    </button>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="> search conversations…"
+      aria-label="Search conversations"
+    />
+
+    <div class="keymap-hint">
+      <span class="kbd">⌘K</span> palette · <span class="kbd">⌘N</span> new
+    </div>
+
+    <div class="sidebar-section-label">Recent</div>
+
+    <div class="conversation-list">
+
+      <div class="conversation-item active" style="position: relative;">
+        <div>
+          <div class="conversation-title">FastAPI BackgroundTasks vs Celery</div>
+          <div class="conversation-meta">
+            <span class="status-dot active" aria-hidden="true"></span>
+            3 msg · 14s ago · running
+          </div>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+        <div class="menu-popover-pop" role="menu" style="top: 36px; right: 4px;">
+          <div class="menu-popover-item" role="menuitem">
+            <span>Rename</span><span class="shortcut">R</span>
+          </div>
+          <div class="menu-popover-item" role="menuitem">
+            <span>Duplicate</span><span class="shortcut">⌘D</span>
+          </div>
+          <div class="menu-popover-item" role="menuitem">
+            <span>Delete</span><span class="shortcut">⌫</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="conversation-item">
+        <div>
+          <div class="conversation-title">GPT-5.1 vs Claude 4 latency</div>
+          <div class="conversation-meta">
+            <span class="status-dot done" aria-hidden="true"></span>
+            2 msg · 2h · done
+          </div>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div>
+          <div class="conversation-title">Architecture review FastAPI streaming</div>
+          <div class="conversation-meta">
+            <span class="status-dot done" aria-hidden="true"></span>
+            6 msg · 1d · done
+          </div>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div>
+          <div class="conversation-title">Pharma data ETL design</div>
+          <div class="conversation-meta">
+            <span class="status-dot failed" aria-hidden="true"></span>
+            3 msg · 3d · err
+          </div>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div>
+          <div class="conversation-title">MTD vs YTD in BI</div>
+          <div class="conversation-meta">2 msg · 5d · done</div>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div>
+          <div class="conversation-title">Debug OpenRouter 401</div>
+          <div class="conversation-meta">4 msg · 6d · done</div>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- Status grid sticky — el elemento característico -->
+  <div class="status-grid" aria-label="Stage status grid">
+    <div class="instrument-card">
+      <span class="instrument-label">Stage 1 · Ind Resp</span>
+      <span class="instrument-status"><span class="status-dot done" aria-hidden="true"></span> Done</span>
+      <span class="instrument-time">00:14</span>
+    </div>
+    <div class="instrument-card">
+      <span class="instrument-label">Stage 2 · Peer Rev</span>
+      <span class="instrument-status"><span class="status-dot done" aria-hidden="true"></span> Done</span>
+      <span class="instrument-time">00:22</span>
+    </div>
+    <div class="instrument-card">
+      <span class="instrument-label">Stage 3 · Synth</span>
+      <span class="instrument-status"><span class="status-dot active" aria-hidden="true"></span> Running</span>
+      <span class="instrument-time">00:09</span>
+    </div>
+  </div>
+
+  <main class="main-panel" role="main">
+
+    <article class="user-message">
+      <div class="user-meta-row">
+        <span class="meta-chip">USER</span>
+        <span class="meta-chip">2026-05-10 · 14:32</span>
+        <span class="meta-chip">142 tokens</span>
+      </div>
+      <div class="user-prompt">
+        Should we use FastAPI's <code>BackgroundTasks</code> or Celery for our async workload (50 jobs/min, mostly DB queries)?
+      </div>
+    </article>
+
+    <!-- Stage 1 -->
+    <section class="stage" aria-label="Stage 1: Individual responses">
+      <h2 class="stage-title">
+        <span class="stage-num">Stage 1</span>
+        · Individual responses
+        <span class="meta-chip" style="margin-left: auto;">4 / 4 OK</span>
+      </h2>
+
+      <div class="stage-tabs" role="tablist">
+        <button class="stage-tab active" role="tab" aria-selected="true">
+          openai/gpt-5.1
+          <span class="tab-meta">· 14.2s · 1284t · ✓</span>
+        </button>
+        <button class="stage-tab" role="tab">
+          anthropic/claude-opus-4.7
+          <span class="tab-meta">· 17.0s · 1502t · ✓</span>
+        </button>
+        <button class="stage-tab" role="tab">
+          google/gemini-2.5-pro
+          <span class="tab-meta">· 11.4s · 1187t · ✓</span>
+        </button>
+        <button class="stage-tab" role="tab">
+          deepseek/r1
+          <span class="tab-meta">· 22.8s · 1923t · ✓</span>
+        </button>
+      </div>
+
+      <div class="stage-content">
+        <p>
+          For 50 jobs/min with mostly DB queries, FastAPI <code>BackgroundTasks</code> works
+          only if you can afford to lose pending work on restart. Celery is the safer choice
+          when you need persistence, retries, or a separate scaling axis for workers vs. web.
+        </p>
+        <p>
+          Decision pivots: (a) durability across restarts, (b) jobs occasionally exceed the
+          request lifetime, (c) team comfort running Redis or RabbitMQ as broker.
+        </p>
+      </div>
+
+      <button class="reasoning-chip" aria-expanded="true" id="rsnBtn1">
+        <span class="plus">[+]</span> Show reasoning · 1247t · cot
+      </button>
+
+      <div class="reasoning-panel" id="rsnPanel1">
+        <div class="reasoning-panel-header">
+          Reasoning · 1,247 tokens · 2.3s · gpt-5.1
+        </div>
+        Considered three deployment shapes: single-node uvicorn, multi-node behind nginx,
+        and ECS Fargate with autoscaling. BackgroundTasks loses pending jobs on container
+        replacement; this is the dominant failure mode at 50 jobs/min. Celery+Redis adds
+        ~80MB memory baseline but unlocks retries, scheduled tasks, and observability.
+        RQ is a lighter alternative if Redis is the only broker. Final ranking weighted
+        durability and operational maturity above raw throughput.
+      </div>
+    </section>
+
+    <!-- Stage 2 -->
+    <section class="stage" aria-label="Stage 2: Peer review">
+      <h2 class="stage-title">
+        <span class="stage-num">Stage 2</span>
+        · Peer review
+        <span class="meta-chip" style="margin-left: auto;">16 / 16 EVALS</span>
+      </h2>
+
+      <div class="deanon-row">
+        <span style="text-transform: uppercase; letter-spacing: 0.08em;">Deanon map:</span>
+        <span class="deanon-pair"><span class="label-tag">A</span> <strong>openai/gpt-5.1</strong></span>
+        <span class="deanon-pair"><span class="label-tag">B</span> <strong>anthropic/claude-opus-4.7</strong></span>
+        <span class="deanon-pair"><span class="label-tag">C</span> <strong>google/gemini-2.5-pro</strong></span>
+        <span class="deanon-pair"><span class="label-tag">D</span> <strong>deepseek/r1</strong></span>
+      </div>
+
+      <div class="stage-tabs" role="tablist">
+        <button class="stage-tab active" role="tab" aria-selected="true">
+          eval: gpt-5.1 <span class="tab-meta">· 8.1s</span>
+        </button>
+        <button class="stage-tab" role="tab">
+          eval: claude-opus-4.7 <span class="tab-meta">· 9.4s</span>
+        </button>
+        <button class="stage-tab" role="tab">
+          eval: gemini-2.5-pro <span class="tab-meta">· 6.8s</span>
+        </button>
+        <button class="stage-tab" role="tab">
+          eval: deepseek/r1 <span class="tab-meta">· 12.0s</span>
+        </button>
+      </div>
+
+      <div class="stage-content" style="font-size: 14px;">
+        <p>
+          <strong>Response B</strong> (claude-opus-4.7) framed the decision as durability vs.
+          simplicity with concrete heuristics. <strong>Response A</strong> covered similar
+          ground but was more verbose. <strong>Response C</strong> introduced RQ as a useful
+          middle option. <strong>Response D</strong> anchored on raw throughput and missed
+          the durability question.
+        </p>
+        <p style="font-family: var(--font-mono); font-size: 12px; color: var(--color-fg-secondary);">
+          FINAL RANKING: 1. Response B · 2. Response A · 3. Response C · 4. Response D
+        </p>
+      </div>
+
+      <table class="aggregate-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Model</th>
+            <th>Avg pos</th>
+            <th>Votes</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank">1</td>
+            <td>anthropic/claude-opus-4.7</td>
+            <td>1.75</td>
+            <td>4</td>
+            <td><span class="meta-chip">CHAMPION</span></td>
+          </tr>
+          <tr>
+            <td class="rank">2</td>
+            <td>openai/gpt-5.1</td>
+            <td>2.25</td>
+            <td>4</td>
+            <td><span class="meta-chip">SECOND</span></td>
+          </tr>
+          <tr>
+            <td class="rank">3</td>
+            <td>google/gemini-2.5-pro</td>
+            <td>2.75</td>
+            <td>4</td>
+            <td><span class="meta-chip">THIRD</span></td>
+          </tr>
+          <tr>
+            <td class="rank">4</td>
+            <td>deepseek/r1</td>
+            <td>3.25</td>
+            <td>4</td>
+            <td><span class="meta-chip">FOURTH</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Stage 3 -->
+    <section class="stage stage-synthesis" aria-label="Stage 3: Final answer">
+      <h2 class="stage-title" style="display: flex; gap: 10px; align-items: center;">
+        <span class="stage-num">Stage 3</span>
+        · Synthesis
+        <span class="final-label" style="margin-left: auto;">FINAL · CHAIRMAN: gemini-2.5-pro</span>
+      </h2>
+      <div class="stage-content">
+        <p>
+          Use <strong>Celery</strong> with Redis as the broker. At 50 jobs/min with DB-bound
+          work, <code>BackgroundTasks</code> will silently drop pending jobs on container
+          restart — the failure mode you'll regret. Celery gives you durability, retries,
+          and a separate scaling axis with modest operational overhead.
+        </p>
+        <p>
+          If you want a lighter footprint and won't need scheduled tasks, RQ is a reasonable
+          middle path — but Celery is the answer the council converges on.
+        </p>
+      </div>
+      <button class="download-btn" aria-label="Download final answer as markdown">
+        [ DOWNLOAD .MD ]
+      </button>
+    </section>
+
+    <!-- Input dock -->
+    <div class="input-dock">
+      <div class="input-area">
+        <textarea
+          class="input-textarea"
+          rows="3"
+          placeholder="> compose query…"
+          aria-label="Question input"
+        ></textarea>
+
+        <div class="input-row">
+          <div class="quality-toggle">
+            <span class="quality-toggle-label">Quality dial</span>
+            <div class="quality-options" role="radiogroup" aria-label="Quality level">
+              <button class="quality-option" role="radio" aria-checked="false">
+                <span class="quality-option-name">Fast</span>
+                <span class="cost-chip">~$0.001</span>
+                <span class="state-radio">○ idle</span>
+              </button>
+              <button class="quality-option" role="radio" aria-checked="false">
+                <span class="quality-option-name">Quality</span>
+                <span class="cost-chip">~$0.05</span>
+                <span class="state-radio">○ idle</span>
+              </button>
+              <button class="quality-option selected warning" role="radio" aria-checked="true">
+                <span class="quality-option-name">Quality+Research · WEB</span>
+                <span class="cost-chip">~$0.45</span>
+                <span class="state-radio">⚠ confirm required</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="send-btn">
+            SEND · <span class="send-cost">~$0.45</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="throwaway-footer">
+      <strong>⚠ THROWAWAY SKETCH</strong> · Direction B: Tactical cockpit · Visual contract only
+      · Phase 4 reimplements with CSS variables + co-located component CSS · Tokens: see
+      .planning/ux/03-redesign-proposal.md § Direction B
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // Theme toggle — minimal (D-14, D-16).
+  (function () {
+    var html = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var stored = null;
+    try { stored = localStorage.getItem('sketch-cockpit-theme'); } catch (e) {}
+    if (stored === 'dark' || stored === 'light') {
+      html.setAttribute('data-theme', stored);
+    }
+    btn.addEventListener('click', function () {
+      var current = html.getAttribute('data-theme');
+      var next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      try { localStorage.setItem('sketch-cockpit-theme', next); } catch (e) {}
+    });
+  })();
+
+  // Reasoning chip toggle — fold/unfold panel.
+  (function () {
+    var btn = document.getElementById('rsnBtn1');
+    var panel = document.getElementById('rsnPanel1');
+    if (!btn || !panel) return;
+    var open = true;
+    btn.addEventListener('click', function () {
+      open = !open;
+      panel.style.display = open ? 'block' : 'none';
+      btn.firstElementChild.textContent = open ? '[+]' : '[−]';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+
+  // Quality option selection — purely visual.
+  document.querySelectorAll('.quality-option').forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      document.querySelectorAll('.quality-option').forEach(function (o) {
+        o.classList.remove('selected');
+        o.setAttribute('aria-checked', 'false');
+      });
+      opt.classList.add('selected');
+      opt.setAttribute('aria-checked', 'true');
+    });
+  });
+</script>
+</body>
+</html>
