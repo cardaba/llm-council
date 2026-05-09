@@ -113,3 +113,23 @@
   outline: 2px solid #4a90e2;
   outline-offset: -2px;
 }
+
+/* Inline rename input — replaces title+meta when editingId === conv.id.
+   Bordered with the existing primary color to make the edit affordance
+   obvious without introducing new palette tokens (Phase 4 will restyle). */
+.conversation-item .conversation-title-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  font-size: inherit;
+  font-family: inherit;
+  color: #222;
+  background: #fff;
+  border: 1px solid #4a90e2;
+  border-radius: 3px;
+  outline: none;
+}
+.conversation-item .conversation-title-input:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 0;
+}
