@@ -1,0 +1,41 @@
+/* Menu — Bootstrap-flavored palette. Phase 4 will restyle. */
+
+.menu-popover {
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  min-width: 160px;
+  padding: 4px 0;
+  z-index: 900;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #222;
+  font-family: inherit;
+}
+.menu-item:hover {
+  background: #f0f0f0;
+}
+.menu-item:focus-visible {
+  outline: 2px solid #4a90e2;
+  outline-offset: -2px;
+}
+
+/* Destructive variant — same Bootstrap danger family as the destructive
+   modal button (#d9534f). Hover uses a soft red tint instead of the solid
+   fill, since hovering an item should feel lighter than confirming. */
+.menu-item-destructive {
+  color: #d9534f;
+}
+.menu-item-destructive:hover {
+  background: #fdecea;
+}

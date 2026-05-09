@@ -203,6 +203,29 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
     )
 
 
+@app.delete("/api/conversations/{conversation_id}", status_code=204)
+async def delete_conversation(conversation_id: str):
+    """
+    Delete a conversation permanently.
+
+    Per D-03: deletion is unconditional — confirmation is enforced
+    client-side only; the backend does not implement a two-step API.
+
+    Returns:
+        - 204 No Content on success.
+        - 400 if conversation_id is not a valid UUID (closes Vuln 2,
+          inherited from storage.delete_conversation → uuid.UUID()).
+        - 404 if the conversation file does not exist.
+    """
+    try:
+        storage.delete_conversation(conversation_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return None  # 204 No Content; FastAPI elides the body
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8001)

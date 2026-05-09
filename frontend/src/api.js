@@ -112,4 +112,18 @@ export const api = {
       }
     }
   },
+
+  /**
+   * Delete a conversation permanently.
+   * Backend returns 204 No Content on success.
+   */
+  async deleteConversation(conversationId) {
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}`,
+      { method: 'DELETE' }
+    );
+    if (!response.ok && response.status !== 204) {
+      throw new Error('Failed to delete conversation');
+    }
+  },
 };
