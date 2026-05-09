@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+last_updated: "2026-05-09T08:57:24.107Z"
+progress:
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+---
+
 # State: LLM Council — Personal Edition
 
 **Last updated:** 2026-05-09
@@ -73,11 +86,13 @@ None.
 ## Session Continuity
 
 **Next session should start by:**
+
 1. Reading this STATE.md.
 2. Reading `.planning/ROADMAP.md` Phase 1 detail block.
 3. Running `/gsd-plan-phase 1` to produce executable plans for Phase 1.
 
 **Files most recently touched by GSD tooling:**
+
 - `.planning/ROADMAP.md` (created)
 - `.planning/STATE.md` (created)
 - `.planning/REQUIREMENTS.md` (traceability filled)
