@@ -34,7 +34,7 @@ Plans:
 - [x] 01-02-PLAN.md (wave 2) — Modal + Menu + DELETE endpoint + Sidebar wiring (CONV-01) — completed 2026-05-09 (commits `e26a52d`, `7139b03`, `5b41fb3`, `24b072c`)
 - [x] 01-03-PLAN.md (wave 3) — PATCH endpoint + rename inline con intentRef pattern (CONV-02) — completed 2026-05-09 (commits `6d2bfc6`, `9d4bcbe`)
 - [x] 01-04-PLAN.md (wave 4) — Search input progresivo con debounce y content fallback (CONV-03) — completed 2026-05-09 (commit `f0736a9`)
-- [ ] 01-05-PLAN.md (wave 1, gap closure) — Cierre de gaps BL-01 (CONV-02 TOCTOU 500 → 404) y BL-02 (SEC-01 canonicalización UUID en path)
+- [x] 01-05-PLAN.md (wave 1, gap closure) — Cierre de gaps BL-01 (CONV-02 TOCTOU 500 → 404) y BL-02 (SEC-01 canonicalización UUID en path) — completed 2026-05-09 (commits `bbb4120`, `f4d37dc`)
 
 ### Phase 2: UX Research & Design Brief
 **Goal:** A research-backed design brief exists under `.planning/ux/` that describes the friction points of the current UI, scores it against Nielsen heuristics, proposes a redesigned information architecture, and specifies component-level mockups for the new visual identity — sufficient to drive Phase 4 without further design decisions.
@@ -80,7 +80,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hardening & Conversation Management | 4/5 | Gap closure plan added (01-05) for BL-01/BL-02 | - |
+| 1. Hardening & Conversation Management | 5/5 | Gap closure complete; ready for re-verification | - |
 | 2. UX Research & Design Brief | 0/0 | Not started | - |
 | 3. Quality Dial & Pragmatic Deep Research | 0/0 | Not started | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-09T10:55:34Z"
+last_updated: "2026-05-09T11:58:39Z"
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 5
+  completed_plans: 5
   percent: 100
 ---
 
@@ -28,27 +28,27 @@ progress:
 
 ## Current Focus
 
-Phase 01 plans all shipped (01 SEC-01, 02 CONV-01, 03 CONV-02, 04 CONV-03). Phase 01 awaiting end-to-end smoke / `/gsd-verify-phase 1` before closure and handoff to Phase 02 (UX Research & Design Brief).
+Phase 01 plans all shipped, including gap-closure plan 01-05 (BL-01 + BL-02 closed). Phase 01 ready for **re-verification** via `/gsd-verify-phase 1` before closure and handoff to Phase 02 (UX Research & Design Brief).
 
 ## Current Position
 
-Phase: 01 (Hardening & Conversation Management) — ALL PLANS COMPLETE
-Plan: 4 of 4 (last shipped)
+Phase: 01 (Hardening & Conversation Management) — ALL PLANS COMPLETE (incl. gap closure)
+Plan: 5 of 5 (last shipped)
 
-- **Phase:** 1 — Hardening & Conversation Management (all plans done; phase pending verification)
-- **Plan:** Last shipped: `01-04-PLAN.md` (CONV-03 progressive search). No more plans in this phase.
-- **Status:** Phase 01 ready for verification → Phase 02 ready to plan.
-- **Progress:** 4/4 plans complete in Phase 1; 0/4 phases formally complete overall (awaiting verifier).
+- **Phase:** 1 — Hardening & Conversation Management (all plans done incl. gap closure; phase pending re-verification)
+- **Plan:** Last shipped: `01-05-PLAN.md` (gap closure: BL-01 TOCTOU 404 + BL-02 canonical UUID path).
+- **Status:** Phase 01 ready for re-verification → Phase 02 ready to plan.
+- **Progress:** 5/5 plans complete in Phase 1; 0/4 phases formally complete overall (awaiting verifier).
 
 ```
-[####] 100% Phase 1 plans — phase verification next
+[#####] 100% Phase 1 plans (incl. gap closure) — re-verification next
 ```
 
 ## Phase Progression
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Hardening & Conversation Management | All 4 plans complete; awaiting verification |
+| 1 | Hardening & Conversation Management | All 5 plans complete (incl. gap closure 01-05); awaiting re-verification |
 | 2 | UX Research & Design Brief | Pending |
 | 3 | Quality Dial & Pragmatic Deep Research | Pending |
 | 4 | Visual Identity Implementation | Pending |
@@ -56,11 +56,11 @@ Plan: 4 of 4 (last shipped)
 ## Performance Metrics
 
 - Phases planned: 4
-- Phases complete: 0 (Phase 1 awaiting `/gsd-verify-phase`)
-- Plans complete: 4
+- Phases complete: 0 (Phase 1 awaiting `/gsd-verify-phase` re-run after gap closure)
+- Plans complete: 5
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 4/21 (SEC-01, CONV-01, CONV-02, CONV-03)
+- Requirements satisfied: 4/21 (SEC-01, CONV-01, CONV-02, CONV-03) — SEC-01 and CONV-02 hardened by 01-05
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -68,6 +68,7 @@ Plan: 4 of 4 (last shipped)
 | 01 | 02 | ~9 min  | 3 | 10 | 2026-05-09 |
 | 01 | 03 | ~7 min  | 2 | 5  | 2026-05-09 |
 | 01 | 04 | ~4 min  | 1 | 2  | 2026-05-09 |
+| 01 | 05 | ~12 min | 2 | 2  | 2026-05-09 |
 
 ## Accumulated Context
 
@@ -102,11 +103,16 @@ Plan: 4 of 4 (last shipped)
 - **Phase 01 / Plan 04:** D-11 cache lifetime = session, no invalidation on rename/delete. Deleted ids never render (gated by `conversations` metadata); renamed titles still display the current title (sourced from metadata, not cache). Acceptable staleness.
 - **Phase 01 / Plan 04:** Stage 2 evaluation text NOT in search corpus — anonymised peer-review-of-peers is noisy as a recall key. User content + Stage 1 + Stage 3 cover the meaningful semantic surface.
 - **Phase 01 / Plan 04:** Pitfall 6 sealed deliberately by omission — no `onSelectConversation(null)` call exists in the search code path. The active conversation stays visible in the central panel even when the sidebar filter hides it (Slack/Discord-like).
+- **Phase 01 / Plan 05 (gap closure):** Introduced `storage.ConversationNotFoundError` as a domain exception so storage callers can disambiguate "invalid UUID -> 400" (ValueError) from "missing conversation file -> 404". Chose this over the minimum-fix `except ValueError -> 404` to avoid mis-translating future TOCTOU races; cost is one 5-line class definition.
+- **Phase 01 / Plan 05:** Canonicalised the UUID at `get_conversation_path` (single chokepoint) via `str(uuid.UUID(id))` — braced/URN/unhyphenated/upper-case forms now collapse to the same hyphenated lowercase filename. Eliminates the Windows NTFS ADS interaction (URN's `:`) and makes GET/PATCH/DELETE round-trip platform-independent.
+- **Phase 01 / Plan 05:** SSE error event for the missing-file race uses structured `kind: 'not_found'` so frontend can disambiguate without parsing message strings. Generic transport/generation errors keep the original shape via the trailing `except Exception` branch.
+- **Phase 01 / Plan 05:** Did NOT modify the non-streaming `send_message` handler (`backend/main.py:90-134`); its unwrapped mutator calls now raise `ConversationNotFoundError` directly to FastAPI (still a 500). Out of scope per VERIFICATION.md (BL-01 was scoped to PATCH and the streaming path); tracked under SUMMARY's Deferred Issues for future hardening if the non-streaming path is reactivated.
 
 ### Open Todos
 
-- Run `/gsd-verify-phase 1` (or perform the 8-step manual smoke from `01-04-PLAN.md` acceptance criteria) end-to-end against a live frontend before formally closing Phase 01.
+- Re-run `/gsd-verify-phase 1` to flip BL-01 and BL-02 from `partial` → `verified` and formally close Phase 01.
 - Then run `/gsd-execute-phase 2` to launch Phase 02 (UX Research & Design Brief).
+- (Optional, deferred) Wrap the non-streaming `send_message` handler's storage mutators with `except ConversationNotFoundError -> HTTPException(404)` if that path is ever exercised again.
 
 ### Blockers
 
@@ -122,23 +128,22 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-09):** Completed `01-04-PLAN.md` — CONV-03 progressive search in sidebar with 200ms debounce and explicit content-fallback affordance backed by a per-session `Map` cache. One task commit (`f0736a9`). SUMMARY at `.planning/phases/01-hardening-conversation-management/01-04-SUMMARY.md`. **All 4 plans of Phase 01 are now shipped.**
+**Last session (2026-05-09):** Completed `01-05-PLAN.md` (gap closure) — closed BL-01 (PATCH/SSE TOCTOU now returns 404 via new `storage.ConversationNotFoundError`) and BL-02 (UUID canonicalised at `get_conversation_path` so braced/URN/unhyphenated forms round-trip). Two task commits (`bbb4120`, `f4d37dc`). SUMMARY at `.planning/phases/01-hardening-conversation-management/01-05-SUMMARY.md`. **All 5 plans of Phase 01 are now shipped (4 original + 1 gap closure).**
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/01-hardening-conversation-management/01-04-SUMMARY.md` for the search state shape and the Pitfall 6 seal Phase 4 (visual identity) should preserve when restyling the sidebar.
-3. Either (a) running `/gsd-verify-phase 1` to formally close Phase 01, or (b) running `/gsd-execute-phase 2` to begin Phase 02 (UX Research & Design Brief, no code) if the user wants to skip a formal verification gate.
+2. Reading `.planning/phases/01-hardening-conversation-management/01-05-SUMMARY.md` for the new `ConversationNotFoundError` contract and the canonicalisation invariant.
+3. Either (a) running `/gsd-verify-phase 1` to re-verify and formally close Phase 01 (BL-01/BL-02 should flip from `partial` → `verified`), or (b) running `/gsd-execute-phase 2` to begin Phase 02 (UX Research & Design Brief, no code) if the user wants to skip a formal verification gate.
 
 **Files most recently touched by GSD tooling:**
 
-- `frontend/src/components/Sidebar.jsx` (Plan 04 — search input + debounce + titleMatches/filteredConversations memos + activateContentSearch + content cache)
-- `frontend/src/components/Sidebar.css` (Plan 04 — .sidebar-search, .search-input, .content-search-affordance, .content-search-active-note)
-- `.planning/phases/01-hardening-conversation-management/01-04-SUMMARY.md` (Plan 04 summary)
+- `backend/storage.py` (Plan 05 — `ConversationNotFoundError` class + canonical UUID path + 3 mutator raises switched)
+- `backend/main.py` (Plan 05 — PATCH `except ConversationNotFoundError -> 404` + SSE structured `kind: 'not_found'`)
+- `.planning/phases/01-hardening-conversation-management/01-05-SUMMARY.md` (Plan 05 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 1 progress 4/4)
-- `.planning/REQUIREMENTS.md` (CONV-03 marked complete)
+- `.planning/ROADMAP.md` (Phase 1 progress 5/5)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-09 after Plan 01-04 completion (Phase 01 plans complete).*
+*Last updated: 2026-05-09 after Plan 01-05 completion (Phase 01 gap closure complete; all 5 plans shipped).*
