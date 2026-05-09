@@ -33,7 +33,7 @@ Plans:
 - [x] 01-01-PLAN.md (wave 1) — UUID validation en storage + 400 wrappers en handlers existentes (SEC-01) — completed 2026-05-09 (commits `7caf2fe`, `2064bb8`)
 - [x] 01-02-PLAN.md (wave 2) — Modal + Menu + DELETE endpoint + Sidebar wiring (CONV-01) — completed 2026-05-09 (commits `e26a52d`, `7139b03`, `5b41fb3`, `24b072c`)
 - [x] 01-03-PLAN.md (wave 3) — PATCH endpoint + rename inline con intentRef pattern (CONV-02) — completed 2026-05-09 (commits `6d2bfc6`, `9d4bcbe`)
-- [ ] 01-04-PLAN.md (wave 4) — Search input progresivo con debounce y content fallback (CONV-03)
+- [x] 01-04-PLAN.md (wave 4) — Search input progresivo con debounce y content fallback (CONV-03) — completed 2026-05-09 (commit `f0736a9`)
 
 ### Phase 2: UX Research & Design Brief
 **Goal:** A research-backed design brief exists under `.planning/ux/` that describes the friction points of the current UI, scores it against Nielsen heuristics, proposes a redesigned information architecture, and specifies component-level mockups for the new visual identity — sufficient to drive Phase 4 without further design decisions.
@@ -79,7 +79,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hardening & Conversation Management | 3/4 | In progress | - |
+| 1. Hardening & Conversation Management | 4/4 | All plans shipped — awaiting verification | - |
 | 2. UX Research & Design Brief | 0/0 | Not started | - |
 | 3. Quality Dial & Pragmatic Deep Research | 0/0 | Not started | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |
