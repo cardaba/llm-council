@@ -55,6 +55,16 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.conversation-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .conversation-item:hover {
@@ -75,4 +85,31 @@
 .conversation-meta {
   color: #999;
   font-size: 12px;
+}
+
+/* Three-dot trigger — visible only on hover, focus-within, or while its
+   menu is open (aria-expanded="true"). */
+.conversation-item .menu-trigger {
+  visibility: hidden;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+  color: #666;
+  border-radius: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.conversation-item:hover .menu-trigger,
+.conversation-item:focus-within .menu-trigger,
+.conversation-item .menu-trigger[aria-expanded="true"] {
+  visibility: visible;
+}
+.conversation-item .menu-trigger:hover {
+  background: #e0e0e0;
+}
+.conversation-item .menu-trigger:focus-visible {
+  outline: 2px solid #4a90e2;
+  outline-offset: -2px;
 }

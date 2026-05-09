@@ -57,6 +57,28 @@ function App() {
     setCurrentConversationId(id);
   };
 
+  const handleDeleteConversation = async (id) => {
+    // Per RESEARCH §Pitfall 7 + §Empty-state restoration (D-12):
+    // If the deleted conversation is the currently selected one, drop
+    // local state to null BEFORE awaiting the network call so that
+    // ChatInterface immediately shows the welcome state and does not
+    // attempt to load a conversation that no longer exists.
+    const wasSelected = id === currentConversationId;
+    if (wasSelected) {
+      setCurrentConversationId(null);
+      setCurrentConversation(null);
+    }
+    try {
+      await api.deleteConversation(id);
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      // Intentionally not restoring selection — the user explicitly
+      // requested deletion; the next loadConversations() will reflect
+      // whatever the server actually has.
+    }
+    await loadConversations();
+  };
+
   const handleSendMessage = async (content) => {
     if (!currentConversationId) return;
 
@@ -188,6 +210,7 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        onDeleteConversation={handleDeleteConversation}
       />
       <ChatInterface
         conversation={currentConversation}
