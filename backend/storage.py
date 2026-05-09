@@ -2,6 +2,7 @@
 
 import json
 import os
+import uuid
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -14,7 +15,27 @@ def ensure_data_dir():
 
 
 def get_conversation_path(conversation_id: str) -> str:
-    """Get the file path for a conversation."""
+    """
+    Get the file path for a conversation.
+
+    Validates that conversation_id is a parseable UUID before constructing
+    the path. Without validation, inputs like "../../etc" or "..\\evil" in
+    conversation_id would escape the data directory (Vuln 2 / SEC-01).
+
+    Per D-13: validation lives at the storage boundary so no caller can
+    produce a path for an invalid ID. Per D-14: callers in main.py translate
+    the resulting ValueError into HTTP 400.
+
+    Accepts any UUID parseable by stdlib (hyphenated, non-hyphenated,
+    mixed-case, braced, any version v1-v5). All such forms are safe against
+    path traversal because none contain "/", "\\", or "..". Version-specific
+    enforcement is intentionally not performed; SEC-01's intent is "reject
+    non-UUID input", not "reject non-v4 UUIDs".
+
+    Raises:
+        ValueError: If conversation_id is not a parseable UUID.
+    """
+    uuid.UUID(conversation_id)  # raises ValueError on malformed input
     return os.path.join(DATA_DIR, f"{conversation_id}.json")
 
 
@@ -170,3 +191,19 @@ def update_conversation_title(conversation_id: str, title: str):
 
     conversation["title"] = title
     save_conversation(conversation)
+
+
+def delete_conversation(conversation_id: str) -> None:
+    """
+    Delete a conversation file from storage.
+
+    Args:
+        conversation_id: Conversation identifier.
+
+    Raises:
+        ValueError: If conversation_id is not a valid UUID
+            (propagated from get_conversation_path).
+        FileNotFoundError: If the conversation file does not exist.
+    """
+    path = get_conversation_path(conversation_id)
+    os.remove(path)
