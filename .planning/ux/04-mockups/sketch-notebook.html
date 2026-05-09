@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LLM Council — Sketch: Research notebook</title>
+<!--
+  THROWAWAY SKETCH — Direction A: Research notebook
+  Phase 2 / UX research. NOT production code. NOT to be lifted verbatim by Phase 4.
+  Source of truth for tokens: .planning/ux/03-redesign-proposal.md § Direction A.
+  Source of truth for structure: .planning/ux/04-mockups/wireframes.md (canonical IA).
+  Idioma: prosa visible en inglés (UI real será EN); comentarios en español.
+-->
+<!--
+  Carga de fuentes:
+  En Phase 4 v1 esto se servirá con `font-display: swap` desde un CDN o self-hosted.
+  Aquí, en throwaway, fallback agresivo a stack del sistema. NO depender de @font-face.
+-->
+<style>
+  /* ============================================================
+     Direction A · Research notebook · tokens
+     Tokens copiados textualmente del Plan 03 § Direction A.
+     ============================================================ */
+
+  :root[data-theme="light"] {
+    --color-bg-primary: #FAF8F4;
+    --color-bg-secondary: #F2EFE8;
+    --color-bg-elevated: #FFFFFF;
+    --color-fg-primary: #2A2724;
+    --color-fg-secondary: #6B635A;
+    --color-fg-muted: #9A9088;
+    --color-accent: #B05A2A;
+    --color-accent-soft: #EFD9C5;
+    --color-border-subtle: #E5DFD4;
+    --color-border-strong: #C8BFB2;
+    --color-focus-ring: rgba(176, 90, 42, 0.35);
+    --color-error: #A03828;
+    --color-warn: #8C6620;
+    --shadow-modal: 0 8px 24px rgba(42, 39, 36, 0.08);
+    --shadow-popover: 0 4px 12px rgba(42, 39, 36, 0.10);
+  }
+
+  :root[data-theme="dark"] {
+    --color-bg-primary: #1C1A17;
+    --color-bg-secondary: #23201D;
+    --color-bg-elevated: #2A2723;
+    --color-fg-primary: #EFEAE2;
+    --color-fg-secondary: #B5ADA1;
+    --color-fg-muted: #7E766C;
+    --color-accent: #E08A4F;
+    --color-accent-soft: #3A2A20;
+    --color-border-subtle: #34302B;
+    --color-border-strong: #4A443D;
+    --color-focus-ring: rgba(224, 138, 79, 0.45);
+    --color-error: #D86B55;
+    --color-warn: #C99650;
+    --shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-popover: 0 4px 12px rgba(0, 0, 0, 0.40);
+  }
+
+  /* Familias tipográficas — Plan 03 § Direction A.
+     Stack con fallback a system-ui (Phase 4 cargará Source Serif 4 / Inter / JetBrains Mono real). */
+  :root {
+    --font-serif: "Source Serif 4", "Source Serif Pro", "Charter", "Iowan Old Style", Georgia, serif;
+    --font-sans: "Inter", "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "JetBrains Mono Variable", ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--color-bg-primary);
+    color: var(--color-fg-primary);
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 280ms ease-out, color 280ms ease-out;
+  }
+
+  button { font: inherit; cursor: pointer; }
+
+  /* ============================================================
+     Layout shell
+     ============================================================ */
+  .app-shell {
+    display: grid;
+    grid-template-rows: 52px 1fr;
+    grid-template-columns: 280px 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar main";
+    min-height: 100vh;
+  }
+
+  .app-header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-primary);
+  }
+  .brand {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    color: var(--color-fg-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-glyph {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--color-accent);
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  /* Theme toggle visible en runtime (D-14) */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 100;
+    background: var(--color-bg-elevated);
+    color: var(--color-fg-primary);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: background-color 180ms ease-out, border-color 180ms ease-out;
+  }
+  .theme-toggle:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+  }
+
+  /* ============================================================
+     Sidebar
+     ============================================================ */
+  .sidebar {
+    grid-area: sidebar;
+    background: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-border-subtle);
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+  .new-conversation-btn {
+    background: var(--color-bg-elevated);
+    color: var(--color-fg-primary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-align: left;
+    transition: background-color 180ms ease-out, border-color 180ms ease-out;
+  }
+  .new-conversation-btn:hover {
+    background: rgba(176, 90, 42, 0.06);
+    border-color: var(--color-border-strong);
+  }
+  .search-input {
+    width: 100%;
+    background: var(--color-bg-elevated);
+    color: var(--color-fg-primary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    transition: border-color 180ms ease-out, box-shadow 180ms ease-out;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+  .search-input::placeholder { color: var(--color-fg-muted); }
+
+  .sidebar-section-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    padding: 0 4px;
+    margin-top: 4px;
+  }
+  .conversation-list { display: flex; flex-direction: column; gap: 2px; }
+  .conversation-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 180ms ease-out;
+  }
+  .conversation-item:hover {
+    background: rgba(176, 90, 42, 0.06);
+  }
+  .conversation-item.active {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+  }
+  .conversation-item-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .conversation-title {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-fg-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .conversation-meta {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+  }
+  .three-dot {
+    background: transparent;
+    border: none;
+    color: var(--color-fg-muted);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    visibility: hidden;
+    transition: color 180ms ease-out, background-color 180ms ease-out;
+  }
+  .conversation-item:hover .three-dot,
+  .conversation-item.active .three-dot,
+  .conversation-item.menu-open .three-dot {
+    visibility: visible;
+  }
+  .three-dot:hover {
+    color: var(--color-fg-primary);
+    background: var(--color-accent-soft);
+  }
+
+  .menu-popover {
+    position: relative;
+  }
+  .menu-popover-pop {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 6px;
+    padding: 4px 0;
+    box-shadow: var(--shadow-popover);
+    min-width: 160px;
+    z-index: 20;
+  }
+  .menu-popover-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-primary);
+    cursor: pointer;
+    transition: background-color 180ms ease-out;
+  }
+  .menu-popover-item:hover { background: var(--color-accent-soft); }
+  .menu-popover-item .shortcut {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+  }
+  .menu-popover-item.danger { color: var(--color-error); }
+
+  /* ============================================================
+     Main panel
+     ============================================================ */
+  .main-panel {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .progress-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px clamp(24px, 5vw, 64px);
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .progress-segment {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--color-bg-secondary);
+    transition: background-color 300ms ease-out, color 300ms ease-out;
+  }
+  .progress-segment.done {
+    background: var(--color-accent-soft);
+    color: var(--color-fg-primary);
+  }
+  .progress-segment.active {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-accent);
+  }
+  .progress-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-secondary);
+  }
+  .progress-segment.done .progress-label { color: var(--color-accent); }
+  .progress-detail {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+  }
+  .progress-dots {
+    display: inline-flex;
+    gap: 3px;
+    margin-left: 6px;
+  }
+  .progress-dots span {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    opacity: 0.3;
+    animation: notebook-dots 1100ms ease-in-out infinite;
+  }
+  .progress-dots span:nth-child(2) { animation-delay: 220ms; }
+  .progress-dots span:nth-child(3) { animation-delay: 440ms; }
+  @keyframes notebook-dots {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 1; }
+  }
+
+  .conversation {
+    padding: 24px clamp(24px, 5vw, 64px) 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-width: 1100px;
+  }
+
+  .user-message {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-fg-primary);
+    max-width: 65ch;
+  }
+  .user-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    margin-bottom: 6px;
+  }
+
+  /* Stage card común */
+  .stage {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px;
+    padding: 20px 22px;
+  }
+  .stage-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--color-fg-primary);
+    margin: 0 0 4px;
+  }
+  .stage-subtitle {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-secondary);
+    margin: 0 0 16px;
+  }
+
+  /* Stage 1 — tabs */
+  .stage-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .stage-tab {
+    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-fg-secondary);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 180ms ease-out, border-color 180ms ease-out;
+  }
+  .stage-tab:hover { color: var(--color-fg-primary); }
+  .stage-tab.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+  .stage-tab.failed {
+    color: var(--color-error);
+    text-decoration: line-through;
+  }
+
+  .stage-content { font-family: var(--font-serif); font-size: 17px; line-height: 1.65; max-width: 65ch; }
+  .stage-content p { margin: 0 0 12px; }
+  .stage-content code {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    background: var(--color-bg-secondary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .reasoning-disclosure {
+    margin-top: 20px;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 12px;
+  }
+  .reasoning-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-fg-secondary);
+    transition: color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .reasoning-toggle:hover { color: var(--color-accent); }
+  .reasoning-chevron {
+    display: inline-block;
+    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--color-fg-muted);
+  }
+  .reasoning-disclosure.open .reasoning-chevron { transform: rotate(90deg); }
+  .reasoning-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-fg-secondary);
+  }
+  .reasoning-disclosure.open .reasoning-body {
+    max-height: 320px;
+    margin-top: 10px;
+  }
+
+  /* Stage 2 — peer review + de-anonymization + aggregate */
+  .deanon-note {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-secondary);
+    border-left: 3px solid var(--color-border-strong);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .deanon-note strong { color: var(--color-fg-primary); }
+
+  .evaluation-block { margin-bottom: 20px; }
+  .evaluation-block .stage-content { font-size: 16px; }
+
+  .aggregate-rankings {
+    margin-top: 20px;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 16px;
+  }
+  .aggregate-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0 0 12px;
+  }
+  .aggregate-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .aggregate-item {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--color-bg-secondary);
+  }
+  .rank-position {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--color-accent);
+    text-align: center;
+  }
+  .rank-model {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-primary);
+  }
+  .rank-avg, .rank-votes {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-fg-secondary);
+  }
+
+  /* Stage 3 — synthesis (NO bootstrap green; accent-soft + border-left) */
+  .stage-synthesis {
+    background: var(--color-accent-soft);
+    border: 1px solid var(--color-border-subtle);
+    border-left: 3px solid var(--color-accent);
+    border-radius: 8px;
+    padding: 22px 24px;
+  }
+  [data-theme="dark"] .stage-synthesis {
+    background: var(--color-accent-soft);
+  }
+  .stage-synthesis .stage-title { color: var(--color-fg-primary); }
+  .download-btn {
+    margin-top: 16px;
+    background: var(--color-accent);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: background-color 180ms ease-out, transform 180ms ease-out;
+  }
+  .download-btn:hover { background: #944A22; }
+  [data-theme="dark"] .download-btn { color: #1C1A17; }
+  [data-theme="dark"] .download-btn:hover { background: #F0A56F; }
+
+  /* ============================================================
+     Input area + Quality toggle (W10 + W13/14/15)
+     ============================================================ */
+  .input-dock {
+    position: sticky;
+    bottom: 0;
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border-subtle);
+    padding: 16px clamp(24px, 5vw, 64px) 20px;
+  }
+  .input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-width: 1024px;
+  }
+  .input-textarea {
+    width: 100%;
+    min-height: 56px;
+    background: transparent;
+    border: none;
+    resize: vertical;
+    color: var(--color-fg-primary);
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .input-textarea:focus { outline: none; }
+  .input-textarea::placeholder { color: var(--color-fg-muted); font-style: italic; }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .attachment-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-fg-secondary);
+  }
+
+  /* Quality toggle — Direction A: cost as footnote subtitle */
+  .quality-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .quality-toggle-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+  .quality-options {
+    display: inline-flex;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .quality-option {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 6px 10px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    cursor: pointer;
+    transition: background-color 160ms ease-out, border-color 160ms ease-out, box-shadow 160ms ease-out;
+  }
+  .quality-option:hover {
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+  .quality-option.selected {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-accent);
+  }
+  .quality-option-name {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-fg-primary);
+  }
+  .cost-hint {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    transition: color 120ms ease-out, opacity 120ms ease-out;
+  }
+  .quality-option.selected .cost-hint { color: var(--color-fg-secondary); }
+
+  .send-btn {
+    background: var(--color-accent);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 180ms ease-out;
+  }
+  .send-btn:hover { background: #944A22; }
+  [data-theme="dark"] .send-btn { color: #1C1A17; }
+
+  /* ============================================================
+     Footer disclaimer — D-15
+     ============================================================ */
+  .throwaway-footer {
+    border-top: 1px dashed var(--color-border-strong);
+    padding: 14px clamp(24px, 5vw, 64px);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-secondary);
+  }
+  .throwaway-footer strong { color: var(--color-warn); }
+</style>
+</head>
+<body>
+
+<!--
+  THROWAWAY SKETCH disclaimer (también en HTML para grep).
+  Ver header del archivo para detalles. Phase 4 NO debe lift CSS verbatim.
+-->
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  Toggle theme
+</button>
+
+<div class="app-shell">
+
+  <header class="app-header" role="banner">
+    <div class="brand">
+      <span class="brand-glyph" aria-hidden="true">&amp;</span>
+      <span>LLM Council</span>
+    </div>
+    <div style="font-family: var(--font-sans); font-size: 12px; color: var(--color-fg-muted);">
+      Direction A · Research notebook
+    </div>
+  </header>
+
+  <aside class="sidebar" role="complementary" aria-label="Conversations">
+
+    <button class="new-conversation-btn" aria-label="New conversation">
+      + New conversation
+    </button>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search conversations…"
+      aria-label="Search conversations"
+    />
+
+    <div class="sidebar-section-label">Recent</div>
+
+    <div class="conversation-list">
+
+      <div class="conversation-item active menu-open">
+        <div class="conversation-item-content">
+          <span class="conversation-title">FastAPI BackgroundTasks vs Celery</span>
+          <span class="conversation-meta">just now</span>
+        </div>
+        <div class="menu-popover">
+          <button class="three-dot" aria-label="Conversation options">⋮</button>
+          <div class="menu-popover-pop" role="menu" aria-label="Conversation actions">
+            <div class="menu-popover-item" role="menuitem">
+              <span>Rename</span><span class="shortcut">R</span>
+            </div>
+            <div class="menu-popover-item danger" role="menuitem">
+              <span>Delete</span><span class="shortcut">⌫</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conversation-item">
+        <div class="conversation-item-content">
+          <span class="conversation-title">GPT-5.1 vs Claude 4 latency comparison</span>
+          <span class="conversation-meta">2 messages · 2h ago</span>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div class="conversation-item-content">
+          <span class="conversation-title">Architecture review for FastAPI streaming app</span>
+          <span class="conversation-meta">6 messages · yesterday</span>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div class="conversation-item-content">
+          <span class="conversation-title">Pharma data ETL design ideas</span>
+          <span class="conversation-meta">3 messages · 3d ago</span>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div class="conversation-item-content">
+          <span class="conversation-title">What's the difference between MTD and YTD in BI?</span>
+          <span class="conversation-meta">2 messages · 5d ago</span>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+      <div class="conversation-item">
+        <div class="conversation-item-content">
+          <span class="conversation-title">Help debug an OpenRouter 401 error</span>
+          <span class="conversation-meta">4 messages · 6d ago</span>
+        </div>
+        <button class="three-dot" aria-label="Conversation options">⋮</button>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <main class="main-panel" role="main">
+
+    <!-- Progress strip — Stage 1·2·3 -->
+    <div class="progress-strip" aria-label="Deliberation progress">
+      <div class="progress-segment done">
+        <span class="progress-label">Stage 1 · Done</span>
+        <span class="progress-detail">4 models responded</span>
+      </div>
+      <div class="progress-segment done">
+        <span class="progress-label">Stage 2 · Done</span>
+        <span class="progress-detail">Peer review complete</span>
+      </div>
+      <div class="progress-segment active">
+        <span class="progress-label">
+          Stage 3 · Synthesizing
+          <span class="progress-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        </span>
+        <span class="progress-detail">Chairman: gemini-2.5-pro</span>
+      </div>
+    </div>
+
+    <section class="conversation" aria-label="Active conversation">
+
+      <article class="user-message">
+        <div class="user-label">Question</div>
+        Should we use FastAPI's <code>BackgroundTasks</code> or Celery for our async workload (50 jobs/min, mostly DB queries)?
+      </article>
+
+      <!-- Stage 1 -->
+      <section class="stage" aria-label="Stage 1: Individual responses">
+        <h2 class="stage-title">Stage 1 · Individual responses</h2>
+        <p class="stage-subtitle">Four council models answered in parallel.</p>
+
+        <div class="stage-tabs" role="tablist">
+          <button class="stage-tab active" role="tab" aria-selected="true">openai/gpt-5.1</button>
+          <button class="stage-tab" role="tab">anthropic/claude-opus-4.7</button>
+          <button class="stage-tab" role="tab">google/gemini-2.5-pro</button>
+          <button class="stage-tab" role="tab">deepseek/r1</button>
+        </div>
+
+        <div class="stage-content">
+          <p>
+            For a 50 jobs/min workload with mostly DB queries, FastAPI's <code>BackgroundTasks</code>
+            is borderline — fine if the queries are short and you can afford to lose pending work on
+            restart. Celery is the safer choice once you need persistence, retries, or a separate
+            scaling axis for workers vs. web nodes.
+          </p>
+          <p>
+            The decision pivots on three questions: (a) do you need durability across restarts,
+            (b) do jobs occasionally exceed the request lifetime, and (c) is the team comfortable
+            running a broker like Redis or RabbitMQ.
+          </p>
+        </div>
+
+        <div class="reasoning-disclosure open" id="reasoning1">
+          <button class="reasoning-toggle" aria-expanded="true" aria-controls="reasoning1-body">
+            <span class="reasoning-chevron" aria-hidden="true">›</span>
+            Show reasoning · 1,247 tokens
+          </button>
+          <div class="reasoning-body" id="reasoning1-body">
+            Considered three deployment shapes: single-node uvicorn, multi-node behind nginx,
+            and ECS Fargate with autoscaling. BackgroundTasks loses pending jobs on container
+            replacement; this is the dominant failure mode at 50 jobs/min. Celery+Redis adds
+            ~80MB memory baseline but unlocks retries, scheduled tasks, and observability via
+            Flower or Celery Beat. RQ is a lighter alternative if Redis is the only available
+            broker. Final ranking weights durability and operational maturity above raw throughput.
+          </div>
+        </div>
+
+        <div class="reasoning-disclosure" style="margin-top: 8px;">
+          <button class="reasoning-toggle" aria-expanded="false">
+            <span class="reasoning-chevron" aria-hidden="true">›</span>
+            Show reasoning · 982 tokens (claude-opus-4.7)
+          </button>
+        </div>
+      </section>
+
+      <!-- Stage 2 -->
+      <section class="stage" aria-label="Stage 2: Peer review">
+        <h2 class="stage-title">Stage 2 · Peer review</h2>
+        <p class="stage-subtitle">Each model evaluated the others under anonymous labels.</p>
+
+        <div class="deanon-note">
+          Models received anonymous labels (<em>Response A · B · C · D</em>) during evaluation.
+          Names are de-anonymized below for readability only:
+          <strong>Response A → openai/gpt-5.1</strong>,
+          <strong>Response B → anthropic/claude-opus-4.7</strong>,
+          <strong>Response C → google/gemini-2.5-pro</strong>,
+          <strong>Response D → deepseek/r1</strong>.
+        </div>
+
+        <div class="stage-tabs" role="tablist">
+          <button class="stage-tab active" role="tab" aria-selected="true">Evaluator: <strong>openai/gpt-5.1</strong></button>
+          <button class="stage-tab" role="tab">Evaluator: <strong>anthropic/claude-opus-4.7</strong></button>
+          <button class="stage-tab" role="tab">Evaluator: <strong>google/gemini-2.5-pro</strong></button>
+          <button class="stage-tab" role="tab">Evaluator: <strong>deepseek/r1</strong></button>
+        </div>
+
+        <div class="evaluation-block">
+          <div class="stage-content">
+            <p>
+              <strong>Response B</strong> (claude-opus-4.7) was the most precise — it framed the
+              decision as durability vs. simplicity and gave concrete heuristics. <strong>Response A</strong>
+              (gpt-5.1, self) covered similar ground but was more verbose.
+              <strong>Response C</strong> (gemini-2.5-pro) introduced RQ as a middle option,
+              which is genuinely useful. <strong>Response D</strong> (deepseek/r1) anchored on
+              raw throughput and missed the durability question.
+            </p>
+          </div>
+          <div style="font-family: var(--font-sans); font-size: 12px; color: var(--color-fg-secondary); margin-top: 6px;">
+            <strong>Extracted ranking:</strong> 1. Response B · 2. Response A · 3. Response C · 4. Response D
+          </div>
+        </div>
+
+        <div class="aggregate-rankings">
+          <h3 class="aggregate-title">Aggregate ranking</h3>
+          <ul class="aggregate-list">
+            <li class="aggregate-item">
+              <span class="rank-position">1</span>
+              <span class="rank-model">anthropic/claude-opus-4.7</span>
+              <span class="rank-avg">avg 1.75</span>
+              <span class="rank-votes">4 votes</span>
+            </li>
+            <li class="aggregate-item">
+              <span class="rank-position">2</span>
+              <span class="rank-model">openai/gpt-5.1</span>
+              <span class="rank-avg">avg 2.25</span>
+              <span class="rank-votes">4 votes</span>
+            </li>
+            <li class="aggregate-item">
+              <span class="rank-position">3</span>
+              <span class="rank-model">google/gemini-2.5-pro</span>
+              <span class="rank-avg">avg 2.75</span>
+              <span class="rank-votes">4 votes</span>
+            </li>
+            <li class="aggregate-item">
+              <span class="rank-position">4</span>
+              <span class="rank-model">deepseek/r1</span>
+              <span class="rank-avg">avg 3.25</span>
+              <span class="rank-votes">4 votes</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Stage 3 -->
+      <section class="stage stage-synthesis" aria-label="Stage 3: Final answer">
+        <h2 class="stage-title">Stage 3 · Final answer</h2>
+        <div class="stage-content" style="margin-top: 8px;">
+          <p>
+            Use <strong>Celery</strong> with Redis as the broker. At 50 jobs/min with DB-bound
+            work, <code>BackgroundTasks</code> will silently drop pending jobs every time a
+            container restarts, which is the failure mode you'll regret. Celery gives you
+            durability, retries, and a separate scaling axis with very modest operational
+            overhead.
+          </p>
+          <p>
+            If you want a lighter footprint and won't need scheduled tasks, RQ is a reasonable
+            middle path — but Celery is the answer the council converges on.
+          </p>
+        </div>
+        <button class="download-btn" aria-label="Download final answer as markdown">
+          Download .md
+        </button>
+      </section>
+
+    </section>
+
+    <!-- Input dock with Quality toggle -->
+    <div class="input-dock">
+      <div class="input-area">
+        <textarea
+          class="input-textarea"
+          rows="3"
+          placeholder="What do you want to think about today?"
+          aria-label="Question input"
+        ></textarea>
+
+        <div class="input-row">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="attachment-chip">📄 schema.sql · 2.1KB</span>
+            <span class="attachment-chip">📄 logs.txt · 14KB</span>
+          </div>
+
+          <div class="quality-toggle">
+            <span class="quality-toggle-label">Quality dial</span>
+            <div class="quality-options" role="radiogroup" aria-label="Quality level">
+              <button class="quality-option" role="radio" aria-checked="false">
+                <span class="quality-option-name">Fast</span>
+                <span class="cost-hint">~$0.001 typical</span>
+              </button>
+              <button class="quality-option" role="radio" aria-checked="false">
+                <span class="quality-option-name">Quality</span>
+                <span class="cost-hint">~$0.05 typical</span>
+              </button>
+              <button class="quality-option selected" role="radio" aria-checked="true">
+                <span class="quality-option-name">Quality+Research</span>
+                <span class="cost-hint">~$0.45 typical · web search</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="throwaway-footer">
+      <strong>⚠ Throwaway sketch</strong> — Direction A: Research notebook. Visual contract only.
+      Phase 4 reimplements with CSS variables + co-located component CSS. Tokens: see
+      <code>.planning/ux/03-redesign-proposal.md § Direction A</code>.
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // Theme toggle — minimal, ≤30 líneas (D-14, D-16 ambos canónicos).
+  (function () {
+    var html = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var stored = null;
+    try { stored = localStorage.getItem('sketch-notebook-theme'); } catch (e) {}
+    if (stored === 'dark' || stored === 'light') {
+      html.setAttribute('data-theme', stored);
+    }
+    btn.addEventListener('click', function () {
+      var current = html.getAttribute('data-theme');
+      var next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      try { localStorage.setItem('sketch-notebook-theme', next); } catch (e) {}
+    });
+  })();
+
+  // Reasoning disclosure toggle — purely visual.
+  document.querySelectorAll('.reasoning-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var wrap = btn.closest('.reasoning-disclosure');
+      wrap.classList.toggle('open');
+      btn.setAttribute(
+        'aria-expanded',
+        wrap.classList.contains('open') ? 'true' : 'false'
+      );
+    });
+  });
+
+  // Quality option selection — purely visual.
+  document.querySelectorAll('.quality-option').forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      document.querySelectorAll('.quality-option').forEach(function (o) {
+        o.classList.remove('selected');
+        o.setAttribute('aria-checked', 'false');
+      });
+      opt.classList.add('selected');
+      opt.setAttribute('aria-checked', 'true');
+    });
+  });
+</script>
+</body>
+</html>
