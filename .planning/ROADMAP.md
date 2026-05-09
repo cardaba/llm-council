@@ -11,7 +11,7 @@ The Quality dial works as advertised at every level. A `Fast` query returns a us
 
 ## Phases
 
-- [ ] **Phase 1: Hardening & Conversation Management** — Close Vuln 2 path traversal and ship the sidebar conversation lifecycle (delete / rename / search) on top of the hardened storage layer.
+- [x] **Phase 1: Hardening & Conversation Management** — Close Vuln 2 path traversal and ship the sidebar conversation lifecycle (delete / rename / search) on top of the hardened storage layer. *(completed 2026-05-09)*
 - [ ] **Phase 2: UX Research & Design Brief** — Produce the cognitive walkthrough, Nielsen audit, redesign proposal, and component mockups that will drive the visual rework. No code change.
 - [ ] **Phase 3: Quality Dial & Pragmatic Deep Research** — Ship the 3-profile Quality selector end-to-end (toggle in UI, profile-aware backend routing) including the `quality_research` profile with reasoning models, web-search-capable model, optional Stage 4 refinement, isolated strategy module, and `reasoning_details` rendering.
 - [ ] **Phase 4: Visual Identity Implementation** — Apply the artifacts from Phase 2: bespoke palette, characterful typography, branded shell, polished microinteractions.
@@ -80,7 +80,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hardening & Conversation Management | 5/5 | Gap closure complete; ready for re-verification | - |
+| 1. Hardening & Conversation Management | 5/5 | Complete | 2026-05-09 |
 | 2. UX Research & Design Brief | 0/0 | Not started | - |
 | 3. Quality Dial & Pragmatic Deep Research | 0/0 | Not started | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |

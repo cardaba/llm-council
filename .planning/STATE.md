@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
+status: ready_to_plan
 last_updated: "2026-05-09T11:58:39Z"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
   completed_plans: 5
-  percent: 100
+  percent: 25
 ---
 
 # State: LLM Council — Personal Edition
@@ -35,9 +35,9 @@ Phase 01 plans all shipped, including gap-closure plan 01-05 (BL-01 + BL-02 clos
 Phase: 01 (Hardening & Conversation Management) — ALL PLANS COMPLETE (incl. gap closure)
 Plan: 5 of 5 (last shipped)
 
-- **Phase:** 1 — Hardening & Conversation Management (all plans done incl. gap closure; phase pending re-verification)
-- **Plan:** Last shipped: `01-05-PLAN.md` (gap closure: BL-01 TOCTOU 404 + BL-02 canonical UUID path).
-- **Status:** Phase 01 ready for re-verification → Phase 02 ready to plan.
+- **Phase:** 2
+- **Plan:** Not started
+- **Status:** Ready to plan
 - **Progress:** 5/5 plans complete in Phase 1; 0/4 phases formally complete overall (awaiting verifier).
 
 ```
