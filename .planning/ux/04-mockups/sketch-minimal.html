@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LLM Council — Sketch: Claude-like minimal</title>
+<!--
+  THROWAWAY SKETCH — Direction C: Claude-like minimal
+  Phase 2 / UX research. NOT production code. NOT to be lifted verbatim by Phase 4.
+  Source of truth for tokens: .planning/ux/03-redesign-proposal.md § Direction C.
+  Source of truth for structure: .planning/ux/04-mockups/wireframes.md (canonical IA).
+  Idioma: prosa visible en inglés (UI real será EN); comentarios en español.
+  Filosofía: una decisión a la vez. Si el usuario no nota la animación, eso es deliberado.
+-->
+<style>
+  /* ============================================================
+     Direction C · Claude-like minimal · tokens
+     Tokens copiados textualmente del Plan 03 § Direction C.
+     ============================================================ */
+
+  :root[data-theme="light"] {
+    --color-bg-primary: #FBFAF8;
+    --color-bg-secondary: #F4F2EE;
+    --color-bg-elevated: #FFFFFF;
+    --color-fg-primary: #1A1815;
+    --color-fg-secondary: #5C544B;
+    --color-fg-muted: #8F857B;
+    --color-accent: #C7551E;
+    --color-accent-soft: #F5E8DD;
+    --color-border-subtle: #EAE6DF;
+    --color-border-strong: #D5CFC4;
+    --color-focus-ring: rgba(199, 85, 30, 0.4);
+    --color-error: #A8362B;
+    --shadow-modal: 0 12px 40px rgba(26, 24, 21, 0.06);
+  }
+
+  :root[data-theme="dark"] {
+    --color-bg-primary: #1A1815;
+    --color-bg-secondary: #211F1B;
+    --color-bg-elevated: #26231F;
+    --color-fg-primary: #F0EDE7;
+    --color-fg-secondary: #B5AC9F;
+    --color-fg-muted: #7E7468;
+    --color-accent: #E07A3F;
+    --color-accent-soft: #3A2820;
+    --color-border-subtle: #2E2A24;
+    --color-border-strong: #48423B;
+    --color-focus-ring: rgba(224, 122, 63, 0.5);
+    --color-error: #D86B55;
+    --shadow-modal: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Familias — Direction C: Inter protagonista + Newsreader serif acentos puntuales. */
+  :root {
+    --font-sans: "Inter", "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-serif: "Newsreader", "Newsreader Variable", "Iowan Old Style", Georgia, serif;
+    --font-mono: "JetBrains Mono", "JetBrains Mono Variable", ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--color-bg-primary);
+    color: var(--color-fg-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 250ms ease-in-out, color 250ms ease-in-out;
+  }
+  button { font: inherit; cursor: pointer; }
+
+  /* ============================================================
+     Layout shell — densidad baja, padding generoso
+     ============================================================ */
+  .app-shell {
+    display: grid;
+    grid-template-rows: 60px 1fr;
+    grid-template-columns: 240px 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar main";
+    min-height: 100vh;
+  }
+
+  .app-header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-primary);
+  }
+  .brand {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--color-fg-primary);
+    letter-spacing: -0.005em;
+  }
+  .header-direction {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+  }
+
+  /* Theme toggle muy sutil */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 100;
+    background: transparent;
+    color: var(--color-fg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 400;
+    transition: background-color 250ms ease-in-out, color 250ms ease-in-out, border-color 250ms ease-in-out;
+  }
+  .theme-toggle:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-fg-primary);
+    border-color: var(--color-border-strong);
+  }
+
+  /* ============================================================
+     Sidebar — densidad baja, title only por default
+     ============================================================ */
+  .sidebar {
+    grid-area: sidebar;
+    background: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-border-subtle);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+  .new-conversation-link {
+    background: transparent;
+    color: var(--color-fg-primary);
+    border: none;
+    padding: 4px 6px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    transition: color 200ms ease-in-out;
+  }
+  .new-conversation-link:hover { color: var(--color-accent); }
+  .new-conversation-link::before {
+    content: "+ ";
+    color: var(--color-fg-muted);
+  }
+
+  .search-input {
+    width: 100%;
+    background: transparent;
+    color: var(--color-fg-primary);
+    border: none;
+    border-bottom: 1px solid var(--color-border-subtle);
+    border-radius: 0;
+    padding: 6px 4px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    transition: border-color 250ms ease-in-out;
+  }
+  .search-input:focus {
+    outline: none;
+    border-bottom-color: var(--color-accent);
+  }
+  .search-input::placeholder {
+    color: var(--color-fg-muted);
+    font-style: italic;
+  }
+
+  .conversation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .conversation-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 200ms ease-in-out;
+  }
+  .conversation-item:hover { background: var(--color-accent-soft); }
+  .conversation-item.active { background: var(--color-accent-soft); }
+  .conversation-title {
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 400;
+    color: var(--color-fg-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  .conversation-meta-hover {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+  }
+  .conversation-item:hover .conversation-meta-hover { opacity: 1; }
+
+  .three-dot {
+    background: transparent;
+    border: none;
+    color: var(--color-fg-muted);
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1;
+    visibility: hidden;
+    transition: color 200ms ease-in-out, background-color 200ms ease-in-out;
+  }
+  .conversation-item:hover .three-dot,
+  .conversation-item.active .three-dot { visibility: visible; }
+  .three-dot:hover {
+    color: var(--color-fg-primary);
+    background: var(--color-bg-elevated);
+  }
+
+  .menu-popover-pop {
+    position: absolute;
+    background: var(--color-bg-elevated);
+    border-radius: 8px;
+    padding: 4px 0;
+    box-shadow: var(--shadow-modal);
+    min-width: 160px;
+    z-index: 20;
+  }
+  .menu-popover-item {
+    padding: 10px 16px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-fg-primary);
+    cursor: pointer;
+    transition: background-color 200ms ease-in-out;
+  }
+  .menu-popover-item:hover { background: var(--color-accent-soft); }
+  .menu-popover-item.danger { color: var(--color-accent); }
+
+  /* ============================================================
+     Main panel — generoso, centered, max-width contenida
+     ============================================================ */
+  .main-panel {
+    grid-area: main;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  /* Thin progress line — la solución más austera de las 3 */
+  .progress-line {
+    position: sticky;
+    top: 0;
+    height: 2px;
+    background: var(--color-border-subtle);
+    overflow: hidden;
+    z-index: 5;
+  }
+  .progress-line-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--color-accent);
+    transform-origin: left;
+    transform: scaleX(1);
+    transition: transform 280ms ease-out;
+  }
+  .progress-phrase {
+    position: sticky;
+    top: 2px;
+    background: var(--color-bg-primary);
+    padding: 8px clamp(48px, 8vw, 120px);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-muted);
+    transition: opacity 180ms ease-in-out;
+    z-index: 4;
+  }
+
+  .conversation {
+    padding: 24px clamp(48px, 8vw, 120px) 24px;
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .user-message {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-fg-primary);
+    background: transparent;
+    padding: 0;
+    max-width: 62ch;
+  }
+  .user-message-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg-muted);
+    margin-bottom: 6px;
+  }
+
+  /* Stage genérico — minimal: sin background ni border heavy */
+  .stage {
+    padding: 0;
+  }
+  .stage-title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--color-fg-primary);
+    margin: 0 0 4px;
+  }
+  .stage-subtitle {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-muted);
+    margin: 0 0 16px;
+  }
+
+  .stage-tabs {
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .stage-tab {
+    padding: 6px 0 8px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-fg-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
+  }
+  .stage-tab:hover { color: var(--color-fg-primary); }
+  .stage-tab.active {
+    color: var(--color-fg-primary);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .stage-content {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-fg-primary);
+    max-width: 62ch;
+  }
+  .stage-content p { margin: 0 0 14px; }
+  .stage-content code {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--color-bg-secondary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* Reasoning disclosure — text link toggle simple */
+  .reasoning-link {
+    display: inline-block;
+    margin-top: 12px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color 200ms ease-in-out, text-decoration-color 200ms ease-in-out;
+  }
+  .reasoning-link:hover {
+    color: var(--color-fg-secondary);
+    text-decoration: underline;
+  }
+  .reasoning-body {
+    margin-top: 12px;
+    border-left: 1px solid var(--color-border-subtle);
+    padding-left: 14px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-fg-secondary);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 220ms ease-in-out, max-height 220ms ease-in-out;
+  }
+  .reasoning-body.open {
+    opacity: 1;
+    max-height: 400px;
+  }
+
+  /* Stage 2 — aggregate visible primero */
+  .deanon-note {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-secondary);
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+  .deanon-note strong { color: var(--color-fg-primary); font-weight: 600; }
+
+  .aggregate-rankings {
+    margin-bottom: 20px;
+  }
+  .aggregate-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .aggregate-item {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 14px;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .aggregate-item:last-child { border-bottom: none; }
+  .rank-position {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-fg-muted);
+    text-align: right;
+  }
+  .aggregate-item:first-child .rank-position { color: var(--color-accent); }
+  .rank-model {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-fg-primary);
+  }
+  .rank-stats {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+  }
+
+  .raw-evals-accordion {
+    margin-top: 16px;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 16px;
+  }
+  .raw-evals-toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-muted);
+    transition: color 200ms ease-in-out;
+  }
+  .raw-evals-toggle:hover { color: var(--color-fg-secondary); text-decoration: underline; }
+
+  /* Stage 3 — hairline border-top accent + serif italic title, NO fill */
+  .stage-synthesis {
+    border-top: 1px solid var(--color-accent-soft);
+    padding-top: 28px;
+    margin-top: 12px;
+  }
+  .stage-synthesis .stage-title {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.3;
+    color: var(--color-fg-primary);
+    margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+  .download-link {
+    display: inline-block;
+    margin-top: 18px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-secondary);
+    text-decoration: underline;
+    text-decoration-color: var(--color-border-strong);
+    text-underline-offset: 3px;
+    transition: color 200ms ease-in-out, text-decoration-color 200ms ease-in-out;
+  }
+  .download-link:hover {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
+  }
+
+  /* ============================================================
+     Input dock + Quality toggle (C = subtle subtitle)
+     ============================================================ */
+  .input-dock {
+    position: sticky;
+    bottom: 0;
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border-subtle);
+    padding: 20px clamp(48px, 8vw, 120px) 24px;
+  }
+  .input-area {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .input-textarea {
+    width: 100%;
+    min-height: 64px;
+    background: var(--color-bg-elevated);
+    color: var(--color-fg-primary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    resize: vertical;
+    transition: border-color 250ms ease-in-out, box-shadow 250ms ease-in-out;
+  }
+  .input-textarea:focus {
+    outline: none;
+    border-color: var(--color-border-strong);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+  .input-textarea::placeholder {
+    color: var(--color-fg-muted);
+    font-style: italic;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .quality-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 320px;
+  }
+  .quality-toggle-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg-secondary);
+  }
+  .quality-options {
+    display: flex;
+    gap: 6px;
+  }
+  .quality-option {
+    background: transparent;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 10px;
+    padding: 10px 14px;
+    flex: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    cursor: pointer;
+    transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out;
+  }
+  .quality-option:hover { background: var(--color-accent-soft); }
+  .quality-option.selected {
+    background: var(--color-accent-soft);
+    border-color: var(--color-border-strong);
+  }
+  .quality-option-name {
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--color-fg-primary);
+  }
+  .cost-hint {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    transition: color 200ms ease-in-out;
+  }
+  .quality-option.selected .cost-hint,
+  .quality-option:hover .cost-hint { color: var(--color-fg-secondary); }
+
+  .send-btn {
+    background: var(--color-accent);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 200ms ease-in-out, transform 200ms ease-in-out;
+  }
+  .send-btn:hover { background: #B04918; }
+  [data-theme="dark"] .send-btn { color: #1A1815; }
+  [data-theme="dark"] .send-btn:hover { background: #F08D55; }
+  .send-btn .send-cost {
+    font-weight: 400;
+    opacity: 0.85;
+    margin-left: 6px;
+  }
+
+  /* ============================================================
+     Footer disclaimer — D-15
+     ============================================================ */
+  .throwaway-footer {
+    border-top: 1px solid var(--color-border-subtle);
+    padding: 18px clamp(48px, 8vw, 120px);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    text-align: center;
+    font-style: italic;
+  }
+  .throwaway-footer strong {
+    color: var(--color-fg-secondary);
+    font-weight: 500;
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+
+<!--
+  THROWAWAY SKETCH — Direction C disclaimer (también en HTML para grep).
+  Phase 4 NO debe lift CSS verbatim.
+-->
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  Toggle theme
+</button>
+
+<div class="app-shell">
+
+  <header class="app-header" role="banner">
+    <div class="brand">LLM Council</div>
+    <div class="header-direction">Direction C · Minimal</div>
+  </header>
+
+  <aside class="sidebar" role="complementary" aria-label="Conversations">
+
+    <button class="new-conversation-link" aria-label="New conversation">
+      New conversation
+    </button>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search…"
+      aria-label="Search conversations"
+    />
+
+    <div class="conversation-list">
+
+      <div class="conversation-item active" style="position: relative;">
+        <span class="conversation-title">FastAPI BackgroundTasks vs Celery</span>
+        <button class="three-dot" aria-label="Conversation options" id="dotBtn">⋯</button>
+        <div class="menu-popover-pop" role="menu" id="menuPop" style="display: none; top: 38px; right: 0;">
+          <div class="menu-popover-item" role="menuitem">Rename</div>
+          <div class="menu-popover-item" role="menuitem">Duplicate</div>
+          <div class="menu-popover-item danger" role="menuitem">Delete</div>
+        </div>
+      </div>
+
+      <div class="conversation-item">
+        <span class="conversation-title">GPT-5.1 vs Claude 4 latency comparison</span>
+        <span class="conversation-meta-hover">2h ago</span>
+      </div>
+
+      <div class="conversation-item">
+        <span class="conversation-title">Architecture review for FastAPI streaming app</span>
+        <span class="conversation-meta-hover">yesterday</span>
+      </div>
+
+      <div class="conversation-item">
+        <span class="conversation-title">Pharma data ETL design ideas</span>
+        <span class="conversation-meta-hover">3d ago</span>
+      </div>
+
+      <div class="conversation-item">
+        <span class="conversation-title">MTD vs YTD in BI</span>
+        <span class="conversation-meta-hover">5d ago</span>
+      </div>
+
+      <div class="conversation-item">
+        <span class="conversation-title">Debug OpenRouter 401 error</span>
+        <span class="conversation-meta-hover">6d ago</span>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <main class="main-panel" role="main">
+
+    <!-- Thin progress line — full width during stage 3 -->
+    <div class="progress-line" aria-hidden="true">
+      <div class="progress-line-fill"></div>
+    </div>
+    <div class="progress-phrase" role="status" aria-live="polite">
+      Stage 3 — synthesizing the council's answer…
+    </div>
+
+    <section class="conversation" aria-label="Active conversation">
+
+      <article class="user-message">
+        <div class="user-message-label">You asked</div>
+        Should we use FastAPI's <code>BackgroundTasks</code> or Celery for our async workload (50 jobs/min, mostly DB queries)?
+      </article>
+
+      <!-- Stage 1 -->
+      <section class="stage" aria-label="Stage 1: Individual responses">
+        <h2 class="stage-title">Stage 1</h2>
+        <p class="stage-subtitle">Four models answered in parallel.</p>
+
+        <div class="stage-tabs" role="tablist">
+          <button class="stage-tab active" role="tab" aria-selected="true">gpt-5.1</button>
+          <button class="stage-tab" role="tab">claude-opus-4.7</button>
+          <button class="stage-tab" role="tab">gemini-2.5-pro</button>
+          <button class="stage-tab" role="tab">deepseek/r1</button>
+        </div>
+
+        <div class="stage-content">
+          <p>
+            For 50 jobs/min with mostly DB queries, FastAPI <code>BackgroundTasks</code> works
+            only if losing pending work on restart is acceptable. Celery is the safer choice
+            once you need durability, retries, or a separate scaling axis for workers vs. web.
+          </p>
+          <p>
+            The decision pivots on three questions: durability across restarts, whether jobs
+            can exceed the request lifetime, and how comfortable the team is running a broker
+            like Redis or RabbitMQ.
+          </p>
+        </div>
+
+        <button class="reasoning-link" id="rsnLink" aria-expanded="false">Show reasoning</button>
+        <div class="reasoning-body" id="rsnBody">
+          Considered three deployment shapes — single-node uvicorn, multi-node behind nginx,
+          and ECS Fargate with autoscaling. <code>BackgroundTasks</code> loses pending jobs
+          on container replacement; this is the dominant failure mode at 50 jobs/min.
+          Celery+Redis adds modest baseline memory but unlocks retries and observability.
+          RQ is a lighter middle option if Redis is already in the stack.
+        </div>
+      </section>
+
+      <!-- Stage 2 -->
+      <section class="stage" aria-label="Stage 2: Peer review">
+        <h2 class="stage-title">Stage 2</h2>
+        <p class="stage-subtitle">Each model evaluated the others under anonymous labels.</p>
+
+        <div class="deanon-note">
+          Models were shown anonymous labels (Response A · B · C · D). Names are
+          de-anonymized below for readability:
+          <strong>A → openai/gpt-5.1</strong>,
+          <strong>B → anthropic/claude-opus-4.7</strong>,
+          <strong>C → google/gemini-2.5-pro</strong>,
+          <strong>D → deepseek/r1</strong>.
+        </div>
+
+        <div class="aggregate-rankings">
+          <ul class="aggregate-list">
+            <li class="aggregate-item">
+              <span class="rank-position">1</span>
+              <span class="rank-model">anthropic/claude-opus-4.7</span>
+              <span class="rank-stats">avg position 1.75 · 4 votes</span>
+            </li>
+            <li class="aggregate-item">
+              <span class="rank-position">2</span>
+              <span class="rank-model">openai/gpt-5.1</span>
+              <span class="rank-stats">avg position 2.25 · 4 votes</span>
+            </li>
+            <li class="aggregate-item">
+              <span class="rank-position">3</span>
+              <span class="rank-model">google/gemini-2.5-pro</span>
+              <span class="rank-stats">avg position 2.75 · 4 votes</span>
+            </li>
+            <li class="aggregate-item">
+              <span class="rank-position">4</span>
+              <span class="rank-model">deepseek/r1</span>
+              <span class="rank-stats">avg position 3.25 · 4 votes</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="raw-evals-accordion">
+          <button class="raw-evals-toggle" aria-expanded="false">
+            Show raw evaluations (4)
+          </button>
+        </div>
+      </section>
+
+      <!-- Stage 3 -->
+      <section class="stage stage-synthesis" aria-label="Stage 3: Final answer">
+        <h2 class="stage-title">Final answer</h2>
+        <div class="stage-content">
+          <p>
+            Use <strong>Celery</strong> with Redis as the broker. At 50 jobs/min with
+            DB-bound work, <code>BackgroundTasks</code> will silently drop pending jobs
+            every time a container restarts — the failure mode you'll regret. Celery gives
+            you durability, retries, and a separate scaling axis with modest operational
+            overhead.
+          </p>
+          <p>
+            If you want a lighter footprint and won't need scheduled tasks, RQ is a
+            reasonable middle path — but the council converges on Celery.
+          </p>
+        </div>
+        <button class="download-link" aria-label="Download final answer as markdown">
+          Download as markdown
+        </button>
+      </section>
+
+    </section>
+
+    <!-- Input dock with Quality toggle -->
+    <div class="input-dock">
+      <div class="input-area">
+        <textarea
+          class="input-textarea"
+          rows="3"
+          placeholder="What can the council think about for you?"
+          aria-label="Question input"
+        ></textarea>
+
+        <div class="input-row">
+          <div class="quality-toggle">
+            <span class="quality-toggle-label">Quality</span>
+            <div class="quality-options" role="radiogroup" aria-label="Quality level">
+              <button class="quality-option" role="radio" aria-checked="false">
+                <span class="quality-option-name">Fast</span>
+                <span class="cost-hint">~$0.001 typical</span>
+              </button>
+              <button class="quality-option" role="radio" aria-checked="false">
+                <span class="quality-option-name">Quality</span>
+                <span class="cost-hint">~$0.05 typical</span>
+              </button>
+              <button class="quality-option selected" role="radio" aria-checked="true">
+                <span class="quality-option-name">Quality+Research</span>
+                <span class="cost-hint">~$0.45 typical</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="send-btn" aria-label="Send question">
+            Send <span class="send-cost">· ~$0.45</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="throwaway-footer">
+      <strong>Throwaway sketch</strong> — Direction C: Claude-like minimal. Visual contract only.
+      Phase 4 reimplements with CSS variables + co-located component CSS. Tokens live in
+      <code>.planning/ux/03-redesign-proposal.md § Direction C</code>.
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // Theme toggle — minimal (D-14, D-16).
+  (function () {
+    var html = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var stored = null;
+    try { stored = localStorage.getItem('sketch-minimal-theme'); } catch (e) {}
+    if (stored === 'dark' || stored === 'light') {
+      html.setAttribute('data-theme', stored);
+    }
+    btn.addEventListener('click', function () {
+      var current = html.getAttribute('data-theme');
+      var next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      try { localStorage.setItem('sketch-minimal-theme', next); } catch (e) {}
+    });
+  })();
+
+  // Reasoning text-link toggle — fade-in panel.
+  (function () {
+    var link = document.getElementById('rsnLink');
+    var body = document.getElementById('rsnBody');
+    if (!link || !body) return;
+    link.addEventListener('click', function () {
+      var open = body.classList.toggle('open');
+      link.textContent = open ? 'Hide reasoning' : 'Show reasoning';
+      link.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+
+  // Three-dot menu popover.
+  (function () {
+    var btn = document.getElementById('dotBtn');
+    var pop = document.getElementById('menuPop');
+    if (!btn || !pop) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', function () {
+      pop.style.display = 'none';
+    });
+  })();
+
+  // Quality option selection.
+  document.querySelectorAll('.quality-option').forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      document.querySelectorAll('.quality-option').forEach(function (o) {
+        o.classList.remove('selected');
+        o.setAttribute('aria-checked', 'false');
+      });
+      opt.classList.add('selected');
+      opt.setAttribute('aria-checked', 'true');
+    });
+  });
+</script>
+</body>
+</html>
