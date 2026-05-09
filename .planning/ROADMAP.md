@@ -46,7 +46,14 @@ Plans:
   2. A Nielsen heuristic audit document under `.planning/ux/` scores the current UI across all 10 heuristics with severity ratings and per-finding rationale.
   3. A UX redesign proposal under `.planning/ux/` describes the target information architecture, interaction patterns for the Quality selector and conversation management features, and the rationale tying back to the walkthrough/audit findings.
   4. Component-level mockups (ASCII or markdown wireframes) under `.planning/ux/` cover the palette, typography choice, branded header, and key screens including the Quality selector and the renamed/searched/deletable sidebar — at a fidelity sufficient for Phase 4 to implement without re-deciding visuals.
-**Plans:** TBD
+**Plans:** 6 plans
+Plans:
+- [ ] 02-01-PLAN.md (wave 1) — Cognitive walkthrough de los 4 flujos (UXR-01)
+- [ ] 02-02-PLAN.md (wave 1) — Nielsen heuristic audit con escala 0-4 + anticipatory findings Phase 3 (UXR-02)
+- [ ] 02-03-PLAN.md (wave 2) — Redesign proposal con 3 direcciones tonales paralelas (UXR-03)
+- [ ] 02-04-PLAN.md (wave 3) — Wireframes ASCII/markdown — cobertura completa D-13 (UXR-04)
+- [ ] 02-05-PLAN.md (wave 3) — 3 HTML throwaway sketches one-page con light+dark (UXR-04)
+- [ ] 02-06-PLAN.md (wave 4) — Checkpoint de elección de dirección + registro en redesign proposal (UXR-03, UXR-04)
 **UI hint**: yes
 
 ### Phase 3: Quality Dial & Pragmatic Deep Research
