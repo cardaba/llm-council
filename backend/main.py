@@ -3,7 +3,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 import uuid
 import json
@@ -48,6 +48,11 @@ class Conversation(BaseModel):
     created_at: str
     title: str
     messages: List[Dict[str, Any]]
+
+
+class UpdateConversationRequest(BaseModel):
+    """Request to update conversation metadata. Only `title` is editable in v1."""
+    title: str = Field(..., min_length=1, max_length=200)
 
 
 @app.get("/")
@@ -201,6 +206,44 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             "Connection": "keep-alive",
         }
     )
+
+
+@app.patch("/api/conversations/{conversation_id}", response_model=ConversationMetadata)
+async def patch_conversation(conversation_id: str, request: UpdateConversationRequest):
+    """
+    Update a conversation's metadata. Only `title` is supported in v1 (CONV-02).
+
+    Returns:
+        - 200 with updated metadata on success.
+        - 400 if conversation_id is not a valid UUID (inherited via
+          storage.get_conversation → uuid.UUID(), Plan 01 / SEC-01).
+        - 404 if the conversation file does not exist.
+        - 422 if the body fails Pydantic validation (empty title or > 200 chars).
+
+    Implementation notes:
+        - Body validation lives in `UpdateConversationRequest` via
+          `Field(min_length=1, max_length=200)`. Pydantic emits 422 BEFORE this
+          handler runs, so we never see empty/oversized titles here.
+        - The pre-existence check via `get_conversation` is intentional: it
+          gives us a clean 404 path that mirrors Plan 02's DELETE handler. The
+          subsequent `update_conversation_title` call would also raise on a
+          missing file, but checking explicitly keeps the handler readable.
+    """
+    try:
+        existing = storage.get_conversation(conversation_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    storage.update_conversation_title(conversation_id, request.title)
+
+    return {
+        "id": conversation_id,
+        "created_at": existing["created_at"],
+        "title": request.title,
+        "message_count": len(existing["messages"]),
+    }
 
 
 @app.delete("/api/conversations/{conversation_id}", status_code=204)

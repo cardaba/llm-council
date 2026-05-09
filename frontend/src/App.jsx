@@ -79,6 +79,19 @@ function App() {
     await loadConversations();
   };
 
+  const handleRenameConversation = async (id, newTitle) => {
+    // Per RESEARCH §Anti-Patterns: NO need to call loadConversation(id) even
+    // when renaming the active conversation — the chat pane content does not
+    // depend on the title; only the sidebar list does, and loadConversations
+    // updates that.
+    try {
+      await api.renameConversation(id, newTitle);
+      await loadConversations();
+    } catch (error) {
+      console.error('Failed to rename conversation:', error);
+    }
+  };
+
   const handleSendMessage = async (content) => {
     if (!currentConversationId) return;
 
@@ -211,6 +224,7 @@ function App() {
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
         onDeleteConversation={handleDeleteConversation}
+        onRenameConversation={handleRenameConversation}
       />
       <ChatInterface
         conversation={currentConversation}

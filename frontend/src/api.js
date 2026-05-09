@@ -126,4 +126,23 @@ export const api = {
       throw new Error('Failed to delete conversation');
     }
   },
+
+  /**
+   * Rename a conversation. Persists across reloads (CONV-02).
+   * Backend returns 200 with the updated ConversationMetadata.
+   */
+  async renameConversation(conversationId, title) {
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to rename conversation');
+    }
+    return response.json();
+  },
 };
