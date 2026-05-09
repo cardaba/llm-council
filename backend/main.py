@@ -194,6 +194,8 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Send completion event
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
+        except storage.ConversationNotFoundError:
+            yield f"data: {json.dumps({'type': 'error', 'kind': 'not_found', 'message': 'Conversation not found'})}\n\n"
         except Exception as e:
             # Send error event
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
@@ -224,10 +226,9 @@ async def patch_conversation(conversation_id: str, request: UpdateConversationRe
         - Body validation lives in `UpdateConversationRequest` via
           `Field(min_length=1, max_length=200)`. Pydantic emits 422 BEFORE this
           handler runs, so we never see empty/oversized titles here.
-        - The pre-existence check via `get_conversation` is intentional: it
-          gives us a clean 404 path that mirrors Plan 02's DELETE handler. The
-          subsequent `update_conversation_title` call would also raise on a
-          missing file, but checking explicitly keeps the handler readable.
+        - The pre-existence check via `get_conversation` mirrors Plan 02's DELETE
+          handler; the second try/except handles the TOCTOU race where the file
+          is removed (concurrent DELETE) between the check and the update.
     """
     try:
         existing = storage.get_conversation(conversation_id)
@@ -236,7 +237,10 @@ async def patch_conversation(conversation_id: str, request: UpdateConversationRe
     if existing is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
-    storage.update_conversation_title(conversation_id, request.title)
+    try:
+        storage.update_conversation_title(conversation_id, request.title)
+    except storage.ConversationNotFoundError:
+        raise HTTPException(status_code=404, detail="Conversation not found")
 
     return {
         "id": conversation_id,
