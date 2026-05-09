@@ -30,7 +30,7 @@ The Quality dial works as advertised at every level. A `Fast` query returns a us
   4. User can type into a search box at the top of the sidebar and the conversation list filters case-insensitively as they type.
 **Plans:** 4 plans
 Plans:
-- [ ] 01-01-PLAN.md (wave 1) — UUID validation en storage + 400 wrappers en handlers existentes (SEC-01)
+- [x] 01-01-PLAN.md (wave 1) — UUID validation en storage + 400 wrappers en handlers existentes (SEC-01) — completed 2026-05-09 (commits `7caf2fe`, `2064bb8`)
 - [ ] 01-02-PLAN.md (wave 2) — Modal + Menu + DELETE endpoint + Sidebar wiring (CONV-01)
 - [ ] 01-03-PLAN.md (wave 3) — PATCH endpoint + rename inline con intentRef pattern (CONV-02)
 - [ ] 01-04-PLAN.md (wave 4) — Search input progresivo con debounce y content fallback (CONV-03)
@@ -79,7 +79,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hardening & Conversation Management | 0/4 | Planning complete | - |
+| 1. Hardening & Conversation Management | 1/4 | In progress | - |
 | 2. UX Research & Design Brief | 0/0 | Not started | - |
 | 3. Quality Dial & Pragmatic Deep Research | 0/0 | Not started | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |

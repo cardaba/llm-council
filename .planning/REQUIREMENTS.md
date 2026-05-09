@@ -7,7 +7,7 @@
 
 ### Security
 
-- [ ] **SEC-01**: User-supplied `conversation_id` from URL paths is validated as a UUID before any filesystem access in `backend/storage.py`, returning 400 on invalid input — closes Vuln 2 path traversal.
+- [x] **SEC-01**: User-supplied `conversation_id` from URL paths is validated as a UUID before any filesystem access in `backend/storage.py`, returning 400 on invalid input — closes Vuln 2 path traversal. _Completed in Phase 01 / Plan 01 (2026-05-09)._
 
 ### UX Research
 
@@ -89,7 +89,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 1 | Pending |
+| SEC-01 | Phase 1 | Complete |
 | CONV-01 | Phase 1 | Pending |
 | CONV-02 | Phase 1 | Pending |
 | CONV-03 | Phase 1 | Pending |
