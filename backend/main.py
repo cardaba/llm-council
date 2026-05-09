@@ -73,7 +73,10 @@ async def create_conversation(request: CreateConversationRequest):
 @app.get("/api/conversations/{conversation_id}", response_model=Conversation)
 async def get_conversation(conversation_id: str):
     """Get a specific conversation with all its messages."""
-    conversation = storage.get_conversation(conversation_id)
+    try:
+        conversation = storage.get_conversation(conversation_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
     return conversation
@@ -86,7 +89,10 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
     Returns the complete response with all stages.
     """
     # Check if conversation exists
-    conversation = storage.get_conversation(conversation_id)
+    try:
+        conversation = storage.get_conversation(conversation_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
@@ -130,7 +136,10 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
     Returns Server-Sent Events as each stage completes.
     """
     # Check if conversation exists
-    conversation = storage.get_conversation(conversation_id)
+    try:
+        conversation = storage.get_conversation(conversation_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
