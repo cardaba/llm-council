@@ -13,38 +13,16 @@ re_verification:
   gaps_remaining: []
   regressions: []
 gaps: []
-human_verification:
-  - test: "Manual smoke: create a conversation, hover its row, verify the ⋮ trigger reveals; click it, verify Menu shows Rename above Delete; click Rename, verify the input swaps in with title selected and focused"
-    expected: "Visual progressive disclosure of menu trigger; menu opens at click position; Rename converts row to input"
-    why_human: "Visual hover behavior, focus state, and CSS visibility transitions cannot be verified programmatically without a live browser session"
-  - test: "Manual smoke: rename a conversation to 'Test Rename', press Enter, then refresh the browser — verify the new title persists"
-    expected: "After F5, the renamed conversation still shows 'Test Rename' in the sidebar"
-    why_human: "Browser reload + UI inspection requires a live session; the backend persistence check verified the file is written, but the SPA re-fetch + render is not testable from grep"
-  - test: "Manual smoke: rename, modify text, press Escape — verify the original title is restored and no PATCH request fires"
-    expected: "Title reverts; Network panel shows zero PATCH calls"
-    why_human: "intentRef='cancel' branch is verified by code inspection but the runtime non-firing of fetch() needs DevTools observation"
-  - test: "Manual smoke: type 'abcdef' rapidly in the search box — verify list does NOT update on every keystroke; pause — verify list filters after ~200ms"
-    expected: "Debounce is observable: filter happens once after pause, not 6 times during typing"
-    why_human: "Timing-dependent behavior; 200ms debounce is invisible in static code"
-  - test: "Manual smoke: with multiple conversations existing, type a query that matches no titles and >=3 chars — verify 'Search inside content (N conversations)' affordance appears; click it; verify content matches surface"
-    expected: "Affordance appears, click triggers Promise.all of api.getConversation, then content-mode list shows conversations whose user/stage1/stage3 contents match"
-    why_human: "Conditional UI rendering + lazy data fetch + cache population require live data to validate end-to-end"
-  - test: "Manual smoke (Pitfall 6 seal): select a conversation, then type a query that does NOT match its title — verify the central panel still shows the selected conversation"
-    expected: "Sidebar hides the row but the chat pane keeps rendering the conversation; clearing the query brings the row back"
-    why_human: "Cross-component state behavior under filter requires interactive verification"
-  - test: "Manual smoke: hover one row in the sidebar and right-click it — verify the native browser menu does NOT appear and the custom Menu opens at cursor position"
-    expected: "preventDefault works; custom Menu opens; native menu suppressed"
-    why_human: "Browser context menu suppression is a runtime gesture-handling check"
-  - test: "Manual smoke: trigger Modal confirmation for delete; press Tab — verify focus cycles between Cancel and Delete buttons without escaping; press ESC — verify modal closes and focus returns to the ⋮ trigger"
-    expected: "Focus trap cycles, ESC closes, focus restoration works"
-    why_human: "A11y focus management is a tabular keystroke check that needs a live session"
+human_verification: []
+human_verification_approved: 2026-05-09T00:00:00Z
+human_verification_uat: 01-HUMAN-UAT.md
 ---
 
 # Phase 1: Hardening & Conversation Management Verification Report
 
 **Phase Goal:** User can manage conversations from the sidebar (delete, rename, search) on a storage layer that rejects malformed conversation IDs at the boundary.
 **Verified:** 2026-05-09 (re-verified after Plan 01-05 gap closure)
-**Status:** human_needed
+**Status:** passed (user approved 8/8 UAT items 2026-05-09)
 **Re-verification:** Yes — after Plan 01-05 closed BL-01 and BL-02
 
 ## Resolution Notes (Plan 01-05)
