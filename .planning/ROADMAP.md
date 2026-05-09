@@ -28,7 +28,12 @@ The Quality dial works as advertised at every level. A `Fast` query returns a us
   2. User can delete a conversation from the sidebar through a confirmation step; the JSON file is removed from `data/conversations/` and the conversation disappears from the list without a manual refresh.
   3. User can click a conversation title in the sidebar, edit it in place, and the new title persists across reloads.
   4. User can type into a search box at the top of the sidebar and the conversation list filters case-insensitively as they type.
-**Plans:** TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 01-01-PLAN.md (wave 1) — UUID validation en storage + 400 wrappers en handlers existentes (SEC-01)
+- [ ] 01-02-PLAN.md (wave 2) — Modal + Menu + DELETE endpoint + Sidebar wiring (CONV-01)
+- [ ] 01-03-PLAN.md (wave 3) — PATCH endpoint + rename inline con intentRef pattern (CONV-02)
+- [ ] 01-04-PLAN.md (wave 4) — Search input progresivo con debounce y content fallback (CONV-03)
 
 ### Phase 2: UX Research & Design Brief
 **Goal:** A research-backed design brief exists under `.planning/ux/` that describes the friction points of the current UI, scores it against Nielsen heuristics, proposes a redesigned information architecture, and specifies component-level mockups for the new visual identity — sufficient to drive Phase 4 without further design decisions.
@@ -74,7 +79,7 @@ The Quality dial works as advertised at every level. A `Fast` query returns a us
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hardening & Conversation Management | 0/0 | Not started | - |
+| 1. Hardening & Conversation Management | 0/4 | Planning complete | - |
 | 2. UX Research & Design Brief | 0/0 | Not started | - |
 | 3. Quality Dial & Pragmatic Deep Research | 0/0 | Not started | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |
