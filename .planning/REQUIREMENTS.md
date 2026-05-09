@@ -33,7 +33,7 @@
 
 ### Conversation Management
 
-- [ ] **CONV-01**: User can delete a conversation from the sidebar with a confirmation step; backend exposes `DELETE /api/conversations/{id}` that removes the JSON file from disk and the frontend list updates accordingly.
+- [x] **CONV-01**: User can delete a conversation from the sidebar with a confirmation step; backend exposes `DELETE /api/conversations/{id}` that removes the JSON file from disk and the frontend list updates accordingly.
 - [ ] **CONV-02**: User can rename a conversation title manually by clicking on it in the sidebar; backend exposes `PATCH /api/conversations/{id}` accepting `{title}` and the new title persists across reloads.
 - [ ] **CONV-03**: User can search/filter conversations by typing in a search box at the top of the sidebar; matches are case-insensitive against title and (optionally) message content; the conversation list updates as the user types.
 
@@ -90,7 +90,7 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SEC-01 | Phase 1 | Complete |
-| CONV-01 | Phase 1 | Pending |
+| CONV-01 | Phase 1 | Complete |
 | CONV-02 | Phase 1 | Pending |
 | CONV-03 | Phase 1 | Pending |
 | UXR-01 | Phase 2 | Pending |
