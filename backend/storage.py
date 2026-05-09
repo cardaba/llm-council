@@ -9,6 +9,18 @@ from pathlib import Path
 from .config import DATA_DIR
 
 
+class ConversationNotFoundError(Exception):
+    """Raised when a conversation file is missing on disk.
+
+    Distinct from ValueError (which storage uses for 'invalid UUID input') so
+    that callers in main.py can translate the two conditions to different
+    HTTP status codes (400 vs 404). Without this distinction, a TOCTOU race
+    between an existence check and a write would either propagate as an
+    unhandled 500 or be mis-mapped to 400 by a naive ValueError catch.
+    """
+    pass
+
+
 def ensure_data_dir():
     """Ensure the data directory exists."""
     Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
@@ -18,25 +30,22 @@ def get_conversation_path(conversation_id: str) -> str:
     """
     Get the file path for a conversation.
 
-    Validates that conversation_id is a parseable UUID before constructing
-    the path. Without validation, inputs like "../../etc" or "..\\evil" in
-    conversation_id would escape the data directory (Vuln 2 / SEC-01).
+    Validates that conversation_id is a parseable UUID, then canonicalises it
+    to the hyphenated lowercase form before constructing the on-disk path.
+    Without canonicalisation, braced ({...}) and URN (urn:uuid:...) forms
+    would parse but produce filenames that diverge from the canonical form
+    written at creation time, breaking GET/PATCH/DELETE round-trip and (on
+    Windows NTFS) triggering Alternate Data Stream interpretation via ':'.
 
     Per D-13: validation lives at the storage boundary so no caller can
     produce a path for an invalid ID. Per D-14: callers in main.py translate
     the resulting ValueError into HTTP 400.
 
-    Accepts any UUID parseable by stdlib (hyphenated, non-hyphenated,
-    mixed-case, braced, any version v1-v5). All such forms are safe against
-    path traversal because none contain "/", "\\", or "..". Version-specific
-    enforcement is intentionally not performed; SEC-01's intent is "reject
-    non-UUID input", not "reject non-v4 UUIDs".
-
     Raises:
         ValueError: If conversation_id is not a parseable UUID.
     """
-    uuid.UUID(conversation_id)  # raises ValueError on malformed input
-    return os.path.join(DATA_DIR, f"{conversation_id}.json")
+    canonical = str(uuid.UUID(conversation_id))
+    return os.path.join(DATA_DIR, f"{canonical}.json")
 
 
 def create_conversation(conversation_id: str) -> Dict[str, Any]:
@@ -138,7 +147,7 @@ def add_user_message(conversation_id: str, content: str):
     """
     conversation = get_conversation(conversation_id)
     if conversation is None:
-        raise ValueError(f"Conversation {conversation_id} not found")
+        raise ConversationNotFoundError(conversation_id)
 
     conversation["messages"].append({
         "role": "user",
@@ -165,7 +174,7 @@ def add_assistant_message(
     """
     conversation = get_conversation(conversation_id)
     if conversation is None:
-        raise ValueError(f"Conversation {conversation_id} not found")
+        raise ConversationNotFoundError(conversation_id)
 
     conversation["messages"].append({
         "role": "assistant",
@@ -187,7 +196,7 @@ def update_conversation_title(conversation_id: str, title: str):
     """
     conversation = get_conversation(conversation_id)
     if conversation is None:
-        raise ValueError(f"Conversation {conversation_id} not found")
+        raise ConversationNotFoundError(conversation_id)
 
     conversation["title"] = title
     save_conversation(conversation)
