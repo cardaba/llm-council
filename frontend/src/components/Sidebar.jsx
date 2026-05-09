@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { api } from '../api';
 import Menu from './Menu';
 import Modal from './Modal';
 import './Sidebar.css';
@@ -147,6 +148,102 @@ export default function Sidebar({
   // editingId: id of the conversation currently in inline rename mode, or null.
   const [editingId, setEditingId] = useState(null);
 
+  // CONV-03 progressive search state.
+  // searchQuery       — controlled input value (every keystroke).
+  // debouncedQuery    — searchQuery snapshotted ~200ms after the last keystroke
+  //                     (RESEARCH §Pattern 5 sweet spot for 10-100 items).
+  // contentSearchActive — true once the user has explicitly opted in to the
+  //                     content-fallback (D-10). Sticky for the rest of the session.
+  // contentCache      — Map<id, fullConversation> populated lazily on the first
+  //                     activation; never invalidated on rename/delete (D-11
+  //                     accepts staleness — deleted ids are filtered by
+  //                     `conversations` metadata, so they never render anyway).
+  // isLoadingContent  — true while Promise.all of api.getConversation() runs.
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [contentSearchActive, setContentSearchActive] = useState(false);
+  const [contentCache, setContentCache] = useState(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+
+  // Debounce: copy searchQuery into debouncedQuery 200ms after the last
+  // keystroke. Cleanup cancels the pending timer so unmount / rapid typing
+  // never fires a stale snapshot.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery), 200);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  // Title-only filter — cheap, runs on every list/query change.
+  const titleMatches = useMemo(() => {
+    if (!debouncedQuery) return conversations;
+    const q = debouncedQuery.toLowerCase();
+    return conversations.filter((c) =>
+      (c.title || 'New Conversation').toLowerCase().includes(q)
+    );
+  }, [conversations, debouncedQuery]);
+
+  // D-10 affordance gate: only surface the content-search opt-in once the
+  // title filter has truly given up AND the query is substantive (>= 3 chars,
+  // avoids flickering the affordance while the user is mid-typing "ab" → "abo").
+  const showContentFallback =
+    debouncedQuery.length >= 3 &&
+    titleMatches.length === 0 &&
+    !contentSearchActive;
+
+  // Final list to render. While content-mode is off, this is just titleMatches.
+  // While content-mode is on, search title first (cheap), fall back to scanning
+  // user messages + stage3.response + stage1[*].response from the cache.
+  const filteredConversations = useMemo(() => {
+    if (!contentSearchActive || !contentCache) return titleMatches;
+    const q = debouncedQuery.toLowerCase();
+    if (!q) return conversations;
+    return conversations.filter((c) => {
+      if ((c.title || 'New Conversation').toLowerCase().includes(q)) return true;
+      const full = contentCache.get(c.id);
+      if (!full || !full.messages) return false;
+      return full.messages.some((m) => {
+        if (m.role === 'user') {
+          return (m.content || '').toLowerCase().includes(q);
+        }
+        // Assistant: stage3.response is the synthesised final answer; stage1
+        // is the array of council responses. stage2 is anonymised peer review
+        // text — searchable in principle but noisy; keep it out of v1 per D-11.
+        const s3 = (m.stage3?.response || '').toLowerCase();
+        if (s3.includes(q)) return true;
+        return (m.stage1 || []).some((r) =>
+          (r.response || '').toLowerCase().includes(q)
+        );
+      });
+    });
+  }, [
+    contentSearchActive,
+    contentCache,
+    conversations,
+    titleMatches,
+    debouncedQuery,
+  ]);
+
+  // D-11 lazy load: fetch every conversation body in parallel, keep them in a
+  // per-session Map. ~10-100 conversations × ~50KB each = ~500KB, viable
+  // client-side. Once loaded the flag stays true so subsequent queries reuse
+  // the cache for free.
+  const activateContentSearch = async () => {
+    if (contentSearchActive || isLoadingContent) return;
+    setIsLoadingContent(true);
+    try {
+      const fulls = await Promise.all(
+        conversations.map((c) => api.getConversation(c.id))
+      );
+      const cache = new Map(fulls.map((c) => [c.id, c]));
+      setContentCache(cache);
+      setContentSearchActive(true);
+    } catch (e) {
+      console.error('Content search load failed:', e);
+    } finally {
+      setIsLoadingContent(false);
+    }
+  };
+
   const requestDelete = (conv) => {
     setPendingDelete(conv);
   };
@@ -162,6 +259,12 @@ export default function Sidebar({
 
   const cancelDelete = () => setPendingDelete(null);
 
+  // RESEARCH §Pitfall 6 sealed: we deliberately do NOT deselect
+  // currentConversationId when it falls out of `filteredConversations`. The
+  // central panel keeps showing the active conversation even when the sidebar
+  // hides it — Slack/Discord-like behaviour. There is no auto-deselect call
+  // anywhere in the search code path.
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -171,11 +274,45 @@ export default function Sidebar({
         </button>
       </div>
 
+      <div className="sidebar-search">
+        <input
+          type="search"
+          className="search-input"
+          placeholder="Search conversations..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search conversations"
+        />
+        {showContentFallback && (
+          <button
+            type="button"
+            className="content-search-affordance"
+            onClick={activateContentSearch}
+            disabled={isLoadingContent}
+          >
+            {isLoadingContent
+              ? `Loading content from ${conversations.length} conversations...`
+              : `Search inside content (${conversations.length} conversations)`}
+          </button>
+        )}
+        {contentSearchActive && (
+          <div className="content-search-active-note" aria-live="polite">
+            Searching titles + content
+          </div>
+        )}
+      </div>
+
       <div className="conversation-list">
         {conversations.length === 0 ? (
           <div className="no-conversations">No conversations yet</div>
+        ) : filteredConversations.length === 0 ? (
+          <div className="no-conversations">
+            {debouncedQuery
+              ? `No matches for "${debouncedQuery}"`
+              : 'No conversations yet'}
+          </div>
         ) : (
-          conversations.map((conv) => (
+          filteredConversations.map((conv) => (
             <ConversationItem
               key={conv.id}
               conv={conv}
