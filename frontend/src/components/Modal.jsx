@@ -82,9 +82,9 @@ export default function Modal({
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
-    // Per RESEARCH §Pitfall 4: use onClick (not onMouseDown) and check
-    // target===currentTarget so a text-selection drag started inside the
-    // dialog and released over the backdrop does NOT close the modal.
+    // Per RESEARCH §Pitfall 4: use the click event (not mousedown) and
+    // check target===currentTarget so a text-selection drag started inside
+    // the dialog and released over the backdrop does NOT close the modal.
     if (e.target === e.currentTarget) onClose();
   };
 
