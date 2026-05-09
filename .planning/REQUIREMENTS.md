@@ -87,37 +87,35 @@
 
 ## Traceability
 
-Empty initially. Populated by the `/gsd-roadmapper` agent during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase [N] | Pending |
-| UXR-01 | Phase [N] | Pending |
-| UXR-02 | Phase [N] | Pending |
-| UXR-03 | Phase [N] | Pending |
-| UXR-04 | Phase [N] | Pending |
-| QUAL-01 | Phase [N] | Pending |
-| QUAL-02 | Phase [N] | Pending |
-| QUAL-03 | Phase [N] | Pending |
-| QUAL-04 | Phase [N] | Pending |
-| RSCH-01 | Phase [N] | Pending |
-| RSCH-02 | Phase [N] | Pending |
-| RSCH-03 | Phase [N] | Pending |
-| RSCH-04 | Phase [N] | Pending |
-| RSCH-05 | Phase [N] | Pending |
-| CONV-01 | Phase [N] | Pending |
-| CONV-02 | Phase [N] | Pending |
-| CONV-03 | Phase [N] | Pending |
-| VIS-01 | Phase [N] | Pending |
-| VIS-02 | Phase [N] | Pending |
-| VIS-03 | Phase [N] | Pending |
-| VIS-04 | Phase [N] | Pending |
+| SEC-01 | Phase 1 | Pending |
+| CONV-01 | Phase 1 | Pending |
+| CONV-02 | Phase 1 | Pending |
+| CONV-03 | Phase 1 | Pending |
+| UXR-01 | Phase 2 | Pending |
+| UXR-02 | Phase 2 | Pending |
+| UXR-03 | Phase 2 | Pending |
+| UXR-04 | Phase 2 | Pending |
+| QUAL-01 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Pending |
+| QUAL-04 | Phase 3 | Pending |
+| RSCH-01 | Phase 3 | Pending |
+| RSCH-02 | Phase 3 | Pending |
+| RSCH-03 | Phase 3 | Pending |
+| RSCH-04 | Phase 3 | Pending |
+| RSCH-05 | Phase 3 | Pending |
+| VIS-01 | Phase 4 | Pending |
+| VIS-02 | Phase 4 | Pending |
+| VIS-03 | Phase 4 | Pending |
+| VIS-04 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0 (will be populated by roadmapper)
-- Unmapped: 21 ⚠️ (expected — roadmap not yet created)
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-09*
-*Last updated: 2026-05-09 after initial definition*
+*Last updated: 2026-05-09 — traceability populated by `/gsd-roadmapper`.*
