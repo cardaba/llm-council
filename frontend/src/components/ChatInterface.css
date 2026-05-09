@@ -102,11 +102,115 @@
 
 .input-form {
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   padding: 24px;
   border-top: 1px solid #e0e0e0;
   background: #fafafa;
+}
+
+.input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.file-input {
+  font-size: 13px;
+  color: #555;
+  background: #ffffff;
+  padding: 8px 10px;
+  border: 1px dashed #c0c0c0;
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 240px;
+  align-self: flex-end;
+}
+
+.file-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.attachment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 14px;
+  padding: 4px 8px 4px 10px;
+  font-size: 12px;
+  color: #333;
+}
+
+.attachment-name {
+  font-family: monospace;
+}
+
+.attachment-size {
+  color: #888;
+  font-size: 11px;
+}
+
+.attachment-remove {
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.attachment-remove:hover {
+  color: #c00;
+}
+
+.attachment-total {
+  font-size: 11px;
+  color: #888;
+  margin-left: auto;
+}
+
+.attachment-error {
+  color: #c00;
+  font-size: 12px;
+  background: #fff5f5;
+  border: 1px solid #ffcdd2;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.assistant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.assistant-header .message-label {
+  margin-bottom: 0;
+}
+
+.assistant-header .download-btn {
+  background: #ffffff;
+  color: #4a90e2;
+  border: 1px solid #d0e7ff;
+}
+
+.assistant-header .download-btn:hover {
+  background: #4a90e2;
+  color: #ffffff;
+  border-color: #4a90e2;
 }
 
 .message-input {

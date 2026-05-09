@@ -2,7 +2,7 @@
 
 import httpx
 from typing import List, Dict, Any, Optional
-from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
+from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL, get_provider_for_model
 
 
 async def query_model(
@@ -30,6 +30,12 @@ async def query_model(
         "model": model,
         "messages": messages,
     }
+
+    # Force routing through the user's BYOK key for known publishers,
+    # so usage bills the provider account directly (not OpenRouter's pool).
+    provider = get_provider_for_model(model)
+    if provider is not None:
+        payload["provider"] = {"only": [provider]}
 
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:

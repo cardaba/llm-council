@@ -1,9 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
+import Markdown from './Markdown';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
+import {
+  ATTACHMENT_LIMITS,
+  buildDeliberationFilename,
+  buildFullDeliberationMarkdown,
+  buildPromptWithAttachments,
+  readFileAsText,
+  triggerDownload,
+} from '../utils/download';
 import './ChatInterface.css';
+
+function formatBytes(n) {
+  if (n < 1024) return `${n}B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)}KB`;
+  return `${(n / 1024 / 1024).toFixed(2)}MB`;
+}
+
+// Find the user prompt that precedes the assistant message at the given index.
+function findQuestionFor(messages, assistantIndex) {
+  for (let i = assistantIndex - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') return messages[i].content;
+  }
+  return null;
+}
 
 export default function ChatInterface({
   conversation,
@@ -11,6 +33,9 @@ export default function ChatInterface({
   isLoading,
 }) {
   const [input, setInput] = useState('');
+  const [attachments, setAttachments] = useState([]);
+  const [attachError, setAttachError] = useState(null);
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -21,20 +46,76 @@ export default function ChatInterface({
     scrollToBottom();
   }, [conversation]);
 
+  const totalAttachedBytes = attachments.reduce((acc, a) => acc + a.size, 0);
+
+  const handleFilesSelected = async (e) => {
+    setAttachError(null);
+    const picked = Array.from(e.target.files || []);
+    if (!picked.length) return;
+
+    const next = [...attachments];
+    let runningTotal = totalAttachedBytes;
+
+    for (const file of picked) {
+      if (file.size > ATTACHMENT_LIMITS.perFile) {
+        setAttachError(
+          `"${file.name}" exceeds per-file limit (${formatBytes(file.size)} > ${formatBytes(ATTACHMENT_LIMITS.perFile)})`
+        );
+        continue;
+      }
+      if (runningTotal + file.size > ATTACHMENT_LIMITS.total) {
+        setAttachError(
+          `Total attachment size would exceed ${formatBytes(ATTACHMENT_LIMITS.total)}`
+        );
+        break;
+      }
+      try {
+        const content = await readFileAsText(file);
+        next.push({ name: file.name, size: file.size, content });
+        runningTotal += file.size;
+      } catch (err) {
+        setAttachError(`Failed to read "${file.name}": ${err.message}`);
+      }
+    }
+
+    setAttachments(next);
+    // Reset the input so picking the same file again still triggers onChange
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeAttachment = (idx) => {
+    setAttachments(attachments.filter((_, i) => i !== idx));
+    setAttachError(null);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
-      onSendMessage(input);
+      const fullPrompt = buildPromptWithAttachments(input, attachments);
+      onSendMessage(fullPrompt);
       setInput('');
+      setAttachments([]);
+      setAttachError(null);
     }
   };
 
   const handleKeyDown = (e) => {
-    // Submit on Enter (without Shift)
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
+  };
+
+  const handleDownloadConversation = (msg, msgIndex) => {
+    const question = findQuestionFor(conversation.messages, msgIndex);
+    const md = buildFullDeliberationMarkdown({
+      question,
+      stage1: msg.stage1,
+      stage2: msg.stage2,
+      stage3: msg.stage3,
+      metadata: msg.metadata,
+    });
+    triggerDownload(buildDeliberationFilename(question), md);
   };
 
   if (!conversation) {
@@ -64,13 +145,25 @@ export default function ChatInterface({
                   <div className="message-label">You</div>
                   <div className="message-content">
                     <div className="markdown-content">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      <Markdown>{msg.content}</Markdown>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="assistant-message">
-                  <div className="message-label">LLM Council</div>
+                  <div className="assistant-header">
+                    <div className="message-label">LLM Council</div>
+                    {msg.stage3 && (
+                      <button
+                        type="button"
+                        className="download-btn"
+                        onClick={() => handleDownloadConversation(msg, index)}
+                        title="Download full deliberation as markdown"
+                      >
+                        Download conversation
+                      </button>
+                    )}
+                  </div>
 
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (
@@ -103,7 +196,12 @@ export default function ChatInterface({
                       <span>Running Stage 3: Final synthesis...</span>
                     </div>
                   )}
-                  {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
+                  {msg.stage3 && (
+                    <Stage3
+                      finalResponse={msg.stage3}
+                      question={findQuestionFor(conversation.messages, index)}
+                    />
+                  )}
                 </div>
               )}
             </div>
@@ -122,22 +220,55 @@ export default function ChatInterface({
 
       {conversation.messages.length === 0 && (
         <form className="input-form" onSubmit={handleSubmit}>
-          <textarea
-            className="message-input"
-            placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading}
-            rows={3}
-          />
-          <button
-            type="submit"
-            className="send-button"
-            disabled={!input.trim() || isLoading}
-          >
-            Send
-          </button>
+          {attachments.length > 0 && (
+            <div className="attachment-list">
+              {attachments.map((att, idx) => (
+                <span key={idx} className="attachment-chip">
+                  <span className="attachment-name">{att.name}</span>
+                  <span className="attachment-size">{formatBytes(att.size)}</span>
+                  <button
+                    type="button"
+                    className="attachment-remove"
+                    onClick={() => removeAttachment(idx)}
+                    aria-label={`Remove ${att.name}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <span className="attachment-total">
+                Total: {formatBytes(totalAttachedBytes)} / {formatBytes(ATTACHMENT_LIMITS.total)}
+              </span>
+            </div>
+          )}
+          {attachError && <div className="attachment-error">{attachError}</div>}
+          <div className="input-row">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="file-input"
+              accept=".md,.txt,.csv,.tsv,.py,.sql,.json,.yml,.yaml,.xml,.html,.css,.js,.ts,.tsx,.jsx,.sh,.ps1,.ini,.toml,.log,.conf,.ipynb"
+              multiple
+              onChange={handleFilesSelected}
+              disabled={isLoading}
+            />
+            <textarea
+              className="message-input"
+              placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+              rows={3}
+            />
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!input.trim() || isLoading}
+            >
+              Send
+            </button>
+          </div>
         </form>
       )}
     </div>

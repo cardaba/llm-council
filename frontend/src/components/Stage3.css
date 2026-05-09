@@ -3,6 +3,34 @@
   border-color: #c8e6c8;
 }
 
+.stage3-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.stage3-header .stage-title {
+  margin: 0;
+}
+
+.download-btn {
+  background: #ffffff;
+  color: #2d8a2d;
+  border: 1px solid #c8e6c8;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.download-btn:hover {
+  background: #2d8a2d;
+  color: #ffffff;
+}
+
 .final-response {
   background: #ffffff;
   padding: 20px;
