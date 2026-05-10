@@ -10,6 +10,7 @@ import json
 import asyncio
 
 from . import storage
+from . import research_strategy
 from .config import PROFILES
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 
@@ -121,22 +122,35 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
     # Build per-message metadata (D-25 shape) — persisted verbatim alongside
     # the assistant message so the saved-message header can reflect WHICH
-    # profile produced WHICH deliberation. Fast / Quality omit critic and
-    # stage4_triggered keys (D-26); Plan 03-04 adds them for quality_research.
-    profile_config = PROFILES[request.profile]
-    message_metadata = {
-        "profile": request.profile,
-        "models": profile_config["council_models"],
-        "chairman": profile_config["chairman_model"],
-    }
+    # profile produced WHICH deliberation. Fast / Quality build it from
+    # PROFILES; quality_research already produced the extended shape inside
+    # research_strategy and packed it into `metadata["message_metadata"]`
+    # alongside the optional `stage4` payload.
+    if request.profile == "quality_research":
+        message_metadata = metadata.get("message_metadata", {})
+        stage4_data = metadata.get("stage4")
+        # The legacy "metadata" sibling (label_to_model + aggregate_rankings)
+        # is not produced by the QR path in this non-streaming endpoint;
+        # the streaming endpoint emits aggregates in stage2_complete events.
+        legacy_metadata = None
+    else:
+        profile_config = PROFILES[request.profile]
+        message_metadata = {
+            "profile": request.profile,
+            "models": profile_config["council_models"],
+            "chairman": profile_config["chairman_model"],
+        }
+        stage4_data = None
+        legacy_metadata = metadata
 
-    # Add assistant message with all stages + profile metadata
+    # Add assistant message with all stages + profile metadata (+ stage4 if any)
     storage.add_assistant_message(
         conversation_id,
         stage1_results,
         stage2_results,
         stage3_result,
         metadata=message_metadata,
+        stage4=stage4_data,
     )
 
     # Return the complete response with metadata
@@ -144,8 +158,9 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         "stage1": stage1_results,
         "stage2": stage2_results,
         "stage3": stage3_result,
-        "metadata": metadata,  # legacy SSE-style metadata (label_to_model, aggregate_rankings)
-        "message_metadata": message_metadata,  # NEW — profile/models/chairman shape
+        "stage4": stage4_data,  # quality_research only; None otherwise
+        "metadata": legacy_metadata,  # legacy SSE-style metadata (None for QR)
+        "message_metadata": message_metadata,  # profile/models/chairman[/critic/stage4_triggered]
     }
 
 
@@ -171,24 +186,71 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Add user message
             storage.add_user_message(conversation_id, request.content)
 
-            # Quality+Research lands in Plan 03-04 (research_strategy module).
-            # Until then, surface a structured error event and close the stream
-            # cleanly. Plan 03-04 will replace this block with:
-            #   async for event in research_strategy.run(request.content, PROFILES["quality_research"]):
-            #       yield event
+            # Start title generation in parallel for ALL profiles (don't await yet).
+            # Started here (before the QR branch) so the title call runs concurrently
+            # with the long QR pipeline (~30-60s total).
+            title_task = None
+            if is_first_message:
+                title_task = asyncio.create_task(generate_conversation_title(request.content))
+
+            # SSE event order for quality_research:
+            #   stage1_start → stage1_complete{data}
+            #   stage2_start → stage2_complete{data, metadata}
+            #   stage3_start → stage3_complete{data}
+            #   critic_complete{data: {score, concern}}
+            #   [optional] stage4_start → stage4_complete{data}
+            #   [optional] title_complete{data}
+            #   message_metadata{data}
+            #   complete
             if request.profile == "quality_research":
-                yield f"data: {json.dumps({'type': 'error', 'message': 'quality_research lands in Plan 03-04'})}\n\n"
+                # Strategy module owns the full QR pipeline (D-01 thick API).
+                # Pass-through every event whose type does NOT start with '_';
+                # the underscore-prefixed '_final' event carries the consolidated
+                # tuple shape used to persist the message.
+                final_stage1: List[Dict[str, Any]] = []
+                final_stage2: List[Dict[str, Any]] = []
+                final_stage3: Dict[str, Any] = {}
+                final_stage4: Any = None
+                final_message_metadata: Dict[str, Any] = {}
+
+                async for event in research_strategy.run(
+                    request.content, PROFILES["quality_research"]
+                ):
+                    if event["type"] == "_final":
+                        final_stage1 = event["stage1"]
+                        final_stage2 = event["stage2"]
+                        final_stage3 = event["stage3"]
+                        final_stage4 = event["stage4"]
+                        final_message_metadata = event["message_metadata"]
+                    else:
+                        yield f"data: {json.dumps(event)}\n\n"
+
+                # Title generation (parallel — started before the strategy ran).
+                if title_task is not None:
+                    title = await title_task
+                    storage.update_conversation_title(conversation_id, title)
+                    yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+
+                # Persist with stage4 (only when critic gated refinement).
+                storage.add_assistant_message(
+                    conversation_id,
+                    final_stage1,
+                    final_stage2,
+                    final_stage3,
+                    metadata=final_message_metadata,
+                    stage4=final_stage4,
+                )
+
+                # Emit message_metadata so the frontend hydrates the saved-message
+                # header with profile/models/chairman/critic/stage4_triggered.
+                yield f"data: {json.dumps({'type': 'message_metadata', 'data': final_message_metadata})}\n\n"
+                yield f"data: {json.dumps({'type': 'complete'})}\n\n"
                 return
 
             # Resolve profile config once for fast / quality
             config = PROFILES[request.profile]
             council_models = config["council_models"]
             chairman_model = config["chairman_model"]
-
-            # Start title generation in parallel (don't await yet)
-            title_task = None
-            if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(request.content))
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
