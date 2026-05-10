@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import Header from './components/Header';
+import ErrorBanner from './components/ErrorBanner';
 import { api } from './api';
 import './App.css';
 
@@ -10,6 +11,10 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  // H9-01 catastrophic interruption recovery — see ErrorBanner.
+  // streamError shape: { stageNumber, originalContent, originalProfile } | null.
+  const [streamError, setStreamError] = useState(null);
+  const [retryAttempted, setRetryAttempted] = useState(false);
 
   // Load conversations on mount
   useEffect(() => {
@@ -251,10 +256,32 @@ function App() {
             setIsLoading(false);
             break;
 
-          case 'error':
+          case 'error': {
             console.error('Stream error:', event.message);
+            // Determine which stage was active when the error fired so the
+            // banner can name it ("Stage 1" / "Stage 2" / "Stage 3"). We
+            // walk forward through the stage slots: whichever was most
+            // recently populated tells us which one was running next.
+            // Read `currentConversation` via the functional setter to avoid
+            // stale closure issues — but since the message has already been
+            // mutated in earlier callbacks, reading from the latest snapshot
+            // via setCurrentConversation(prev => ...) is safest.
+            let stageNumber = 1;
+            setCurrentConversation((prev) => {
+              const lastMsg = prev?.messages?.[prev.messages.length - 1];
+              if (lastMsg?.stage1) stageNumber = 2;
+              if (lastMsg?.stage2) stageNumber = 3;
+              if (lastMsg?.stage3) stageNumber = 4;  // QR refinement step
+              return prev;
+            });
+            setStreamError({
+              stageNumber,
+              originalContent: content,
+              originalProfile: profile,
+            });
             setIsLoading(false);
             break;
+          }
 
           default:
             console.log('Unknown event type:', eventType);
@@ -271,6 +298,23 @@ function App() {
     }
   };
 
+  // ErrorBanner handlers. Retry re-enters handleSendMessage with the captured
+  // (originalContent, originalProfile) tuple. Dismiss is conditional on a
+  // prior retry attempt (UI-SPEC §Copywriting Contract line 256).
+  const handleRetryError = useCallback(() => {
+    if (!streamError) return;
+    setRetryAttempted(true);
+    const { originalContent, originalProfile } = streamError;
+    setStreamError(null);
+    handleSendMessage(originalContent, originalProfile);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streamError]);
+
+  const handleDismissError = useCallback(() => {
+    setStreamError(null);
+    setRetryAttempted(false);
+  }, []);
+
   return (
     <div className="app">
       <Header />
@@ -282,11 +326,21 @@ function App() {
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
       />
-      <ChatInterface
-        conversation={currentConversation}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-      />
+      <div className="app__main-with-banner">
+        {streamError && (
+          <ErrorBanner
+            stageNumber={streamError.stageNumber}
+            onRetry={handleRetryError}
+            onDismiss={handleDismissError}
+            retryAttempted={retryAttempted}
+          />
+        )}
+        <ChatInterface
+          conversation={currentConversation}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   );
 }

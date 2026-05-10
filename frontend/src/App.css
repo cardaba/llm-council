@@ -28,12 +28,27 @@
   overflow: hidden;
 }
 
-/* Main panel: column 2, row 2. ChatInterface.css owns its internal styling
-   (token migration deferred to Wave 3 / Plan 04-03). */
-.app > .chat-interface {
+/* Main panel wrapper: column 2, row 2. Plan 04-04 introduces this wrapper
+   so the persistent ErrorBanner (H9-01 recovery) can sit above the
+   ChatInterface inside the same grid cell without breaking the grid
+   placement. ChatInterface.css owns its own internal styling.
+
+   DELTA: Plan 04-02 placed `.app > .chat-interface { grid-column: 2; row: 2 }`
+   directly. Plan 04-04 moves that placement up to the wrapper rule below
+   and lets `.chat-interface` flow as a flex child. */
+.app > .app__main-with-banner {
   grid-column: 2;
   grid-row: 2;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  min-width: 0;
+}
+
+.app__main-with-banner > .chat-interface {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* Mobile drawer (W23): basic — Sidebar collapses to fixed overlay below the
@@ -55,7 +70,7 @@
   .app > .sidebar[data-open="true"] {
     transform: translateX(0);
   }
-  .app > .chat-interface {
+  .app > .app__main-with-banner {
     grid-column: 1;
   }
 }

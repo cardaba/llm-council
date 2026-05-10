@@ -1,0 +1,75 @@
+/* ErrorBanner — Phase 4 / Plan 04-04. Persistent recovery banner for
+   H9-01 catastrophic interruption.
+
+   Soft tint background uses an inline rgba literal (NOT a token) because
+   the token taxonomy in index.css is closed at end of Wave 1 (Plan 04-01
+   ownership). The chosen alpha (0.10) keeps the banner readable in both
+   light and dark themes; if the dark-theme contrast is insufficient at
+   visual review, raise to 0.14 — still inline, still no token. */
+
+.error-banner {
+  background: rgba(160, 56, 40, 0.10);
+  border-top: 3px solid var(--color-error);
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  color: var(--color-fg-primary);
+}
+
+.error-banner__copy {
+  font-size: var(--font-size-body-small);
+  margin: 0;
+  flex: 1;
+}
+
+.error-banner__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.error-banner__retry {
+  background: transparent;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  color: var(--color-error);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.error-banner__retry:hover {
+  background: rgba(160, 56, 40, 0.12);
+}
+
+.error-banner__retry:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.error-banner__dismiss {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-secondary);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.error-banner__dismiss:hover {
+  background: var(--color-bg-secondary);
+}
+
+.error-banner__dismiss:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
