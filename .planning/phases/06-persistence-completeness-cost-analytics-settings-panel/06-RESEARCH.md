@@ -903,7 +903,7 @@ Per project constraints: single-user, localhost-only, no auth. Cost analytics is
 
 **A3 in particular** — spike must explicitly check this. A misread of "cost" as "total" cascades into every cost-related UI surface.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Per-stage cost dict shape: scalar (current rec) or `{fee, upstream}` per stage?**
    - What we know: UI-SPEC only shows `total` and `upstream_total` aggregates; per-stage breakdown is out of scope for v2.0 (CONTEXT.md "Per-conversation cost stats panel" deferred).
