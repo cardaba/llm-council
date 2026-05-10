@@ -19,13 +19,13 @@
 ### Quality Dial
 
 - [ ] **QUAL-01**: Backend `SendMessageRequest` accepts an optional `profile` field with values `fast` / `quality` / `quality_research` (default: `fast`), propagated through the 3-stage council and persisted in the assistant message metadata.
-- [ ] **QUAL-02**: `backend/config.py` defines a `PROFILES` mapping from profile name to `{council_models, chairman_model}`, with `fast` using the current cheap mix, `quality` using premium tiers (gpt-5.5 / claude-opus-4.7 / gemini-3.1-pro / opus chairman), and `quality_research` overlaid on top of `quality` with reasoning + web search variants.
+- [x] **QUAL-02**: `backend/config.py` defines a `PROFILES` mapping from profile name to `{council_models, chairman_model}`, with `fast` using the current cheap mix, `quality` using premium tiers (gpt-5.5 / claude-opus-4.7 / gemini-3.1-pro / opus chairman), and `quality_research` overlaid on top of `quality` with reasoning + web search variants. *(Plan 03-01, commit `4497f09`. Substitution: `gemini-3.1-pro` → `gemini-3.1-pro-preview` per RESEARCH.md / CD-05.)*
 - [ ] **QUAL-03**: User can pick the profile per query via a 3-state toggle visible next to the textarea in `frontend/src/components/ChatInterface.jsx`, with the selected profile saved to local component state and sent with the message.
 - [ ] **QUAL-04**: The active profile and its model set are visible in each saved assistant message (rendered inline in the message header, e.g. "Quality+Research • 4 models • Chairman: claude-opus-4.7") so the user can tell at a glance which dial setting produced which deliberation.
 
 ### Pragmatic Deep Research
 
-- [ ] **RSCH-01**: `quality_research` profile uses reasoning models for the council members (e.g. `openai/o4-mini`, `anthropic/claude-opus-4.7:thinking`, `google/gemini-3.1-pro` with thinking enabled).
+- [x] **RSCH-01**: `quality_research` profile uses reasoning models for the council members (e.g. `openai/o4-mini`, `anthropic/claude-opus-4.7:thinking`, `google/gemini-3.1-pro` with thinking enabled). *(Plan 03-01, commits `4497f09` + `c8eec8e`. Note: `:thinking` suffix does NOT exist on OpenRouter per RESEARCH.md; reasoning is enabled via the `reasoning` payload param added to `query_model`. The 4 QR council models all carry `:online` for native web search.)*
 - [ ] **RSCH-02**: At least one council member in `quality_research` is a web-search-capable model (`:online` suffix or equivalent like `perplexity/sonar`) so the council has at least one source of grounded information per query.
 - [ ] **RSCH-03**: When `quality_research` is selected, an optional Stage 4 council-refinement pass critiques the chairman synthesis and produces a refined final answer; the refinement is gated by a council vote and skipped if the chairman synthesis already scores high.
 - [ ] **RSCH-04**: The model-selection and stage-orchestration logic for `quality_research` lives in a dedicated module (`backend/research_strategy.py` or equivalent) with a clean interface, isolated from `council.py`, so a future fully-agentic deep-research loop can replace it without rewriting the council orchestration.
@@ -98,10 +98,10 @@
 | UXR-03 | Phase 2 | Complete |
 | UXR-04 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Pending |
-| QUAL-02 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Complete |
 | QUAL-03 | Phase 3 | Pending |
 | QUAL-04 | Phase 3 | Pending |
-| RSCH-01 | Phase 3 | Pending |
+| RSCH-01 | Phase 3 | Complete |
 | RSCH-02 | Phase 3 | Pending |
 | RSCH-03 | Phase 3 | Pending |
 | RSCH-04 | Phase 3 | Pending |
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-05-09*
-*Last updated: 2026-05-09 — CONV-03 marked complete after Plan 01-04 (all 4 Phase 01 requirements now satisfied).*
+*Last updated: 2026-05-10 — QUAL-02 + RSCH-01 marked complete after Plan 03-01 (PROFILES dict + reasoning kwarg foundation).*

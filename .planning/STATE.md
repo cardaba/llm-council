@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-05-10T01:21:59.643Z"
+status: executing
+last_updated: "2026-05-10T08:38:36.978Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_plans: 16
+  completed_plans: 12
+  percent: 75
 ---
 
 # State: LLM Council — Personal Edition
@@ -32,18 +32,18 @@ Phase 02 (UX Research & Design Brief) closed and verified — all 6 plans shippe
 
 ## Current Position
 
-Phase: 03 (quality-dial-deep-research) — NEXT
-Plan: 0 of TBD
+Phase: 03 (quality-dial-pragmatic-deep-research) — EXECUTING
+Plan: 2 of 5 (Plan 01 complete)
 
 - **Phase:** 3
-- **Plan:** Not started
-- **Status:** Phase 02 complete; awaiting `/gsd-plan-phase 3` to lay out Phase 03 plans.
-- **Progress:** 11/17 plans complete; 2/4 phases formally complete.
+- **Plan:** 03-01 complete; 03-02 next
+- **Status:** Executing Phase 03
+- **Progress:** 12/17 plans complete; 2/4 phases formally complete.
 
 ```
 [#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
 [#####] 100% Phase 2 plans — verified 2026-05-10
-[     ]   0% Phase 3 — not started
+[#    ]  20% Phase 3 — 1/5 plans complete (03-01 foundation)
 [     ]   0% Phase 4 — not started
 ```
 
@@ -53,17 +53,17 @@ Plan: 0 of TBD
 |---|-------|--------|
 | 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
 | 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
-| 3 | Quality Dial & Pragmatic Deep Research | Pending |
+| 3 | Quality Dial & Pragmatic Deep Research | In progress (1/5 plans complete) |
 | 4 | Visual Identity Implementation | Pending |
 
 ## Performance Metrics
 
 - Phases planned: 4
 - Phases complete: 2
-- Plans complete: 11
+- Plans complete: 12
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 8/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04)
+- Requirements satisfied: 10/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-02, RSCH-01)
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -78,6 +78,7 @@ Plan: 0 of TBD
 | 02 | 04 | doc-only | 1 | 1 | 2026-05-10 |
 | 02 | 05 | doc-only | 3 | 3 | 2026-05-10 |
 | 02 | 06 | doc-only | 1 | 1 | 2026-05-10 |
+| 03 | 01 | ~8 min  | 2 | 2 | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -119,10 +120,15 @@ Plan: 0 of TBD
 - **Phase 02 / Plans 01-06:** Severity scale = Nielsen original 0-4 (D-03), NOT low/medium/high. 6 anticipatory findings on Phase 3 surfaces (QUAL-03, RSCH-05) — exceeds D-05 minimum of ≥2. 3 tonal directions explored in parallel (Research notebook / Tactical cockpit / Claude-like minimal); brutalist editorial explicitly rejected (D-08).
 - **Phase 02 / Plan 06:** Direction A (Research notebook) selected as the canonical visual identity for Phase 4. Rationale: Stage 2 / Stage 3 are long-form editorial content; only Direction A's serif body (Source Serif 4) + strong typographic hierarchy + medium-low density respects long reading without fatiguing. Cockpit (B) too instrumental for sustained reading; Minimal (C) hides the aggregate ranking and cost surfacing too aggressively. Phase 4 entry contract documented in `03-redesign-proposal.md` lines 771-779.
 - **Phase 02:** Throwaway HTML disclaimer (D-15) explicitly prevents Phase 4 from lifting CSS verbatim from the sketches. Phase 4 reads only: tokens documented in proposal, typography stack, microinteractions, IA from wireframes. The HTML sketches are a visual validation tool, not source code.
+- **Phase 03 / Plan 01:** PROFILES dict is the single source of truth for Quality Dial. Aliases-as-views pattern: `COUNCIL_MODELS` and `CHAIRMAN_MODEL` are direct references into `PROFILES["fast"]` (not copies) so there is one source of truth during the Plan 03-02 migration window.
+- **Phase 03 / Plan 01:** No `:thinking` model-ID suffix used. RESEARCH.md confirmed the suffix does not exist on OpenRouter — reasoning is opt-in via the `reasoning` payload param. `query_model` now accepts `reasoning: bool = False` and injects `{"reasoning": {"enabled": True}}` only when True; default preserves the existing fast-flow byte-for-byte.
+- **Phase 03 / Plan 01:** Substitution applied (CD-05): `google/gemini-3.1-pro` → `google/gemini-3.1-pro-preview` in both `quality` and `quality_research` profiles; this is the canonical OpenRouter ID.
+- **Phase 03 / Plan 01:** `quality_research` uses 4 reasoning models all with `:online` (D-10). Critic = Opus-4.7 (D-06). Stage-4 threshold = 8/10 (D-06). typical_cost = \$0.45 (D-14). BYOK allowlist preserved — `get_provider_for_model` splits on `/` so `:online` suffixes do not break BYOK routing.
+- **Phase 03 / Plan 01:** `query_models_parallel` left untouched. Plan 03-04 will wrap it if it needs to forward `reasoning=True` per-model, keeping the low-level transport stable.
 
 ### Open Todos
 
-- Run `/gsd-plan-phase 3` to lay out Phase 03 plans (Quality Dial & Pragmatic Deep Research — QUAL-01..04, RSCH-01..05).
+- Run Plan 03-02 next: routing por profile en SendMessageRequest + council.py para fast/quality (placeholder QR) (QUAL-01).
 - Phase 04 is unblocked from Phase 02's perspective but still depends on Phase 03 (Quality toggle DOM must exist before it gets styled).
 
 ### Blockers
@@ -140,29 +146,23 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-10):** Completed Phase 02 (UX Research & Design Brief). All 6 plans shipped: cognitive walkthrough (29 friction points), Nielsen audit (10 heuristics, 36 findings, 6 anticipatory), redesign proposal (3 directions × full structure), 23 wireframes (W01-W23), 3 throwaway HTML sketches (light + dark), and Direction A (Research notebook) selected with rationale. Phase verification PASSED (`02-VERIFICATION.md`): 4/4 ROADMAP success criteria + 4/4 UXR requirements + all critical D-XX/CD-XX decisions verified. Closure commit `da6f1a5`.
+**Last session (2026-05-10):** Executed Plan 03-01 (Quality Dial foundation — config + transport). Two atomic commits: `4497f09` (PROFILES dict in `backend/config.py` with fast/quality/quality_research tiers, critic_model + stage4_threshold + typical_cost_usd, legacy aliases preserved as references into `PROFILES['fast']`), `c8eec8e` (`query_model(reasoning=False)` opt-in kwarg in `backend/openrouter.py` injecting `{"reasoning": {"enabled": True}}` after BYOK provider routing). Both inline acceptance tests passed. Substitutions applied: `gemini-3.1-pro` → `gemini-3.1-pro-preview` (CD-05). No `:thinking` suffix used (RESEARCH.md override). BYOK allowlist preserved end-to-end including `:online`-suffixed IDs.
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/02-ux-research-design-brief/02-VERIFICATION.md` for the Phase 4 entry contract anchored in Direction A.
-3. Reading `.planning/ux/03-redesign-proposal.md` Direction A section + `## Recommendation & decision` to understand the visual identity that Phase 4 will implement.
-4. Running `/gsd-plan-phase 3` to lay out Phase 03 (Quality Dial & Pragmatic Deep Research). The anticipatory findings from the Nielsen audit (cost surfacing, reasoning_details disclosure, send-button friction on Q+R) should inform Plan 03 design decisions.
+2. Reading `.planning/phases/03-quality-dial-pragmatic-deep-research/03-01-SUMMARY.md` to understand the foundation contract (PROFILES shape + reasoning kwarg).
+3. Running `/gsd-execute-phase` for Plan 03-02: routing por profile en `SendMessageRequest` + `council.py` for fast/quality (placeholder QR) — QUAL-01.
 
 **Files most recently touched by GSD tooling:**
 
-- `.planning/ux/01-cognitive-walkthrough.md` (Plan 02-01)
-- `.planning/ux/02-nielsen-audit.md` (Plan 02-02)
-- `.planning/ux/03-redesign-proposal.md` (Plan 02-03 + Plan 02-06 closure)
-- `.planning/ux/04-mockups/wireframes.md` (Plan 02-04)
-- `.planning/ux/04-mockups/sketch-notebook.html` (Plan 02-05 — Direction A)
-- `.planning/ux/04-mockups/sketch-cockpit.html` (Plan 02-05 — Direction B)
-- `.planning/ux/04-mockups/sketch-minimal.html` (Plan 02-05 — Direction C)
-- `.planning/phases/02-ux-research-design-brief/02-VERIFICATION.md` (Phase 02 verification)
+- `backend/config.py` (Plan 03-01 — PROFILES dict)
+- `backend/openrouter.py` (Plan 03-01 — reasoning kwarg)
+- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-01-SUMMARY.md` (Plan 03-01 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 2 progress 6/6)
-- `.planning/REQUIREMENTS.md` (UXR-01..04 status flipped to Complete)
+- `.planning/ROADMAP.md` (Phase 3 progress 1/5)
+- `.planning/REQUIREMENTS.md` (QUAL-02 + RSCH-01 transport-layer foundations marked complete)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-10 after Phase 02 verification (UX research & design brief shipped; Direction A selected).*
+*Last updated: 2026-05-10 after Plan 03-01 (Quality Dial foundation: PROFILES dict + reasoning kwarg).*
