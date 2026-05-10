@@ -35,7 +35,7 @@ This phase ships the **observability and control layer** around the Phase-5 deli
 - Panel slide-out transition: 180ms entry (`var(--motion-duration-base)`) / 120ms exit (`var(--motion-duration-fast)`). Adopted.
 - Font-size token mapping: `data-fontsize="s|m|l"` on `<html>` with `rem`-based root anchor (15/17/19px). Plan-time may switch to `px` if cascade collateral surfaces.
 - Settings control ordering: Theme · Font size · Density · Stage 4 threshold (top to bottom). Adopted.
-- **OpenRouter `usage.cost` shape: UNVERIFIED.** Plan-1 MUST include the 5-min spike before any cost-aggregation code lands.
+- **OpenRouter `usage.cost` shape: VERIFIED 2026-05-11** — see `.planning/phases/06-persistence-completeness-cost-analytics-settings-panel/06-SPIKE-USAGE-COST.md` ## VERIFIED block.
 
 ### Deferred Ideas (OUT OF SCOPE)
 
@@ -297,6 +297,8 @@ def _extract_cost(data: dict) -> dict:
 
 Why safe defaults: per OpenRouter API reference (verified), `cost` and `cost_details` are both OPTIONAL fields. They are populated on BYOK requests (our entire stack) but defensive code is cheap and prevents `None` arithmetic downstream.
 
+> **VERIFIED 2026-05-11:** see `06-SPIKE-USAGE-COST.md` for the raw JSON capture from each Quality-profile model. The field paths in `_extract_cost` above use the verbatim strings from the VERIFIED block (`usage.cost` + `usage.cost_details.upstream_inference_cost`). Surprises captured in the spike artifact: `is_byok` was `false` on every call despite `provider.only` BYOK routing (fee waiver not active), and `usage.cost` equalled `upstream_inference_cost` on all 3 models (0% OpenRouter markup observed at capture time).
+
 ### Pattern 3: `useSettings()` as exact mirror of `useTheme`
 
 **What:** Replicate `useTheme.js:51-94`'s structure: synchronous `readInitial*` for SSR-free first-render parity, `useState` with reader as initializer, `useEffect` to push DOM attribute, `useCallback` setters that write to localStorage + state in one shot.
@@ -404,7 +406,7 @@ Theme is **delegated** to `useTheme` (not duplicated inside `useSettings`) so th
 | `pydantic` | Request validation (incl. new `stage4_threshold` field) | ✓ | 2.12.4 | — |
 | Node.js + npm | Frontend dev/build | ✓ | per repo | — |
 | Browser `<dialog>` + `showModal()` | Settings panel | ✓ | All evergreen 2026 (Safari 15.4+, Chrome 37+, Firefox 98+); the v1.0 codebase already targets the same baseline | — |
-| OpenRouter `usage.cost` + `cost_details.upstream_inference_cost` fields | Cost capture | UNVERIFIED at runtime — documented in API reference but never logged from a live BYOK call | — | If `cost` is `None` / missing on response, the safe-default `_extract_cost` (§3 Pattern 2) yields 0.0 for both, and the cost line hides itself (D-01 hide-zero rule). Plan-1 spike confirms field names before any user-visible UI lands. |
+| OpenRouter `usage.cost` + `cost_details.upstream_inference_cost` fields | Cost capture | VERIFIED 2026-05-11 against live BYOK calls for all 3 Quality models — see `06-SPIKE-USAGE-COST.md` | — | Both fields confirmed present and non-null on every Quality-model response. The safe-default `_extract_cost` (§3 Pattern 2) remains the implementation pattern in case future models omit the fields. |
 
 **Missing dependencies with no fallback:** None.
 **Missing dependencies with fallback:** OpenRouter `usage` runtime shape — see Plan-1 spike strategy in §3.
