@@ -119,7 +119,10 @@ export default function ChatInterface({
       stage1: msg.stage1,
       stage2: msg.stage2,
       stage3: msg.stage3,
+      stage4: msg.stage4,
       metadata: msg.metadata,
+      messageMetadata: msg.metadata,
+      critic: msg.critic,
     });
     triggerDownload(buildDeliberationFilename(question), md);
   };
@@ -204,10 +207,19 @@ export default function ChatInterface({
                       <span>Running Stage 3: Final synthesis...</span>
                     </div>
                   )}
+                  {/* Stage 4 spinner — fires after stage3_complete in QR pipeline
+                      when the critic gated below threshold. */}
+                  {msg.loading?.stage4 && (
+                    <div className="stage-loading">
+                      <div className="spinner"></div>
+                      <span>Running Stage 4: Refining synthesis...</span>
+                    </div>
+                  )}
                   {msg.stage3 && (
                     <Stage3
                       finalResponse={msg.stage3}
                       question={findQuestionFor(conversation.messages, index)}
+                      stage4={msg.stage4}
                     />
                   )}
                 </div>

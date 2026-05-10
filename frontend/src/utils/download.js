@@ -39,27 +39,70 @@ function timestamp() {
 
 /**
  * Build markdown for the chairman's final answer only.
+ *
+ * D-18: when Stage 4 refinement fired (`stage4.response` truthy), the export
+ * MUST contain the refined response, not the original chairman synthesis.
+ * The title is suffixed with "(refined)" and a footnote captures the critic
+ * score + concern that motivated the refinement.
  */
-export function buildFinalAnswerMarkdown({ question, finalResponse }) {
+export function buildFinalAnswerMarkdown({ question, finalResponse, stage4 }) {
+  const isRefined = !!stage4?.response;
+  const responseText = isRefined
+    ? stage4.response
+    : finalResponse?.response || '_(no response)_';
+
   const lines = [
-    '# LLM Council — Final Answer',
+    isRefined
+      ? '# LLM Council — Final Answer (refined)'
+      : '# LLM Council — Final Answer',
     '',
     `**Question**: ${question || '_(unknown)_'}`,
     '',
-    `**Chairman**: \`${finalResponse?.model || 'unknown'}\``,
+    `**Chairman**: \`${finalResponse?.model || 'unknown'}\`${
+      isRefined ? ' (with Stage 4 refinement)' : ''
+    }`,
     '',
     '---',
     '',
-    finalResponse?.response || '_(no response)_',
+    responseText,
     '',
   ];
+
+  if (isRefined && stage4.critic_score != null) {
+    lines.push(
+      `<sub>Refined after critic scored synthesis ${stage4.critic_score}/10. Reason: ${
+        stage4.primary_concern || '_(unknown)_'
+      }.</sub>`,
+      ''
+    );
+  }
+
   return lines.join('\n');
 }
 
 /**
- * Build markdown for the entire deliberation: question + Stage 1 + Stage 2 + aggregates + Stage 3.
+ * Build markdown for the entire deliberation: question + Stage 1 + Stage 2 +
+ * aggregates + Stage 3 + (optional) Critic + Stage 4.
+ *
+ * D-18: when Stage 4 fired, append a `## Critic` section with the score and
+ * primary concern, followed by a `## Stage 4 — Refinement` section with the
+ * refined response. The original Stage 3 chairman synthesis is preserved
+ * above (full audit trail).
+ *
+ * `messageMetadata` is the persisted metadata dict from the backend's
+ * `message_metadata` SSE event (profile + models + chairman + stage4_triggered);
+ * when present a footer is appended documenting the run profile.
  */
-export function buildFullDeliberationMarkdown({ question, stage1, stage2, stage3, metadata }) {
+export function buildFullDeliberationMarkdown({
+  question,
+  stage1,
+  stage2,
+  stage3,
+  stage4,
+  metadata,
+  critic,
+  messageMetadata,
+}) {
   const lines = [
     '# LLM Council Deliberation',
     '',
@@ -97,6 +140,42 @@ export function buildFullDeliberationMarkdown({ question, stage1, stage2, stage3
   lines.push('## Stage 3 — Chairman Synthesis', '');
   lines.push(`**Chairman**: \`${stage3?.model || 'unknown'}\``, '');
   lines.push(stage3?.response || '_(no synthesis)_', '');
+
+  // Critic section: present when EITHER the live `critic` event came in (UI)
+  // or when stage4 was persisted with critic_score embedded (reload from disk).
+  if (critic || stage4) {
+    lines.push('## Critic', '');
+    if (critic) {
+      lines.push(`Score: ${critic.score ?? '?'}/10`, '');
+      lines.push(`Primary concern: ${critic.concern || '_(unknown)_'}`, '');
+    } else {
+      lines.push(`Score: ${stage4.critic_score ?? '?'}/10`, '');
+      lines.push(`Primary concern: ${stage4.primary_concern || '_(unknown)_'}`, '');
+    }
+    lines.push('');
+  }
+
+  if (stage4) {
+    lines.push('## Stage 4 — Refinement', '');
+    lines.push(stage4.response || '_(no refined answer)_', '');
+  }
+
+  // Optional profile footer — surfaces what the user actually ran.
+  if (messageMetadata?.profile) {
+    const profileLabel =
+      { fast: 'Fast', quality: 'Quality', quality_research: 'Quality+Research' }[
+        messageMetadata.profile
+      ] || messageMetadata.profile;
+    const count = messageMetadata.models?.length ?? 0;
+    const stage4Note = messageMetadata.stage4_triggered ? ' • Stage 4 fired' : '';
+    lines.push('---', '');
+    lines.push(
+      `<sub>Profile: **${profileLabel}** • ${count} model${
+        count === 1 ? '' : 's'
+      } • Chairman: \`${messageMetadata.chairman || 'unknown'}\`${stage4Note}</sub>`,
+      ''
+    );
+  }
 
   return lines.join('\n');
 }

@@ -1,0 +1,54 @@
+/*
+ * Stage 4 — visually subordinate to Stage 3 (D-15: sub-section, not peer).
+ * Renders inside the .stage3 panel; hex placeholders are Phase 4 transition
+ * tokens (Direction A will swap them for design tokens).
+ */
+
+.stage4 {
+  /* Reset the .stage block defaults inherited if mounted as sibling — but
+     since we render INSIDE .stage3 the parent's bg/border are visible. */
+  margin: 16px 0 0 0;
+  padding: 16px 0 0 0;
+  border-top: 1px dashed #c8e6c8;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 0;
+}
+
+.stage4 .stage-title {
+  font-size: 1rem;
+  color: #555;
+  margin: 0 0 12px 0;
+}
+
+.stage4-meta {
+  background: #fffaf0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #f5e1c4;
+  margin-bottom: 14px;
+  font-size: 0.875rem;
+}
+
+.critic-score strong {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.critic-concern {
+  color: #666;
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.stage4-response {
+  background: #ffffff;
+  padding: 16px 18px;
+  border-radius: 6px;
+  border: 1px solid #c8e6c8;
+  color: #333;
+  line-height: 1.7;
+  font-size: 15px;
+}

@@ -1,4 +1,5 @@
 import Markdown from './Markdown';
+import Stage4 from './Stage4';
 import {
   buildFinalAnswerMarkdown,
   buildFinalAnswerFilename,
@@ -6,13 +7,15 @@ import {
 } from '../utils/download';
 import './Stage3.css';
 
-export default function Stage3({ finalResponse, question }) {
+export default function Stage3({ finalResponse, question, stage4 }) {
   if (!finalResponse) {
     return null;
   }
 
+  // D-18: when Stage 4 fired, the "final answer" download MUST contain the
+  // refined response, not the original chairman synthesis.
   const handleDownload = () => {
-    const md = buildFinalAnswerMarkdown({ question, finalResponse });
+    const md = buildFinalAnswerMarkdown({ question, finalResponse, stage4 });
     triggerDownload(buildFinalAnswerFilename(question), md);
   };
 
@@ -37,6 +40,10 @@ export default function Stage3({ finalResponse, question }) {
           <Markdown>{finalResponse.response}</Markdown>
         </div>
       </div>
+
+      {/* D-15: Stage 4 lives INSIDE the Stage 3 panel as a sub-section,
+          directly below the chairman's synthesis when refinement fired. */}
+      <Stage4 stage4={stage4} />
     </div>
   );
 }
