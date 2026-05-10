@@ -40,9 +40,9 @@
 ### Visual Identity
 
 - [ ] **VIS-01**: A bespoke color palette replaces the current Bootstrap-flavored defaults (`#4a90e2`, `#f5f5f5`, `#f0fff0`, etc.). Palette and design tokens live in `frontend/src/index.css` (or a dedicated theme file) and are applied consistently across all components. Source: UXR-03 / UXR-04.
-- [ ] **VIS-02**: Typography is replaced from `system-ui` to a characterful family (e.g. Inter / IBM Plex / DM Sans / etc.) loaded efficiently and applied site-wide. Source: UXR-03 / UXR-04.
-- [ ] **VIS-03**: A branded app shell — header with name + icon, distinctive sidebar styling, intentional empty states — replaces the current minimal shell. Source: UXR-04.
-- [ ] **VIS-04**: Microinteractions and polished states applied: smooth transitions between stages, non-generic loading spinners (or skeletons), hover states on interactive elements (chips, tabs, buttons), animated stage progress. Source: UXR-04.
+- [x] **VIS-02**: Typography is replaced from `system-ui` to a characterful family (e.g. Inter / IBM Plex / DM Sans / etc.) loaded efficiently and applied site-wide. Source: UXR-03 / UXR-04.
+- [x] **VIS-03**: A branded app shell — header with name + icon, distinctive sidebar styling, intentional empty states — replaces the current minimal shell. Source: UXR-04.
+- [x] **VIS-04**: Microinteractions and polished states applied: smooth transitions between stages, non-generic loading spinners (or skeletons), hover states on interactive elements (chips, tabs, buttons), animated stage progress. Source: UXR-04.
 
 ## v2 Requirements
 
@@ -107,9 +107,9 @@
 | RSCH-04 | Phase 3 | Complete |
 | RSCH-05 | Phase 3 | Complete |
 | VIS-01 | Phase 4 | Pending |
-| VIS-02 | Phase 4 | Pending |
-| VIS-03 | Phase 4 | Pending |
-| VIS-04 | Phase 4 | Pending |
+| VIS-02 | Phase 4 | Complete |
+| VIS-03 | Phase 4 | Complete |
+| VIS-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 21 total

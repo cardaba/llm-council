@@ -89,7 +89,7 @@ Plans:
 **Plans:** 1/4 plans complete
 Plans:
 - [x] 04-01-PLAN.md (wave 1) — Foundations: tokens CSS + @font-face + woff2 self-hosted + FOUC blocking script + prefers-reduced-motion override (VIS-01, VIS-02, VIS-04) — completed 2026-05-10 (commits `64e1328`, `113da15`, `170592b`)
-- [ ] 04-02-PLAN.md (wave 2) — Branded shell: Header component + useTheme hook + App.css grid + MessageHeader token migration (VIS-02, VIS-03, VIS-04)
+- [x] 04-02-PLAN.md (wave 2) — Branded shell: Header component + useTheme hook + App.css grid + MessageHeader token migration (VIS-02, VIS-03, VIS-04)
 - [ ] 04-03-PLAN.md (wave 3) — Deliberation surfaces: Stage1/2/3/4 + ChatInterface (welcome state) + QualityToggle + ReasoningDisclosure (accordion grid trick) + new Stage1Progress component (VIS-01, VIS-02, VIS-04)
 - [ ] 04-04-PLAN.md (wave 4) — Conversations and polish: Sidebar (empty state ampersand >=96px) + Modal + Menu + new ErrorBanner component + favicon ampersand SVG (VIS-01..04)
 **UI hint**: yes
