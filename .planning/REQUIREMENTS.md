@@ -113,13 +113,45 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CRIT-01..08 | TBD | Pending |
-| NAV-01..04 | TBD | Pending |
-| PERS-01..03 | TBD | Pending |
-| COST-01..04 | TBD | Pending |
-| SET-01..04 | TBD | Pending |
-| MOBL-01..04 | TBD | Pending |
-| VRT-01..03 | TBD | Pending |
-| TEST-01..03 | TBD | Pending |
+| CRIT-01 | Phase 5 | Pending |
+| CRIT-02 | Phase 5 | Pending |
+| CRIT-03 | Phase 5 | Pending |
+| CRIT-04 | Phase 5 | Pending |
+| CRIT-05 | Phase 5 | Pending |
+| CRIT-06 | Phase 5 | Pending |
+| CRIT-07 | Phase 5 | Pending |
+| CRIT-08 | Phase 5 | Pending |
+| PERS-03 | Phase 5 | Pending |
+| NAV-01 | Phase 5 | Pending |
+| NAV-02 | Phase 5 | Pending |
+| NAV-03 | Phase 5 | Pending |
+| NAV-04 | Phase 5 | Pending |
+| PERS-01 | Phase 6 | Pending |
+| PERS-02 | Phase 6 | Pending |
+| COST-01 | Phase 6 | Pending |
+| COST-02 | Phase 6 | Pending |
+| COST-03 | Phase 6 | Pending |
+| COST-04 | Phase 6 | Pending |
+| SET-01 | Phase 6 | Pending |
+| SET-02 | Phase 6 | Pending |
+| SET-03 | Phase 6 | Pending |
+| SET-04 | Phase 6 | Pending |
+| MOBL-01 | Phase 7 | Pending |
+| MOBL-02 | Phase 7 | Pending |
+| MOBL-03 | Phase 7 | Pending |
+| MOBL-04 | Phase 7 | Pending |
+| VRT-01 | Phase 7 | Pending |
+| VRT-02 | Phase 7 | Pending |
+| VRT-03 | Phase 7 | Pending |
+| TEST-01 | Phase 7 | Pending |
+| TEST-02 | Phase 7 | Pending |
+| TEST-03 | Phase 7 | Pending |
+
+**Phase distribution:**
+- Phase 5 (Critique mode + Schema migration + In-conversation navigation): 13 reqs (CRIT-01..08 + PERS-03 + NAV-01..04)
+- Phase 6 (Persistence completeness + Cost analytics + Settings panel): 10 reqs (PERS-01..02 + COST-01..04 + SET-01..04)
+- Phase 7 (Mobile responsive + Visual regression + Tests): 10 reqs (MOBL-01..04 + VRT-01..03 + TEST-01..03)
+
+**Coverage:** 33/33 requirements mapped, 0 orphans, 0 duplicates.
 
 **Total v2.0 requirements:** 33 (8 CRIT + 4 NAV + 3 PERS + 4 COST + 4 SET + 4 MOBL + 3 VRT + 3 TEST)
