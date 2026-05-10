@@ -1,22 +1,30 @@
 /* Footnote-tone header per Direction A (locked Phase 2).
- * Phase 4 will replace the hard-coded greys / accent with CSS variables
- * (var(--font-ui), var(--color-muted), var(--color-accent)) — the JSX
- * shape and class names persist; only this CSS file changes. */
+ * Phase 4 Wave 2 migration: Phase-3 hex placeholders (#666 #333 #999 #4a90e2)
+ * are now consumed via design tokens. JSX shape and class names persist —
+ * Plan 03-03 locked the markup; only this CSS file changes.
+ */
 
 .message-header {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: #666;
-  margin-bottom: 12px;
-  font-family: 'Inter', system-ui, sans-serif;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  color: var(--color-fg-secondary);
+  margin-bottom: var(--space-3);
+  /* Tabular nums so "{N} models" digits align across messages
+   * (UI-SPEC §Typography "Tabular numerals required on" line 128).
+   * Applied at the .message-header root because Plan 03-03 did not
+   * introduce a .message-header__meta wrapper in MessageHeader.jsx, and
+   * Plan 04-02 task 3 forbids touching the JSX (deviation Rule 1 fix). */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .message-header .profile-label {
   font-weight: 600;
-  color: #333;
+  color: var(--color-fg-primary);
 }
 
 .message-header .header-sep {
@@ -24,11 +32,11 @@
 }
 
 .message-header .stage4-suffix {
-  color: #4a90e2;
+  color: var(--color-accent);
   font-style: italic;
 }
 
 .message-header.legacy {
-  color: #999;
+  color: var(--color-fg-muted);
   font-style: italic;
 }
