@@ -8,6 +8,12 @@ A personal multi-LLM deliberation app forked from `karpathy/llm-council`, extend
 
 **The Quality dial works as advertised at every level.** A `Fast` query returns a useful answer in seconds at near-zero cost; a `Quality+Research` query returns a well-reasoned, web-grounded response that would have taken 10+ minutes of manual work to produce. Everything else can fail before this does.
 
+## Current State
+
+**v1.0 MVP shipped 2026-05-10.** 4 phases, 20 plans, 21 requirements satisfied. Audit PASSED. Codebase: ~140 files modified, +33,406 LOC across backend (FastAPI + httpx + uv) and frontend (React 19 + Vite 7 + react-markdown + 3 self-hosted variable woff2 fonts).
+
+The Quality dial works at every level: Fast returns useful answers in seconds at near-zero cost; Quality+Research orchestrates 4 reasoning models with `:online` web search + critic-gated Stage 4 refinement. Direction A "Research notebook" applied uniformly — zero Bootstrap defaults, light + dark with UI toggle, branded shell with ampersand mark.
+
 ## Requirements
 
 ### Validated
@@ -19,19 +25,34 @@ A personal multi-LLM deliberation app forked from `karpathy/llm-council`, extend
 - ✓ **SSE streaming per-stage** to the frontend — `backend/main.py:126-194`
 - ✓ **Markdown rendering** with GFM (tables, autolinks), syntax highlighting, link styling — `frontend/src/components/Markdown.jsx`, `frontend/src/index.css`
 - ✓ **File attachments** (text-only, 500KB/file and 2MB total caps, multi-file) — `frontend/src/components/ChatInterface.jsx`, `frontend/src/utils/download.js:readFileAsText`
-- ✓ **Download as markdown** — final answer or full deliberation (Stage 1 + Stage 2 + aggregate rankings + Stage 3) — `frontend/src/utils/download.js`
+- ✓ **Download as markdown** — final answer or full deliberation (Stage 1 + Stage 2 + aggregate rankings + Stage 3 + Stage 4) — `frontend/src/utils/download.js`
 - ✓ **Backend bound to 127.0.0.1** (Vuln 1 fix) — `backend/main.py:199`
+
+<!-- Validated during v1.0 milestone (2026-05-10). -->
+
+- ✓ **Vuln 2 closed: UUID validation at storage boundary** — v1.0 (SEC-01, Phase 01)
+- ✓ **Conversation management UX (delete / rename / search)** — v1.0 (CONV-01..03, Phase 01)
+- ✓ **UX research artifacts produced** — cognitive walkthrough + Nielsen audit + redesign proposal + 23 wireframes + 3 HTML sketches; Direction A "Research notebook" locked. v1.0 (UXR-01..04, Phase 02)
+- ✓ **Quality selector per-query (3 profiles)** with PROFILES dict, profile-aware routing, 3-state UI toggle, profile + models persisted in saved messages — v1.0 (QUAL-01..04, Phase 03)
+- ✓ **Pragmatic deep research** — `research_strategy.py` aislado, 4 reasoning models con `:online`, critic + conditional Stage 4 refinement, `reasoning_details` collapsable disclosure. Note: `:thinking` suffix does NOT exist on OpenRouter — reasoning enabled via payload param `{"reasoning": {"enabled": true}}`. v1.0 (RSCH-01..05, Phase 03)
+- ✓ **Visual redesign applied** — Direction A palette + Source Serif 4 + Inter + JetBrains Mono self-hosted, branded shell with ampersand mark + theme toggle, polished microinteractions (CSS-only, prefers-reduced-motion preserves focus rings), 23/23 wireframes implemented. v1.0 (VIS-01..04, Phase 04)
 
 ### Active
 
-<!-- Hypotheses for this milestone. Validated when shipped. -->
+<!-- Hypotheses for the next milestone. Will be defined via /gsd-new-milestone. -->
 
-- [ ] **Quality selector per-query** with 3 profiles: `Fast`, `Quality`, `Quality+Research`, exposed as a toggle next to the textarea. Each profile maps to a curated set of council models + chairman model. The selected profile travels with the request and is persisted in the message metadata.
-- [ ] **Pragmatic deep research** as the `Quality+Research` profile: council uses reasoning models (`openai/o4-mini`, `anthropic/claude-opus-4.7:thinking`, `google/gemini-3.1-pro` with thinking) plus at least one model with web search (`:online` or equivalent), with an optional Stage 4 council-refinement pass. Code structured so that a future fully-agentic deep-research loop can replace the current strategy without touching `council.py`.
-- [ ] **UX research artifacts** produced before any visual rework: cognitive walkthrough of current flows, Nielsen heuristic audit of current UI, redesign proposal (UX-first), and component-level mockups. Output lives under `.planning/ux/` and feeds the implementation phase.
-- [ ] **Conversation management UX**: delete a conversation, rename its title in place, search/filter conversations by text in the sidebar.
-- [ ] **Visual redesign applied**, guided by the UX research artifacts: bespoke palette and typography (no Bootstrap-flavored defaults), branded header, polished microinteractions, distinct identity. Same React + Vite stack.
-- [ ] **Vuln 2 fix**: UUID validation on `conversation_id` in `backend/storage.py` and the corresponding endpoints in `backend/main.py` to close the path-traversal vector. Done before the conversation-management features (which touch the same module).
+*v1.1 milestone goals not yet defined. Run `/gsd-new-milestone` to question → research → requirements → roadmap.*
+
+Candidate themes from v1.0 backlog (informational, non-binding):
+
+- Calibrate `stage4_threshold` (currently 8 with critic=chairman=Opus) after observing 5-10 real queries — tune via config, no code change.
+- Persist `label_to_model` and `aggregate_rankings` to disk (PERS-V2-01) — currently ephemeral in SSE events only.
+- Reload-time hydration of Stage 2 metadata when reading historical conversations.
+- Visual regression testing (Playwright + screenshots) to lock the Direction A skin.
+- Mobile responsive ≤768px completo más allá del drawer básico (W23).
+- Automated test suite (backend pytest + frontend vitest) — accepted v1.0 debt.
+- Cost analytics/observability (OpenRouter spend per profile per session).
+- Multi-turn within a conversation (revisits the "1 conversation = 1 deliberation" lock — out of scope for v1, may revisit in v2 if user demands).
 
 ### Out of Scope
 
@@ -76,7 +97,11 @@ A personal multi-LLM deliberation app forked from `karpathy/llm-council`, extend
 | Pragmatic deep research, not agentic | Full agentic deep research is 500-800 LoC of new code, multi-minute waits, costs $1-5/query. Pragmatic version (reasoning models + web search + optional Stage 4) covers 80% of the value at 20% of the complexity. | — Pending |
 | UX research as a dedicated early phase | "Frontier UX/UI skills" applied research-first, not feature-by-feature, prevents fragmented design and gives the visual rework a clear brief. | — Pending |
 | Single-shot conversation design preserved | The "1 conversation = 1 deliberation" mental model is what makes the council format make sense; turning it into ChatGPT-style multi-turn would dilute the differentiator. | — Pending (validated implicitly by user keeping it in Out of Scope) |
-| Active scope deferred from previous fork session: copy-final-answer button, regenerate-with-other-profile button, persist label_to_model and aggregate_rankings metadata | Not in user's stated v1 priorities; cheap to add later; not blockers for the Quality dial core value. | — Pending (in backlog, revisit at milestone close) |
+| Active scope deferred from previous fork session: copy-final-answer button, regenerate-with-other-profile button, persist label_to_model and aggregate_rankings metadata | Not in user's stated v1 priorities; cheap to add later; not blockers for the Quality dial core value. | — Pending (still in backlog post-v1.0; persist label_to_model = PERS-V2-01 candidate for v1.1) |
+| 3-stage waves grupadas por superficie en Phase 4 (foundations → shell → deliberation → conversations) | Estado intermedio funcionalmente válido (legacy hex coexiste con tokens) reduce blast radius vs big-bang refactor; cada wave tiene un commit narrative coherente. | ✓ Good — Phase 4 closed at 100% sin breakage intermedio (verified via per-plan smoke tests) |
+| Direction A "Research notebook" sobre Cockpit / Minimal | Stage 2 + Stage 3 son lectura larga editorial; serif body (Source Serif 4) + max-width 65ch respeta el tono. Cockpit (densidad alta) y Minimal (esconde aggregate ranking) descartadas con rationale en redesign-proposal §"Recommendation & decision". | ✓ Good — phase 4 implementation confirmed la dirección sin re-decisiones |
+| `:thinking` suffix override (RESEARCH > PROJECT) | Active scope mencionaba `:thinking` suffix pero RESEARCH.md confirmó que no existe en OpenRouter; reasoning se enables via payload `{"reasoning": {"enabled": true}}`, no via suffix. | ✓ Good — patrón "research wins over PROJECT.md" cuando hay verificación factual posterior |
+| Plan-checker iteration en Phase 4 (3 blockers detectados, fixed antes de execute) | Detectó favicon path drift (.png vs .svg → 404 silencioso permanente) y forzó al planner a leer Sidebar.jsx para fijar `.conversation-item.active` en vez de delegar al executor. | ✓ Good — el cost del plan-checker se ganó 5x en este caso |
 
 ## Evolution
 
@@ -96,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-09 after initialization*
+*Last updated: 2026-05-10 after v1.0 milestone close*
