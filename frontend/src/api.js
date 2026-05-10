@@ -18,14 +18,16 @@ export const api = {
 
   /**
    * Create a new conversation.
+   * @param {'fresh'|'critique'} [mode='fresh'] — conversation mode (Phase 5 D-02).
+   *   Default keeps v1 callers green; pass `'critique'` to open in critique mode.
    */
-  async createConversation() {
+  async createConversation(mode = 'fresh') {
     const response = await fetch(`${API_BASE}/api/conversations`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ mode }),
     });
     if (!response.ok) {
       throw new Error('Failed to create conversation');
@@ -91,6 +93,70 @@ export const api = {
 
     if (!response.ok) {
       throw new Error('Failed to send message');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          try {
+            const event = JSON.parse(data);
+            onEvent(event.type, event);
+          } catch (e) {
+            console.error('Failed to parse SSE event:', e);
+          }
+        }
+      }
+    }
+  },
+
+  /**
+   * Send a critique (multipart/form-data) and receive streaming updates.
+   *
+   * Phase 5 critique-mode entry point. Body is a FormData containing
+   *   - critique_instruction: the user's freeform instruction (required)
+   *   - file_slot_0 / file_slot_1 / file_slot_2: optional research files
+   *
+   * The SSE reader loop is byte-identical to `sendMessageStream` so the
+   * existing App.jsx reducer drains the events with zero modification.
+   *
+   * IMPORTANT: do NOT set the `Content-Type` header — the browser writes
+   * `multipart/form-data; boundary=...` itself; setting it explicitly
+   * breaks the multipart parser server-side (RESEARCH §6.3 hard rule).
+   *
+   * @param {string} conversationId
+   * @param {string} critiqueInstruction
+   * @param {Array<{file: File, modelId: string} | null>} slots — length-3 array
+   * @param {function} onEvent — (eventType, event) => void
+   */
+  async sendCritiqueStream(conversationId, critiqueInstruction, slots, onEvent) {
+    const form = new FormData();
+    form.append('critique_instruction', critiqueInstruction);
+    slots.forEach((slot, i) => {
+      if (slot && slot.file) {
+        form.append(`file_slot_${i}`, slot.file, slot.file.name);
+      }
+    });
+
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}/critique/stream`,
+      { method: 'POST', body: form }
+    );
+
+    if (!response.ok) {
+      const detail = await response
+        .json()
+        .catch(() => ({ detail: 'Failed to send critique' }));
+      throw new Error(detail.detail || 'Failed to send critique');
     }
 
     const reader = response.body.getReader();

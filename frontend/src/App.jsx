@@ -50,12 +50,41 @@ function App() {
     try {
       const newConv = await api.createConversation();
       setConversations([
-        { id: newConv.id, created_at: newConv.created_at, message_count: 0 },
+        {
+          id: newConv.id,
+          created_at: newConv.created_at,
+          message_count: 0,
+          mode: newConv.mode || 'fresh',
+        },
         ...conversations,
       ]);
       setCurrentConversationId(newConv.id);
     } catch (error) {
       console.error('Failed to create conversation:', error);
+    }
+  };
+
+  /**
+   * D-01 / D-02 — second sidebar button creates a critique conversation.
+   * The new entry is prepended to the sidebar list with `mode: 'critique'`
+   * so the Critique pill renders immediately (no extra fetch round-trip).
+   * Submit handler is wired in Task 2 (`handleSubmitCritique`).
+   */
+  const handleNewCritiqueConversation = async () => {
+    try {
+      const newConv = await api.createConversation('critique');
+      setConversations([
+        {
+          id: newConv.id,
+          created_at: newConv.created_at,
+          message_count: 0,
+          mode: 'critique',
+        },
+        ...conversations,
+      ]);
+      setCurrentConversationId(newConv.id);
+    } catch (error) {
+      console.error('Failed to create critique conversation:', error);
     }
   };
 
@@ -323,6 +352,7 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        onNewCritiqueConversation={handleNewCritiqueConversation}
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
       />

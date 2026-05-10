@@ -5,6 +5,10 @@
 const MAX_FILE_BYTES = 500 * 1024;
 const MAX_TOTAL_BYTES = 2 * 1024 * 1024;
 
+// 750KB cap per critique slot — CONTEXT.md D-04 + 05-02 backend lock (MAX_CRITIQUE_FILE_BYTES).
+// DO NOT raise the existing MAX_FILE_BYTES (fresh-prompt attachments stay at 500KB).
+export const MAX_CRITIQUE_FILE_BYTES = 750 * 1024;
+
 export const ATTACHMENT_LIMITS = {
   perFile: MAX_FILE_BYTES,
   total: MAX_TOTAL_BYTES,

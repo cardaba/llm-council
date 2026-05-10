@@ -129,6 +129,29 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-body-small);
   margin-bottom: var(--space-1);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Critique pill — UI-SPEC §Color + §Typography.
+   Phase 5 D-03 lock: rendered ONLY when conv.mode === 'critique'. */
+.conversation-pill {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  background: var(--color-accent-soft);
+  color: var(--color-fg-secondary);
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+
+/* D-01 lock: adjacent-sibling rule — only fires for the second button.
+   Token-only gap; no new class introduced. */
+.sidebar-header > .new-conversation-btn + .new-conversation-btn {
+  margin-top: var(--space-2);
 }
 
 /* Tabular-nums on the meta row so digit counts align across rows

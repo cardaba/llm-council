@@ -113,6 +113,9 @@ function ConversationItem({
           <>
             <div className="conversation-title">
               {conv.title || 'New Conversation'}
+              {conv.mode === 'critique' && (
+                <span className="conversation-pill">Critique</span>
+              )}
             </div>
             <div className="conversation-meta">
               {conv.message_count} messages
@@ -141,6 +144,7 @@ export default function Sidebar({
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  onNewCritiqueConversation,
   onDeleteConversation,
   onRenameConversation,
 }) {
@@ -276,6 +280,13 @@ export default function Sidebar({
         <h1>LLM Council</h1>
         <button className="new-conversation-btn" onClick={onNewConversation}>
           + New Conversation
+        </button>
+        {/* D-01 lock: sibling button reusing identical class; gap via adjacent-sibling CSS rule below. */}
+        <button
+          className="new-conversation-btn"
+          onClick={onNewCritiqueConversation}
+        >
+          + New critique
         </button>
       </div>
 
