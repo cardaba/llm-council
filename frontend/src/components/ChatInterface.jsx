@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Markdown from './Markdown';
+import MessageHeader from './MessageHeader';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
@@ -164,6 +165,8 @@ export default function ChatInterface({
                       </button>
                     )}
                   </div>
+
+                  <MessageHeader metadata={msg.metadata} />
 
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (

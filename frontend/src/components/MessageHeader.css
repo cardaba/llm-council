@@ -1,0 +1,34 @@
+/* Footnote-tone header per Direction A (locked Phase 2).
+ * Phase 4 will replace the hard-coded greys / accent with CSS variables
+ * (var(--font-ui), var(--color-muted), var(--color-accent)) — the JSX
+ * shape and class names persist; only this CSS file changes. */
+
+.message-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.message-header .profile-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.message-header .header-sep {
+  opacity: 0.5;
+}
+
+.message-header .stage4-suffix {
+  color: #4a90e2;
+  font-style: italic;
+}
+
+.message-header.legacy {
+  color: #999;
+  font-style: italic;
+}

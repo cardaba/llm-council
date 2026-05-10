@@ -185,6 +185,22 @@ function App() {
             });
             break;
 
+          case 'message_metadata':
+            // Merge profile/models/chairman shape (D-25) into the assistant
+            // message metadata that Stage 2 already populated with
+            // {label_to_model, aggregate_rankings}. Order matters — we want
+            // the new event to extend, not replace, the prior shape.
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.metadata = {
+                ...(lastMsg.metadata || {}),
+                ...event.data,
+              };
+              return { ...prev, messages };
+            });
+            break;
+
           case 'title_complete':
             // Reload conversations to get updated title
             loadConversations();
