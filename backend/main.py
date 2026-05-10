@@ -300,10 +300,16 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Plan 03-04 owns the quality_research path and will emit the
             # extended shape (with critic + stage4_triggered keys) from the
             # research_strategy module.
+            # Phase 6 PERS-01: persist label_to_model + aggregate_rankings
+            # here too (analog of the critique branch at the bottom of this
+            # file) so reload hydrates de-anonymized Stage 2 tabs instead of
+            # falling back to the "Quality (legacy)" header.
             message_metadata = {
                 "profile": request.profile,
                 "models": council_models,
                 "chairman": chairman_model,
+                "label_to_model": label_to_model,
+                "aggregate_rankings": aggregate_rankings,
             }
 
             # Save complete assistant message with profile metadata
