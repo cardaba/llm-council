@@ -3,6 +3,7 @@ import Markdown from './Markdown';
 import MessageHeader from './MessageHeader';
 import QualityToggle from './QualityToggle';
 import Stage1 from './Stage1';
+import Stage1Progress from './Stage1Progress';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
 import {
@@ -130,21 +131,58 @@ export default function ChatInterface({
   if (!conversation) {
     return (
       <div className="chat-interface">
-        <div className="empty-state">
-          <h2>Welcome to LLM Council</h2>
-          <p>Create a new conversation to get started</p>
+        <div className="chat-interface__welcome">
+          <h1 className="chat-interface__welcome-title">What do you want to think about today?</h1>
+          <p className="chat-interface__welcome-lead">
+            Ask one question. Three models answer. They peer-review each other's work anonymously. A chairman synthesizes.
+          </p>
+          <ul className="chat-interface__welcome-examples">
+            <li><em>Should I migrate this Snowflake schema to a star model?</em></li>
+            <li><em>Compare strategies for handling currency conversion in pharma BI</em></li>
+            <li><em>Review my approach to incremental partition pruning</em></li>
+          </ul>
         </div>
       </div>
     );
   }
 
+  // Derive active stage + completion + model-shorts from the latest message.
+  const lastMessage = conversation.messages[conversation.messages.length - 1];
+  const isAssistantTurn = lastMessage?.role === 'assistant';
+  const loadingState = isAssistantTurn ? lastMessage.loading : null;
+  const activeStage =
+    loadingState?.stage1 ? 'stage1' :
+    loadingState?.stage2 ? 'stage2' :
+    loadingState?.stage3 ? 'stage3' :
+    null;
+  const isStageComplete =
+    isAssistantTurn && lastMessage.stage3 != null && !loadingState?.stage4;
+  const stage1Models = Array.isArray(lastMessage?.stage1)
+    ? lastMessage.stage1.map((r) => {
+        const id = r?.model || '';
+        return id.split('/').pop().split(':')[0];
+      })
+    : [];
+
   return (
     <div className="chat-interface">
+      <Stage1Progress
+        stage={activeStage}
+        models={stage1Models}
+        isComplete={isStageComplete}
+      />
       <div className="messages-container">
         {conversation.messages.length === 0 ? (
-          <div className="empty-state">
-            <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
+          <div className="chat-interface__welcome">
+            <h1 className="chat-interface__welcome-title">What do you want to think about today?</h1>
+            <p className="chat-interface__welcome-lead">
+              Ask one question. Three models answer. They peer-review each other's work anonymously. A chairman synthesizes.
+            </p>
+            <ul className="chat-interface__welcome-examples">
+              <li><em>Should I migrate this Snowflake schema to a star model?</em></li>
+              <li><em>Compare strategies for handling currency conversion in pharma BI</em></li>
+              <li><em>Review my approach to incremental partition pruning</em></li>
+            </ul>
           </div>
         ) : (
           conversation.messages.map((msg, index) => (
