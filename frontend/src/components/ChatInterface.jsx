@@ -7,6 +7,7 @@ import Stage1Progress from './Stage1Progress';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
 import CritiqueWelcome from './CritiqueWelcome';
+import ExternalResearchPanel from './ExternalResearchPanel';
 import {
   ATTACHMENT_LIMITS,
   buildDeliberationFilename,
@@ -209,6 +210,16 @@ export default function ChatInterface({
                 </div>
               ) : (
                 <div className="assistant-message">
+                  {/* CRIT-08 — file-chip hydration on reload. Renders ONLY
+                      when the assistant message carries external_research
+                      (set by the critique flow / persisted by Plan 05-02).
+                      Fresh-prompt messages render with no panel — DOM
+                      identical to v1.0. The component itself returns null
+                      when the dict is empty; the guard avoids creating an
+                      empty wrapper for non-critique messages. */}
+                  {msg.external_research && (
+                    <ExternalResearchPanel externalResearch={msg.external_research} />
+                  )}
                   <div className="assistant-header">
                     <div className="message-label">LLM Council</div>
                     {msg.stage3 && (
