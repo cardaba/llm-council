@@ -2,15 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
-status: planning
-last_updated: "2026-05-10T18:00:00.000Z"
-last_activity: 2026-05-10
+status: Roadmap locked, awaiting `/gsd-plan-phase 5`
+last_updated: "2026-05-10T18:23:13.129Z"
+last_activity: 2026-05-10 — v2.0 ROADMAP.md created (3 phases bundle agresivo)
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 0
 ---
 
 # State: LLM Council — Personal Edition
@@ -56,6 +55,7 @@ Last activity: 2026-05-10 — v2.0 ROADMAP.md created (3 phases bundle agresivo)
 ## Performance Metrics
 
 ### v1.0 (shipped 2026-05-10)
+
 - Phases planned: 4
 - Phases complete: 4
 - Plans complete: 20
@@ -64,6 +64,7 @@ Last activity: 2026-05-10 — v2.0 ROADMAP.md created (3 phases bundle agresivo)
 - Audit: PASSED
 
 ### v2.0 (active)
+
 - Phases planned: 3
 - Phases complete: 0
 - Plans complete: 0
