@@ -12,8 +12,20 @@
           var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           var theme = stored || (systemDark ? 'dark' : 'light');
           document.documentElement.setAttribute('data-theme', theme);
+
+          // Phase 6 SET-04 — sync density before first paint (no system pref; default comfortable)
+          var density = localStorage.getItem('density');
+          if (density !== 'compact' && density !== 'comfortable') density = 'comfortable';
+          document.documentElement.setAttribute('data-density', density);
+
+          // Phase 6 SET-02 — sync font-size before first paint (rem-based tokens cascade)
+          var fontSize = localStorage.getItem('fontSize');
+          if (fontSize !== 's' && fontSize !== 'm' && fontSize !== 'l') fontSize = 'm';
+          document.documentElement.setAttribute('data-fontsize', fontSize);
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.setAttribute('data-density', 'comfortable');
+          document.documentElement.setAttribute('data-fontsize', 'm');
         }
       })();
     </script>
