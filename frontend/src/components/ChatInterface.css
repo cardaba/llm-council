@@ -12,12 +12,22 @@
   color: var(--color-fg-primary);
   font-family: var(--font-serif);
   overflow: hidden;
+  /* NAV-04: anchor for the absolute-positioned BackToTopButton. */
+  position: relative;
 }
 
 .messages-container {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-5);
+}
+
+/* NAV-02: ensure chip clicks land below the sticky StageNavigationStrip
+   (top: 0, height ~48px) and the sticky stage-title (top: var(--space-7)).
+   `scroll-margin-top` offsets the scroll target so anchored sections don't
+   slide under the sticky chrome. */
+.messages-container [data-stage] {
+  scroll-margin-top: var(--space-7);
 }
 
 /* ----------------------------------------------------------------------

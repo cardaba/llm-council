@@ -6,6 +6,8 @@ import Stage1 from './Stage1';
 import Stage1Progress from './Stage1Progress';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
+import StageNavigationStrip from './StageNavigationStrip';
+import BackToTopButton from './BackToTopButton';
 import CritiqueWelcome from './CritiqueWelcome';
 import ExternalResearchPanel from './ExternalResearchPanel';
 import {
@@ -44,6 +46,8 @@ export default function ChatInterface({
   const [attachError, setAttachError] = useState(null);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+  // NAV-02/04: scroll container ref shared with StageNavigationStrip + BackToTopButton.
+  const messagesContainerRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -174,7 +178,7 @@ export default function ChatInterface({
         models={stage1Models}
         isComplete={isStageComplete}
       />
-      <div className="messages-container">
+      <div className="messages-container" ref={messagesContainerRef}>
         {conversation.messages.length === 0 && conversation.mode === 'critique' ? (
           // Phase 5 D-02 — critique-mode welcome state.
           // Renders 3 dropzones + textarea + cost + Submit. The form dispatches
@@ -236,6 +240,14 @@ export default function ChatInterface({
 
                   <MessageHeader metadata={msg.metadata} />
 
+                  {/* NAV-02: scroll-spy chip strip above the deliberation.
+                      Sticky at top: 0 of .messages-container. Chips render
+                      only for stages present in this message. */}
+                  <StageNavigationStrip
+                    assistantMsg={msg}
+                    scrollContainerRef={messagesContainerRef}
+                  />
+
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (
                     <div className="stage-loading">
@@ -243,7 +255,11 @@ export default function ChatInterface({
                       <span>Running Stage 1: Collecting individual responses...</span>
                     </div>
                   )}
-                  {msg.stage1 && <Stage1 responses={msg.stage1} />}
+                  {msg.stage1 && (
+                    <section data-stage="stage1">
+                      <Stage1 responses={msg.stage1} defaultCollapsed={Boolean(msg.stage3)} />
+                    </section>
+                  )}
 
                   {/* Stage 2 */}
                   {msg.loading?.stage2 && (
@@ -252,12 +268,14 @@ export default function ChatInterface({
                       <span>Running Stage 2: Peer rankings...</span>
                     </div>
                   )}
-                  {msg.stage2 && (
-                    <Stage2
-                      rankings={msg.stage2}
-                      labelToModel={msg.metadata?.label_to_model}
-                      aggregateRankings={msg.metadata?.aggregate_rankings}
-                    />
+                  {msg.stage2 && Array.isArray(msg.stage2) && msg.stage2.length > 0 && (
+                    <section data-stage="stage2">
+                      <Stage2
+                        rankings={msg.stage2}
+                        labelToModel={msg.metadata?.label_to_model}
+                        aggregateRankings={msg.metadata?.aggregate_rankings}
+                      />
+                    </section>
                   )}
 
                   {/* Stage 3 */}
@@ -276,11 +294,13 @@ export default function ChatInterface({
                     </div>
                   )}
                   {msg.stage3 && (
-                    <Stage3
-                      finalResponse={msg.stage3}
-                      question={findQuestionFor(conversation.messages, index)}
-                      stage4={msg.stage4}
-                    />
+                    <section data-stage="stage3">
+                      <Stage3
+                        finalResponse={msg.stage3}
+                        question={findQuestionFor(conversation.messages, index)}
+                        stage4={msg.stage4}
+                      />
+                    </section>
                   )}
                 </div>
               )}
@@ -297,6 +317,11 @@ export default function ChatInterface({
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* NAV-04: floating back-to-top button anchored to .chat-interface
+          (which has position: relative). Listens to .messages-container
+          scrollTop; visible after >800px. Honors prefers-reduced-motion. */}
+      <BackToTopButton scrollContainerRef={messagesContainerRef} />
 
       {/* Fresh-prompt input form — hidden when the conversation is critique-mode,
           where CritiqueWelcome owns the entire entry-point UI (D-02 lock). */}

@@ -42,6 +42,26 @@
   line-height: var(--line-height-tight);
 }
 
+/* NAV-01: sticky section header. Sticky applied to the flex header row so the
+   title + download button pin together. `top: var(--space-7)` (48px) stacks
+   BELOW the StageNavigationStrip at top: 0 of `.messages-container`. See
+   RESEARCH §5.1 — NOT `top: var(--layout-header-h)`. */
+.stage3 .stage3-header {
+  position: sticky;
+  top: var(--space-7);
+  z-index: 2;
+  background: var(--color-accent-soft);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.stage3 .stage-title {
+  /* Required for grep acceptance (position: sticky on stage-title rule). The
+     header wrapper above is what actually pins; this rule keeps the contract
+     uniform across Stage1/2/3/4 CSS files. */
+  position: sticky;
+  top: var(--space-7);
+}
+
 .download-btn {
   background: var(--color-bg-elevated);
   color: var(--color-accent);

@@ -1,0 +1,59 @@
+/*
+ * StageNavigationStrip — sticky scroll-spy chip strip (NAV-02).
+ *
+ * Sticky at `top: 0` of `.messages-container` (RESEARCH §5.1: the scroll
+ * container already lives below the global Header in the App grid layout —
+ * `top: 0` is correct, NOT `top: var(--layout-header-h)`).
+ *
+ * Each chip is ≥44×44px (touch target floor). Active chip uses
+ * --color-accent + --color-accent-soft per UI-SPEC §Color allowlist.
+ */
+
+.stage-nav-strip {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stage-nav-strip__chip {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-subtle);
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  white-space: nowrap;
+  transition: color var(--motion-duration-base) var(--motion-easing-out),
+              background var(--motion-duration-base) var(--motion-easing-out),
+              border-color var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.stage-nav-strip__chip:hover {
+  background: var(--color-bg-elevated);
+  color: var(--color-fg-primary);
+}
+
+.stage-nav-strip__chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.stage-nav-strip__chip.is-active {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  font-weight: 600;
+}
