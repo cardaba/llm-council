@@ -92,7 +92,7 @@ function App() {
     }
   };
 
-  const handleSendMessage = async (content) => {
+  const handleSendMessage = async (content, profile = 'fast') => {
     if (!currentConversationId) return;
 
     setIsLoading(true);
@@ -104,17 +104,23 @@ function App() {
         messages: [...prev.messages, userMessage],
       }));
 
-      // Create a partial assistant message that will be updated progressively
+      // Create a partial assistant message that will be updated progressively.
+      // Phase 3 Plan 03-05 extends the shape with `critic` and `stage4` slots
+      // (filled by the new SSE events critic_complete + stage4_complete) plus
+      // a stage4 spinner flag in `loading`.
       const assistantMessage = {
         role: 'assistant',
         stage1: null,
         stage2: null,
         stage3: null,
+        stage4: null,
         metadata: null,
+        critic: null,
         loading: {
           stage1: false,
           stage2: false,
           stage3: false,
+          stage4: false,
         },
       };
 
@@ -125,7 +131,7 @@ function App() {
       }));
 
       // Send message with streaming
-      await api.sendMessageStream(currentConversationId, content, (eventType, event) => {
+      await api.sendMessageStream(currentConversationId, content, profile, (eventType, event) => {
         switch (eventType) {
           case 'stage1_start':
             setCurrentConversation((prev) => {
@@ -197,6 +203,38 @@ function App() {
                 ...(lastMsg.metadata || {}),
                 ...event.data,
               };
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'critic_complete':
+            // QR pipeline only. event.data shape: {score, concern}
+            // (see backend/research_strategy.py).
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.critic = event.data;
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage4_start':
+            // QR pipeline only — fires when critic score < threshold (8).
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.loading = { ...(lastMsg.loading || {}), stage4: true };
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage4_complete':
+            // QR pipeline only — refined chairman synthesis with reasoning.
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage4 = event.data;
+              lastMsg.loading = { ...(lastMsg.loading || {}), stage4: false };
               return { ...prev, messages };
             });
             break;

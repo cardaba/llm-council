@@ -1,0 +1,61 @@
+/*
+ * QualityToggle — Direction A footnote-style segmented control (W13 wireframe).
+ * Hex values are Phase 4 transition tokens; structure (class names, layout)
+ * is final and Phase 4 will swap colors for design tokens without touching JSX.
+ */
+
+.quality-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.quality-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 240ms ease;
+  user-select: none;
+}
+
+.quality-option input {
+  /* Hide native radio: the surrounding label is the visual control. */
+  display: none;
+}
+
+.quality-option:hover:not(.active) {
+  background: #f0f0f0;
+}
+
+.quality-option.active {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.quality-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.quality-cost {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.quality-option.active .quality-cost {
+  color: #555;
+}
+
+.quality-option input:disabled + .quality-label,
+.quality-option input:disabled ~ .quality-cost {
+  opacity: 0.5;
+}

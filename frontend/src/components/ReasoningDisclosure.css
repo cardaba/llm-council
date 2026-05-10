@@ -1,0 +1,48 @@
+/*
+ * ReasoningDisclosure — collapsable per Stage 1 tab + Stage 4 sub-section.
+ * Hex placeholders are Phase 4 transition tokens.
+ */
+
+.reasoning-disclosure {
+  margin-top: 12px;
+  border-top: 1px dashed #e5e5e5;
+  padding-top: 8px;
+}
+
+.reasoning-toggle {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: background 240ms ease, color 240ms ease;
+}
+
+.reasoning-toggle:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.reasoning-toggle:focus-visible {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+.reasoning-body {
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: #f7f7f7;
+  border-left: 3px solid #d0d0d0;
+  border-radius: 0 4px 4px 0;
+  color: #555;
+  font-size: 0.9375rem;
+}
+
+.reasoning-block + .reasoning-block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e0e0e0;
+}

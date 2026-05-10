@@ -109,6 +109,11 @@
   background: #fafafa;
 }
 
+.input-form .quality-toggle {
+  margin-bottom: 4px;
+  align-self: flex-start;
+}
+
 .input-row {
   display: flex;
   align-items: flex-end;

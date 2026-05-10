@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Markdown from './Markdown';
 import MessageHeader from './MessageHeader';
+import QualityToggle from './QualityToggle';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
@@ -34,6 +35,7 @@ export default function ChatInterface({
   isLoading,
 }) {
   const [input, setInput] = useState('');
+  const [profile, setProfile] = useState('fast');
   const [attachments, setAttachments] = useState([]);
   const [attachError, setAttachError] = useState(null);
   const fileInputRef = useRef(null);
@@ -93,10 +95,13 @@ export default function ChatInterface({
     e.preventDefault();
     if (input.trim() && !isLoading) {
       const fullPrompt = buildPromptWithAttachments(input, attachments);
-      onSendMessage(fullPrompt);
+      onSendMessage(fullPrompt, profile);
       setInput('');
       setAttachments([]);
       setAttachError(null);
+      // NOTE: profile is intentionally NOT reset — single-shot conversation
+      // hides the input form after send anyway, but if reused the user's last
+      // choice persists.
     }
   };
 
@@ -245,6 +250,7 @@ export default function ChatInterface({
             </div>
           )}
           {attachError && <div className="attachment-error">{attachError}</div>}
+          <QualityToggle value={profile} onChange={setProfile} disabled={isLoading} />
           <div className="input-row">
             <input
               ref={fileInputRef}
