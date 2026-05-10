@@ -755,11 +755,28 @@ Esta sección existe para prevenir explícitamente el anti-patrón documentado e
 
 ## Recommendation & decision
 
-_(empty — to be filled by Plan 06 after the user reviews wireframes and HTML sketches)_
+**Decision date:** 2026-05-10
+**Decision recorded by:** Plan 02-06 (Phase 2 closure)
 
-**Selected direction:** _[Plan 06 fills]_
-**Rationale:** _[Plan 06 fills]_
-**Adjustments before Phase 4 implementation:** _[Plan 06 fills]_
+**Selected direction:** Direction A — Research notebook
+
+**Rationale:**
+
+Stage 2 y Stage 3 son texto editorial profundo — peer-review denso (F-09) y synthesis sustantiva — y la lectura larga es la actividad central de este UI, no la excepción. Direction A es la única de las tres que respeta esa lectura sin fatigar: jerarquía fuerte, whitespace generoso, serif body (Source Serif 4) emparejado con Inter para UI. Cockpit (B) es legible pero su densidad y stance de instrumento se entrometen en sesiones largas; Minimal (C) es elegante pero esconde demasiado el aggregate ranking de Stage 2 y el cost surfacing del `Quality+Research` toggle. Notebook materializa la frase del rationale del Plan 03: "lectura larga + jerarquía fuerte gana sobre densidad".
+
+**Adjustments before Phase 4 implementation:**
+
+_None — Phase 4 implementa la dirección elegida tal como queda definida en `## Direction A: Research notebook` arriba (paleta light+dark, tipografía Source Serif 4 + Inter, density medium-low, cost surfacing footnote-style, microinteracciones easing suave, IA con sidebar 320–360px y main panel max-width 720–760px, restyling notes para Phase 1 components)._
+
+**Phase 4 entry contract:**
+
+Phase 4 lee:
+- Esta sección (`## Recommendation & decision`).
+- La sección `## Direction A: Research notebook` arriba — paleta, tipografía, microinteracciones, IA, density stance, cost surfacing, Phase 1 components restyling notes.
+- El documento `.planning/ux/04-mockups/wireframes.md` — estructura común direction-neutral (23 wireframes W01–W23).
+- El sketch `.planning/ux/04-mockups/sketch-notebook.html` SOLO como referencia visual — NO como código a copiar (recordatorio del `## Throwaway HTML disclaimer`).
+
+Phase 4 NO necesita re-decidir nada visual. Si durante Phase 4 emerge una decisión visual no resuelta aquí, ese es señal de gap y se cierra con `/gsd-plan-phase 04 --gaps` referenciando este documento.
 
 ---
 
