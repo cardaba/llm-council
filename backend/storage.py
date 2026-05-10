@@ -4,9 +4,12 @@ import json
 import os
 import uuid
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Literal
 from pathlib import Path
 from .config import DATA_DIR
+
+
+SCHEMA_VERSION_V2 = 2
 
 
 class ConversationNotFoundError(Exception):
@@ -48,20 +51,65 @@ def get_conversation_path(conversation_id: str) -> str:
     return os.path.join(DATA_DIR, f"{canonical}.json")
 
 
-def create_conversation(conversation_id: str) -> Dict[str, Any]:
+def migrate_message_v1_to_v2(msg: Dict[str, Any]) -> Dict[str, Any]:
+    """Idempotent migration of a single message dict from v1 to v2 shape.
+
+    v1 assistant messages may lack `metadata`. v2 always carries it (may be
+    empty `{}`). User messages have no schema-versioned fields — they pass
+    through unchanged.
+
+    Per Phase 5 Wave 0 safety net: lazy migration only. Callers must NOT
+    write the result back to disk implicitly; persistence happens organically
+    on the next message append.
+    """
+    if msg.get("role") != "assistant":
+        return msg
+    migrated = dict(msg)
+    migrated.setdefault("metadata", {})
+    return migrated
+
+
+def _migrate_conversation_if_needed(conv: Dict[str, Any]) -> Dict[str, Any]:
+    """Apply v1→v2 migration lazily on read. Idempotent.
+
+    Pre-v2 conversations on disk lack `schema_version` and `mode`. This helper
+    stamps both (default `mode="fresh"`) and migrates each message, returning
+    a NEW dict. The file on disk is NOT rewritten — that happens organically
+    when a subsequent write (e.g. `add_user_message` → `save_conversation`)
+    flushes the in-memory v2 shape back. This preserves the "lazy forever"
+    contract from CONTEXT.md D-04.
+    """
+    if conv.get("schema_version") == SCHEMA_VERSION_V2:
+        return conv
+    conv = dict(conv)
+    conv["schema_version"] = SCHEMA_VERSION_V2
+    conv.setdefault("mode", "fresh")
+    conv["messages"] = [migrate_message_v1_to_v2(m) for m in conv.get("messages", [])]
+    return conv
+
+
+def create_conversation(
+    conversation_id: str,
+    mode: Literal["fresh", "critique"] = "fresh",
+) -> Dict[str, Any]:
     """
     Create a new conversation.
 
     Args:
-        conversation_id: Unique identifier for the conversation
+        conversation_id: Unique identifier for the conversation.
+        mode: Conversation mode — `"fresh"` (default, v1 behaviour) or
+            `"critique"` (Phase 5 critique-mode entry point). Stamped at the
+            root of the saved JSON alongside `schema_version`.
 
     Returns:
-        New conversation dict
+        New conversation dict (v2-shaped, with `schema_version` and `mode`).
     """
     ensure_data_dir()
 
     conversation = {
         "id": conversation_id,
+        "schema_version": SCHEMA_VERSION_V2,
+        "mode": mode,
         "created_at": datetime.utcnow().isoformat(),
         "title": "New Conversation",
         "messages": []
@@ -91,7 +139,13 @@ def get_conversation(conversation_id: str) -> Optional[Dict[str, Any]]:
         return None
 
     with open(path, 'r') as f:
-        return json.load(f)
+        conv = json.load(f)
+
+    # Lazy migration: stamp schema_version=2 + mode='fresh' on legacy files in
+    # memory only. The file on disk stays v1 until a subsequent message write
+    # organically flushes the v2 shape back (see CONTEXT.md D-04 — lazy forever,
+    # no eager write-back). Do NOT call save_conversation here.
+    return _migrate_conversation_if_needed(conv)
 
 
 def save_conversation(conversation: Dict[str, Any]):
@@ -128,7 +182,8 @@ def list_conversations() -> List[Dict[str, Any]]:
                     "id": data["id"],
                     "created_at": data["created_at"],
                     "title": data.get("title", "New Conversation"),
-                    "message_count": len(data["messages"])
+                    "message_count": len(data["messages"]),
+                    "mode": data.get("mode", "fresh"),
                 })
 
     # Sort by creation time, newest first
@@ -164,6 +219,7 @@ def add_assistant_message(
     stage3: Dict[str, Any],
     metadata: Optional[Dict[str, Any]] = None,
     stage4: Optional[Dict[str, Any]] = None,
+    external_research: Optional[Dict[str, Dict[str, Any]]] = None,
 ):
     """
     Add an assistant message with all stages + optional profile metadata.
@@ -213,6 +269,8 @@ def add_assistant_message(
         message["metadata"] = metadata
     if stage4 is not None:
         message["stage4"] = stage4
+    if external_research is not None:
+        message["external_research"] = external_research
     conversation["messages"].append(message)
     save_conversation(conversation)
 
