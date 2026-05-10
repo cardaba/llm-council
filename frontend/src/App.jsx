@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import Header from './components/Header';
 import { api } from './api';
 import './App.css';
 
@@ -272,6 +273,7 @@ function App() {
 
   return (
     <div className="app">
+      <Header />
       <Sidebar
         conversations={conversations}
         currentConversationId={currentConversationId}
