@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-10T08:48:48.649Z"
+last_updated: "2026-05-10T08:56:21.084Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 16
-  completed_plans: 13
-  percent: 81
+  completed_plans: 14
+  percent: 88
 ---
 
 # State: LLM Council — Personal Edition
@@ -28,22 +28,22 @@ progress:
 
 ## Current Focus
 
-Phase 02 (UX Research & Design Brief) closed and verified — all 6 plans shipped, all 4 ROADMAP success criteria verified, all 4 UXR requirements satisfied. Direction A (Research notebook) selected for Phase 4. Ready to start Phase 03 (Quality Dial & Pragmatic Deep Research).
+Phase 03 in progress — 3/5 plans shipped. Plan 03-03 closes QUAL-04 (saved-message profile header) by persisting per-message metadata in `add_assistant_message`, emitting a new SSE `message_metadata` event, and rendering an inline `MessageHeader` component above Stage 1 with backwards-compat fallback `Quality (legacy)` for pre-Phase-3 messages.
 
 ## Current Position
 
 Phase: 03 (quality-dial-pragmatic-deep-research) — EXECUTING
-Plan: 3 of 5 (Plans 01 + 02 complete)
+Plan: 4 of 5 (Plans 01 + 02 + 03 complete)
 
 - **Phase:** 3
-- **Plan:** 03-02 complete; 03-03 next
+- **Plan:** 03-03 complete; 03-04 next
 - **Status:** Executing Phase 03
-- **Progress:** [████████░░] 81%
+- **Progress:** [█████████░] 88%
 
 ```
 [#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
 [#####] 100% Phase 2 plans — verified 2026-05-10
-[##   ]  40% Phase 3 — 2/5 plans complete (03-01 foundation, 03-02 routing)
+[###  ]  60% Phase 3 — 3/5 plans complete (03-01 foundation, 03-02 routing, 03-03 metadata+header)
 [     ]   0% Phase 4 — not started
 ```
 
@@ -53,17 +53,17 @@ Plan: 3 of 5 (Plans 01 + 02 complete)
 |---|-------|--------|
 | 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
 | 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
-| 3 | Quality Dial & Pragmatic Deep Research | In progress (2/5 plans complete) |
+| 3 | Quality Dial & Pragmatic Deep Research | In progress (3/5 plans complete) |
 | 4 | Visual Identity Implementation | Pending |
 
 ## Performance Metrics
 
 - Phases planned: 4
 - Phases complete: 2
-- Plans complete: 13
+- Plans complete: 14
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 11/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-01, QUAL-02, RSCH-01)
+- Requirements satisfied: 12/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-01, QUAL-02, QUAL-04, RSCH-01)
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -80,6 +80,7 @@ Plan: 3 of 5 (Plans 01 + 02 complete)
 | 02 | 06 | doc-only | 1 | 1 | 2026-05-10 |
 | 03 | 01 | ~8 min  | 2 | 2 | 2026-05-10 |
 | 03 | 02 | ~12 min | 2 | 2 | 2026-05-10 |
+| 03 | 03 | ~9 min  | 2 | 6 | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -131,12 +132,17 @@ Plan: 3 of 5 (Plans 01 + 02 complete)
 - **Phase 03 / Plan 02:** `quality_research` routes through one delegate point per endpoint type — `run_full_council` raises `NotImplementedError` (sync) and `event_generator` emits a structured SSE error event `{'type':'error','message':'quality_research lands in Plan 03-04'}` (stream). Plan 03-04 replaces both with `research_strategy` delegations without touching the rest of the file.
 - **Phase 03 / Plan 02:** QR check placed BEFORE `title_task` creation in `event_generator`. Avoids spending a Gemini Flash title call on a request that immediately errors out.
 - **Phase 03 / Plan 02:** Module docstring on `council.py` codifies the RSCH-04 isolation rule (no `critic_model`, no `stage4_threshold`, no `:online` lists). Future plans must NOT regress this.
+- **Phase 03 / Plan 03:** `storage.add_assistant_message` accepts an opaque `metadata: Optional[Dict[str, Any]] = None` kwarg and persists the dict verbatim. Plan 03-04 adds `critic` + `stage4_triggered` keys with zero schema migration in storage — the storage layer never validates the dict shape. Conditional assignment (`if metadata is not None`) preserves the on-disk shape of pre-Phase-3 messages bit-for-bit.
+- **Phase 03 / Plan 03:** New SSE event `message_metadata` is emitted by the streaming endpoint AFTER persisting and BEFORE `complete`. The frontend `case 'message_metadata':` MERGES `{profile, models, chairman}` onto the Stage 2-populated `{label_to_model, aggregate_rankings}` (spread existing first, then `event.data`). Disjoint keys, commutative — but the order is documented because Plan 03-04 will add `stage4_triggered` via the same merge path.
+- **Phase 03 / Plan 03:** Sync `/message` endpoint also returns `message_metadata` in the JSON body as a SIBLING of the legacy `metadata` field (not nested). Two keys, two semantics. The sync endpoint is not used by the current UI but the API surface stays consistent for any future direct consumer.
+- **Phase 03 / Plan 03:** Microcopy locked per CD-01: 'Fast' / 'Quality' / 'Quality+Research'; '1 model' / 'N models' singular/plural; chairman short name strips both publisher prefix AND `:online`/`:thinking` suffix (`anthropic/claude-opus-4.7:online` → `claude-opus-4.7`); separator U+2022; Stage 4 suffix ' + Stage 4 refinement' only when `metadata.stage4_triggered === true`; legacy fallback exact copy `Quality (legacy)`.
+- **Phase 03 / Plan 03:** `MessageHeader.css` uses hex placeholders (`#666` / `#333` / `#999` / `#4a90e2`) as a Phase 4 transition contract. Phase 4 swaps these for design tokens without touching the JSX or class names — the component shape is already final.
 
 ### Open Todos
 
-- Run Plan 03-03 next: persist `profile` metadata in `add_assistant_message` and surface in saved-message header (QUAL-04).
-- Plan 03-04 will replace the `quality_research` placeholder branches in both `council.py` and `main.py` with the `research_strategy.run` delegate (RSCH-01..04 + QUAL-04 stage4 metadata).
-- Phase 04 is unblocked from Phase 02's perspective but still depends on Phase 03 (Quality toggle DOM must exist before it gets styled).
+- Run Plan 03-04 next: `research_strategy.py` module + critic LLM-as-judge + Stage 4 conditional. Replaces the `quality_research` placeholder branches in both `council.py` and `main.py` with the `research_strategy.run` delegate (RSCH-01..04 + extends QUAL-04 metadata with `critic` + `stage4_triggered`). The storage layer and the SSE `message_metadata` event are already wired — Plan 03-04 just produces the extended payload.
+- Plan 03-05 will wire the frontend Quality toggle (QUAL-03) + ReasoningDisclosure (RSCH-05) + Stage 4 sub-section + extended download .md (QUAL-03, RSCH-03, RSCH-05). The `MessageHeader` component is already in place and reflects whichever profile the toggle posts.
+- Phase 04 is unblocked from Phase 02's perspective but still depends on Phase 03 (Quality toggle DOM must exist before it gets styled). `MessageHeader.css` is already a clean target for the token migration.
 
 ### Blockers
 
@@ -153,23 +159,27 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-10):** Executed Plan 03-02 (Backend profile routing — QUAL-01). Two atomic commits: `b660b9f` (refactor: `council.py` stages take `council_models` / `chairman_model` as explicit args; `run_full_council(user_query, profile='fast')` reads `PROFILES[profile]`; `quality_research` raises `NotImplementedError`; legacy `COUNCIL_MODELS`/`CHAIRMAN_MODEL` imports dropped; module docstring codifies RSCH-04 isolation), `58dd517` (feat: `SendMessageRequest.profile: Literal["fast","quality","quality_research"] = "fast"`; both `/message` endpoints propagate `request.profile`; streaming endpoint resolves `PROFILES[profile]` once at the top of `event_generator` and emits structured SSE error event for `quality_research`). All acceptance grep checks + inline `python -c` tests passed. QUAL-01 marked satisfied (11/21 requirements).
+**Last session (2026-05-10):** Executed Plan 03-03 (Saved-message profile header — QUAL-04). Two atomic commits: `6fd4d48` (feat: `storage.add_assistant_message` accepts opaque `metadata: Optional[Dict[str, Any]] = None` kwarg, persisted verbatim under `message['metadata']`; both `/message` endpoints build `message_metadata` from `PROFILES[profile]` and pass it through; streaming endpoint emits new SSE `message_metadata` event AFTER persisting and BEFORE `complete`; sync endpoint returns it in JSON body as a sibling of legacy `metadata` key), `0b09892` (feat: new `MessageHeader.jsx` + `MessageHeader.css` component renders inline footnote-tone header above Stage 1 — `Fast • 4 models • Chairman: claude-haiku-4.5`, with backwards-compat fallback `Quality (legacy)` for pre-Phase-3 messages and Stage 4 suffix wired for Plan 03-04; `App.jsx` `case 'message_metadata':` merges payload onto existing Stage 2 metadata; `ChatInterface.jsx` mounts the header inside each assistant-message block immediately before Stage 1). All acceptance grep checks passed; `npm run build` succeeded. QUAL-04 marked satisfied (12/21 requirements).
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/03-quality-dial-pragmatic-deep-research/03-02-SUMMARY.md` to understand the wiring contract (profile field shape + run_full_council signature + the two QR placeholder points Plan 03-04 must replace).
-3. Running `/gsd-execute-phase` for Plan 03-03: persist `profile` metadata in `add_assistant_message` + saved-message header (QUAL-04).
+2. Reading `.planning/phases/03-quality-dial-pragmatic-deep-research/03-03-SUMMARY.md` to understand the metadata persistence contract + the SSE `message_metadata` event shape that Plan 03-04 must extend with `critic` + `stage4_triggered` keys.
+3. Running `/gsd-execute-phase` for Plan 03-04: `research_strategy.py` module + critic LLM-as-judge + Stage 4 conditional (RSCH-01..04 + extends QUAL-04 metadata).
 
 **Files most recently touched by GSD tooling:**
 
-- `backend/council.py` (Plan 03-02 — profile-agnostic stages + QR placeholder)
-- `backend/main.py` (Plan 03-02 — SendMessageRequest.profile + propagation in both endpoints)
-- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-02-SUMMARY.md` (Plan 03-02 summary)
+- `backend/storage.py` (Plan 03-03 — opaque metadata kwarg)
+- `backend/main.py` (Plan 03-03 — message_metadata build + emit in both endpoints)
+- `frontend/src/components/MessageHeader.jsx` (Plan 03-03 — NEW)
+- `frontend/src/components/MessageHeader.css` (Plan 03-03 — NEW)
+- `frontend/src/components/ChatInterface.jsx` (Plan 03-03 — MessageHeader mount)
+- `frontend/src/App.jsx` (Plan 03-03 — message_metadata SSE case)
+- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-03-SUMMARY.md` (Plan 03-03 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 3 progress 2/5)
-- `.planning/REQUIREMENTS.md` (QUAL-01 marked complete)
+- `.planning/ROADMAP.md` (Phase 3 progress 3/5)
+- `.planning/REQUIREMENTS.md` (QUAL-04 marked complete)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-10 after Plan 03-02 (Backend profile routing: SendMessageRequest.profile + run_full_council branching).*
+*Last updated: 2026-05-10 after Plan 03-03 (Saved-message profile header: storage metadata kwarg + SSE message_metadata event + MessageHeader component).*

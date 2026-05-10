@@ -71,7 +71,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md (wave 1) — Foundation: PROFILES dict en config.py + reasoning kwarg opcional en query_model (QUAL-02, RSCH-01) — completed 2026-05-10 (commits `4497f09`, `c8eec8e`)
 - [x] 03-02-PLAN.md (wave 2) — Routing por profile en SendMessageRequest + council.py para fast/quality (placeholder QR) (QUAL-01)
-- [ ] 03-03-PLAN.md (wave 3) — Persistencia de metadata por mensaje + MessageHeader inline (QUAL-04)
+- [x] 03-03-PLAN.md (wave 3) — Persistencia de metadata por mensaje + MessageHeader inline (QUAL-04) — completed 2026-05-10 (commits `6fd4d48`, `0b09892`)
 - [ ] 03-04-PLAN.md (wave 4) — research_strategy.py module aislado: 4 reasoning models :online + critic LLM-as-judge + Stage 4 conditional (QUAL-02 ext, RSCH-01..04)
 - [ ] 03-05-PLAN.md (wave 5) — Frontend: QualityToggle + ReasoningDisclosure + Stage4 sub-section + download .md extendido (QUAL-03, RSCH-03, RSCH-05)
 **UI hint**: yes
@@ -95,7 +95,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Hardening & Conversation Management | 5/5 | Complete | 2026-05-09 |
 | 2. UX Research & Design Brief | 6/6 | Complete | 2026-05-10 |
-| 3. Quality Dial & Pragmatic Deep Research | 1/5 | In progress | - |
+| 3. Quality Dial & Pragmatic Deep Research | 3/5 | In progress | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |
 
 ## Coverage
