@@ -20,6 +20,20 @@
   line-height: var(--line-height-tight);
 }
 
+/* NAV-01: sticky section header inside .messages-container. `top: var(--space-7)`
+   (48px) stacks BELOW the StageNavigationStrip which is sticky at top: 0 of
+   `.messages-container`. `top: var(--layout-header-h)` would be wrong — the
+   scroll container already sits below the global Header in the App grid layout
+   (RESEARCH §5.1). Scoped to .stage1 so each stage owns its own sticky rule. */
+.stage1 .stage-title {
+  position: sticky;
+  top: var(--space-7);
+  z-index: 2;
+  background: var(--color-bg-primary);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
 .tabs {
   display: flex;
   gap: var(--space-2);

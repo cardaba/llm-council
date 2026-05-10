@@ -24,7 +24,9 @@ export default function Stage4({ stage4 }) {
   const concern = stage4.primary_concern || '(no specific concern parsed)';
 
   return (
-    <div className="stage stage4">
+    // data-stage="stage4" so NAV-02 StageNavigationStrip's IntersectionObserver
+    // can find this sub-section (Stage4 lives inside Stage3's DOM tree).
+    <div className="stage stage4" data-stage="stage4">
       <h3 className="stage-title">Stage 4: Refinement</h3>
       <div className="stage4-meta">
         <div className="critic-score">

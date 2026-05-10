@@ -20,6 +20,14 @@
   padding: var(--space-5);
 }
 
+/* NAV-02: ensure chip clicks land below the sticky StageNavigationStrip
+   (top: 0, height ~48px) and the sticky stage-title (top: var(--space-7)).
+   `scroll-margin-top` offsets the scroll target so anchored sections don't
+   slide under the sticky chrome. */
+.messages-container [data-stage] {
+  scroll-margin-top: var(--space-7);
+}
+
 /* ----------------------------------------------------------------------
    Welcome state — UI-SPEC §Copywriting Contract (locked verbatim copy).
    ---------------------------------------------------------------------- */

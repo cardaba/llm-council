@@ -15,7 +15,11 @@ function modelShort(modelId) {
   return noPrefix.split(':')[0];
 }
 
-export default function Stage1({ responses }) {
+// `defaultCollapsed` (Phase 5 NAV-03) controls whether long Stage 1 responses
+// (>600px) start collapsed. true on historical conversations (msg.stage3
+// already present at first render); false during live streaming. Task 2 wires
+// the collapse; Task 1 only forwards the prop so the JSX surface is stable.
+export default function Stage1({ responses, defaultCollapsed = false }) {
   const [activeTab, setActiveTab] = useState(0);
 
   if (!responses || responses.length === 0) {
