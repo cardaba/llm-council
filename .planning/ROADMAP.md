@@ -86,11 +86,11 @@ Plans:
   2. Typography is a deliberately chosen characterful family (e.g. Inter / IBM Plex / DM Sans) loaded efficiently and applied site-wide; no surface still uses `system-ui`.
   3. The app shell is branded: a header with the app name and an icon, distinctive sidebar styling, and intentional empty states replace the previous minimal shell — matching the mockups from Phase 2.
   4. Microinteractions are polished: stage transitions animate smoothly, loading states use bespoke spinners or skeletons (not the browser default), interactive elements (Quality toggle, tabs, buttons, sidebar items) have hover and active states, and stage progress is animated.
-**Plans:** 1/4 plans complete
+**Plans:** 3/4 plans complete
 Plans:
 - [x] 04-01-PLAN.md (wave 1) — Foundations: tokens CSS + @font-face + woff2 self-hosted + FOUC blocking script + prefers-reduced-motion override (VIS-01, VIS-02, VIS-04) — completed 2026-05-10 (commits `64e1328`, `113da15`, `170592b`)
-- [x] 04-02-PLAN.md (wave 2) — Branded shell: Header component + useTheme hook + App.css grid + MessageHeader token migration (VIS-02, VIS-03, VIS-04)
-- [ ] 04-03-PLAN.md (wave 3) — Deliberation surfaces: Stage1/2/3/4 + ChatInterface (welcome state) + QualityToggle + ReasoningDisclosure (accordion grid trick) + new Stage1Progress component (VIS-01, VIS-02, VIS-04)
+- [x] 04-02-PLAN.md (wave 2) — Branded shell: Header component + useTheme hook + App.css grid + MessageHeader token migration (VIS-02, VIS-03, VIS-04) — completed 2026-05-10 (commits `d5c4818`, `befff4a`, `e9195c5`)
+- [x] 04-03-PLAN.md (wave 3) — Deliberation surfaces: Stage1/2/3/4 + ChatInterface (welcome state) + QualityToggle + ReasoningDisclosure (accordion grid trick) + new Stage1Progress component (VIS-01, VIS-02, VIS-04) — completed 2026-05-10 (commits `ca11b11`, `d3393c4`, `a4e7a19`)
 - [ ] 04-04-PLAN.md (wave 4) — Conversations and polish: Sidebar (empty state ampersand >=96px) + Modal + Menu + new ErrorBanner component + favicon ampersand SVG (VIS-01..04)
 **UI hint**: yes
 
@@ -101,7 +101,7 @@ Plans:
 | 1. Hardening & Conversation Management | 5/5 | Complete | 2026-05-09 |
 | 2. UX Research & Design Brief | 6/6 | Complete | 2026-05-10 |
 | 3. Quality Dial & Pragmatic Deep Research | 5/5 | Complete   | 2026-05-10 |
-| 4. Visual Identity Implementation | 1/4 | Executing  | - |
+| 4. Visual Identity Implementation | 3/4 | Executing  | - |
 
 ## Coverage
 

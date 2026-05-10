@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-10T15:46:24Z"
+last_updated: "2026-05-10T16:30:00Z"
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 20
-  completed_plans: 19
-  percent: 95
+  completed_plans: 20
+  percent: 99
 ---
 
 # State: LLM Council — Personal Edition
@@ -28,23 +28,23 @@ progress:
 
 ## Current Focus
 
-Phase 04 EXECUTING — Plans 04-01 (Foundations) and 04-02 (Branded shell) complete. App now visually branded: Header (52px) with serif "LLM Council" wordmark + ampersand SVG mark + sun/moon theme toggle; useTheme hook coordinates light/dark with localStorage persistence and prefers-color-scheme follow-mode; App shell rebuilt as CSS grid (52px header row + 280px sidebar / 1fr main row); MessageHeader.css fully migrated from Phase-3 hex placeholders to design tokens (first Phase-3 component fully on tokens). Wave B grep gate passes — no `system-ui` outside the `--font-sans` fallback. Wave 3 (Plan 04-03 — Deliberation surfaces: ChatInterface, Stage1, Stage2, Stage3, Stage4, QualityToggle, ReasoningDisclosure) is next.
+Phase 04 EXECUTING — Plans 04-01 (Foundations), 04-02 (Branded shell) and 04-03 (Deliberation surfaces) complete. App now visually ~80% on Direction A: Header / shell / MessageHeader from Wave 2; Stage1/2/3/4 + ChatInterface + QualityToggle + ReasoningDisclosure from Wave 3. THE most visible Phase 4 change shipped: Stage 3 panel's Bootstrap green (#f0fff0) replaced by `var(--color-accent-soft)` + 3px terracota border-left (UI-SPEC line 207-211). New Stage1Progress component delivers the 3-segment progress strip with `@keyframes dot-pulse` staggered 0/220/440ms and grid-template-rows auto-collapse. Welcome state copy locked verbatim from UI-SPEC. ReasoningDisclosure ships modern grid-template-rows 0fr→1fr accordion contract. Wave 3 grep gate passes — zero Bootstrap hex (#4a90e2|#357abd|#f0fff0|#f5f5f5|#f0f0f0) across the 7 deliberation .css files. Wave 4 (Plan 04-04 — Sidebar / Modal / Menu / favicon / ErrorBanner) closes the remaining 15-20%.
 
 ## Current Position
 
 Phase: 04 (visual-identity-implementation) — EXECUTING
-Plan: 3 of 4 (next: 04-03 Deliberation surfaces)
+Plan: 4 of 4 (next: 04-04 Sidebar / Modal / Menu / favicon / ErrorBanner)
 
 - **Phase:** 4
-- **Plan:** 04-02 complete (commits `d5c4818`, `befff4a`, `e9195c5`)
+- **Plan:** 04-03 complete (commits `ca11b11`, `d3393c4`, `a4e7a19`)
 - **Status:** Executing Phase 04
-- **Progress:** [██████████] 95%
+- **Progress:** [██████████] 99%
 
 ```
 [#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
 [#####] 100% Phase 2 plans — verified 2026-05-10
 [#####] 100% Phase 3 — 5/5 plans complete (03-01 foundation, 03-02 routing, 03-03 metadata+header, 03-04 research_strategy, 03-05 frontend wiring)
-[###  ]  50% Phase 4 — 2/4 plans complete (04-01 foundations, 04-02 branded shell)
+[#### ]  75% Phase 4 — 3/4 plans complete (04-01 foundations, 04-02 branded shell, 04-03 deliberation surfaces)
 ```
 
 ## Phase Progression
@@ -54,16 +54,16 @@ Plan: 3 of 4 (next: 04-03 Deliberation surfaces)
 | 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
 | 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
 | 3 | Quality Dial & Pragmatic Deep Research | All 5 plans complete (closed 2026-05-10) |
-| 4 | Visual Identity Implementation | 2/4 plans complete (04-01 foundations, 04-02 branded shell) — executing |
+| 4 | Visual Identity Implementation | 3/4 plans complete (04-01 foundations, 04-02 branded shell, 04-03 deliberation surfaces) — executing |
 
 ## Performance Metrics
 
 - Phases planned: 4
 - Phases complete: 3
-- Plans complete: 18
+- Plans complete: 19
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 20/21 (SEC-01, CONV-01..03, UXR-01..04, QUAL-01..04, RSCH-01..05, VIS-02, VIS-03, VIS-04). VIS-01 still open — Wave 3 (Plan 04-03) closes it by migrating QualityToggle / ReasoningDisclosure / Stage1..4 / ChatInterface to tokens, and Wave 4 (Plan 04-04) closes the conversations list / Sidebar polish.
+- Requirements satisfied: 20/21 (SEC-01, CONV-01..03, UXR-01..04, QUAL-01..04, RSCH-01..05, VIS-02, VIS-03, VIS-04). VIS-01 ~80% closed after Wave 3 (Plan 04-03 — Stage1..4 / ChatInterface / QualityToggle / ReasoningDisclosure on tokens; Stage 3 terracota panel delivered). Wave 4 (Plan 04-04) closes Sidebar / Modal / Menu / favicon to fully close VIS-01.
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -85,6 +85,7 @@ Plan: 3 of 4 (next: 04-03 Deliberation surfaces)
 | 03 | 05 | ~22 min | 2 | 13 | 2026-05-10 |
 | 04 | 01 | ~14 min | 3 | 6  | 2026-05-10 |
 | 04 | 02 | ~6 min  | 3 | 6  | 2026-05-10 |
+| 04 | 03 | ~25 min | 3 | 11 | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -168,12 +169,19 @@ Plan: 3 of 4 (next: 04-03 Deliberation surfaces)
 - **Phase 04 / Plan 02:** MessageHeader.css es la primera migración Phase-3 → Phase-4. Swap map locked: `#666 → var(--color-fg-secondary)`, `#333 → var(--color-fg-primary)`, `#999 → var(--color-fg-muted)`, `#4a90e2 → var(--color-accent)`. Font stack `'Inter', system-ui, sans-serif → var(--font-sans)`. Plan 04-03 aplicará el mismo patrón a QualityToggle.css / ReasoningDisclosure.css / Stage4.css / Stage1-3 con sus respectivos hex placeholders. JSX nunca se toca — class names locked en Phase 3.
 - **Phase 04 / Plan 02:** Tabular-nums applied a `.message-header` root rather than `.message-header__meta` — UI-SPEC line 128 named the wrapper but Plan 03-03 / MessageHeader.jsx no lo introdujo (meta es inline `<span>` siblings). Plan 04-02 forbids JSX edits, así que apply en root achieves same visual outcome (digits align). Documented as Rule 1 deviation.
 - **Phase 04 / Plan 02:** ESLint flat config flags `catch (_) { ... }` con `no-unused-vars`. Switched to bare `catch { ... }` (ES2019 optional catch binding, supported by Vite esbuild target). Semantically identical, no behaviour change.
+- **Phase 04 / Plan 03:** Stage 3 panel migration delivered — `var(--color-accent-soft)` background + `border-left: 3px solid var(--color-accent)` replaces the long-standing Bootstrap green `#f0fff0`. Single most visible Phase 4 change; closes UI-SPEC line 207-211 prohibition. `stage3-reveal` keyframe (opacity 0→1 + translateY 8px→0 over `--motion-duration-slow`) gives the panel a settling fade-in.
+- **Phase 04 / Plan 03:** Stage4 amber soft tint uses inline `rgba(140, 102, 32, 0.12)` instead of adding a new `--color-warn-soft` token. Plan 04-01 token set is closed at end of Wave 1; Plan 04-03 explicitly does NOT modify `index.css` (cross-wave file ownership). Border/text on the chip still use `var(--color-warn)`.
+- **Phase 04 / Plan 03:** ReasoningDisclosure ships BOTH the legacy class names (kept verbatim because JSX is in Phase-3 freeze) AND the modern grid-trick contract (`.reasoning-disclosure__panel[data-open="true"]` toggles `grid-template-rows: 0fr → 1fr`). The current JSX still uses `expanded && <body>` conditional mount — the grid contract is forward-compatible for any future migration to permanent mount + data-open without CSS rewrites. Chevron `›` rotates 90deg via `::before { transform }` keyed on `aria-expanded="true"`.
+- **Phase 04 / Plan 03:** Stage1Progress.jsx `isStageComplete` gates on `lastMessage.stage3 != null && !loadingState?.stage4`. Naive `stage3 != null` would auto-collapse the strip mid-pipeline for QR queries (Stage 4 critic + refinement still running). The combined gate keeps the strip visible until the whole pipeline (including any Stage 4) settles.
+- **Phase 04 / Plan 03:** Stage1.jsx introduces `modelShort(modelId)` that strips publisher prefix AND `:online`/`:thinking` suffix in one helper. Replaces the previous `split('/')[1]` which left `claude-opus-4.7:online` visible on QR-profile tabs. Rule 1 deviation (bug fix). Mirrors how MessageHeader.jsx (Phase 3) already handles model-short.
+- **Phase 04 / Plan 03:** Welcome state mounted in BOTH the no-conversation early return AND the empty-conversation `messages.length===0` branch. Same JSX block, same UI-SPEC copy. Plan asked to "REPLACE the existing welcome block completely"; the existing component had two welcome blocks, replacing only one would have left the legacy "Start a conversation / Ask a question to consult the LLM Council" copy reachable.
+- **Phase 04 / Plan 03:** Stage1.css active-tab indicator uses `border-bottom: 2px solid var(--color-accent)` (UI-SPEC accent allowlist item 5) — replaces the Phase-3 placeholder `border: 1px solid #4a90e2; background: #ffffff` that simulated a tab via filled chip. The new pattern is closer to native browser-tab semantics and reads cleaner with the warmer Direction A bg.
 
 ### Open Todos
 
 - Calibration of `stage4_threshold` after first 5-10 real QR queries (CD-04). Adjust `config.PROFILES["quality_research"]["stage4_threshold"]` only — strategy module is immune to this calibration.
 - Web search annotations (`data['choices'][0]['message']['annotations']`) NOT captured in v1; deferred to RSCH-V2-02 (citation extraction).
-- Phase 04 — Visual Identity Implementation: in progress. Plans 04-01 + 04-02 complete. Hex placeholders in `MessageHeader.css` migrated (Wave 2). Remaining hex placeholders in `QualityToggle.css`, `ReasoningDisclosure.css`, `Stage4.css`, `Stage1.css`, `Stage2.css`, `Stage3.css`, `ChatInterface.css`, and the `.markdown-content` block in `index.css` are intentional Phase 4 transition tokens — Wave 3 (Plan 04-03) covers ChatInterface + Stage 1-4 + QualityToggle + ReasoningDisclosure; Wave 4 (Plan 04-04) covers Sidebar / Modal / Menu / favicon SVG.
+- Phase 04 — Visual Identity Implementation: in progress. Plans 04-01 + 04-02 + 04-03 complete. Wave 3 deliberation surfaces fully on tokens. Remaining hex placeholders in `Sidebar.css`, `Modal.css`, `Menu.css`, the `.markdown-content` block in `index.css` (table borders + inline-code bg), and a small ErrorBanner refresh — Wave 4 (Plan 04-04) closes them along with the favicon SVG.
 - Pre-existing `react-hooks/immutability` errors on `loadConversation` in `App.jsx` (2 errors) carried over from earlier phases. Not in scope for Wave 2; logged for a future cleanup pass. Build passes.
 
 ### Blockers
@@ -191,28 +199,36 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-10):** Executed Plan 04-02 (Phase 4 Wave 2 — Branded shell). Three atomic commits: `d5c4818` (feat: useTheme hook + Header component — frontend/src/hooks/useTheme.js with synchronous initial read coordinated with FOUC blocker, matchMedia listener subscribed only while followSystem===true, cleanup on unmount + on followSystem flip; frontend/src/components/Header.jsx with role='banner' landmark, ampersand SVG mark via inline <text> + currentColor, 'LLM Council' wordmark in var(--font-serif) weight 600, sun/moon theme toggle with aria-label flipping with the next theme; frontend/src/components/Header.css token-only — zero hardcoded hex), `befff4a` (feat: App shell restructured to CSS grid — App.jsx imports Header and mounts it as first child; App.css rewritten from flex+#ffffff/#333+system-ui to grid-template-columns: var(--layout-sidebar-w) 1fr / grid-template-rows: var(--layout-header-h) 1fr / background var(--color-bg-primary) / font-family var(--font-serif), descendant selectors place .app-header on row 1 and .sidebar/.chat-interface on row 2, mobile drawer rule via @media (max-width: 768px) with translateX overlay), `e9195c5` (feat: MessageHeader.css migrated from Phase-3 hex placeholders to tokens — #666 → var(--color-fg-secondary), #333 → var(--color-fg-primary), #999 → var(--color-fg-muted), #4a90e2 → var(--color-accent), font stack 'Inter', system-ui → var(--font-sans), sizes/spacings → var(--font-size-body-small)/var(--space-*), font-variant-numeric: tabular-nums on .message-header root for digit alignment; JSX intentionally untouched). Wave B grep gate passes — only `system-ui` reference in frontend/src/ is the fallback inside `--font-sans` declaration in index.css. `npm --prefix frontend run build` succeeds (CSS 21.25 kB gzip 5.19 kB). Two minor Rule 1 deviations: catch(_) → bare catch (ESLint), tabular-nums on root vs .__meta (JSX freeze).
+**Last session (2026-05-10):** Executed Plan 04-03 (Phase 4 Wave 3 — Deliberation surfaces). Three atomic commits: `ca11b11` (feat: 6 .css migrations Stage1/2/3/4 + QualityToggle + ReasoningDisclosure → tokens — Stage 3 panel: var(--color-accent-soft) + 3px terracota border-left + stage3-reveal keyframe; Stage 4 transparent bg + var(--color-warn) chip with inline rgba soft tint; QualityToggle active border var(--color-accent); ReasoningDisclosure modern grid-template-rows 0fr→1fr accordion + chevron rotation 90deg; Stage1 active tab border-bottom 2px var(--color-accent)), `d3393c4` (feat: Stage1Progress.{jsx,css} new + ChatInterface mount + welcome state copy + ChatInterface.css full token migration — Stage1Progress 3-segment strip with @keyframes dot-pulse staggered 0/220/440ms + auto-collapse via grid-template-rows 1fr→0fr; welcome h1 'What do you want to think about today?' + lead + 3 italic examples mounted in both no-conversation cold start and empty-conversation paths; Send button uses var(--color-accent) + filter brightness(0.92) hover; spinner border-top var(--color-accent)), `a4e7a19` (feat: Stage1.jsx modelShort() helper strips publisher prefix AND :online/:thinking suffix; failed-tab rendering with .tab--failed compound class consuming Stage1.css var(--color-error) + ⚠ glyph). Wave 3 grep gate passes — zero Bootstrap hex (#4a90e2|#357abd|#f0fff0|#f5f5f5|#f0f0f0) across the 7 deliberation .css files. `npm --prefix frontend run build` succeeds (CSS 32.50 kB / gzip 6.02 kB). 4 minor Rule 1/2 deviations documented in SUMMARY (modelShort helper, failed-tab rendering, dual welcome state mount, isStageComplete gates on !stage4 loading).
+
+**Previous session (2026-05-10):** Executed Plan 04-02 (Phase 4 Wave 2 — Branded shell). Three atomic commits: `d5c4818` (feat: useTheme hook + Header component — frontend/src/hooks/useTheme.js with synchronous initial read coordinated with FOUC blocker, matchMedia listener subscribed only while followSystem===true, cleanup on unmount + on followSystem flip; frontend/src/components/Header.jsx with role='banner' landmark, ampersand SVG mark via inline <text> + currentColor, 'LLM Council' wordmark in var(--font-serif) weight 600, sun/moon theme toggle with aria-label flipping with the next theme; frontend/src/components/Header.css token-only — zero hardcoded hex), `befff4a` (feat: App shell restructured to CSS grid — App.jsx imports Header and mounts it as first child; App.css rewritten from flex+#ffffff/#333+system-ui to grid-template-columns: var(--layout-sidebar-w) 1fr / grid-template-rows: var(--layout-header-h) 1fr / background var(--color-bg-primary) / font-family var(--font-serif), descendant selectors place .app-header on row 1 and .sidebar/.chat-interface on row 2, mobile drawer rule via @media (max-width: 768px) with translateX overlay), `e9195c5` (feat: MessageHeader.css migrated from Phase-3 hex placeholders to tokens — #666 → var(--color-fg-secondary), #333 → var(--color-fg-primary), #999 → var(--color-fg-muted), #4a90e2 → var(--color-accent), font stack 'Inter', system-ui → var(--font-sans), sizes/spacings → var(--font-size-body-small)/var(--space-*), font-variant-numeric: tabular-nums on .message-header root for digit alignment; JSX intentionally untouched). Wave B grep gate passes — only `system-ui` reference in frontend/src/ is the fallback inside `--font-sans` declaration in index.css. `npm --prefix frontend run build` succeeds (CSS 21.25 kB gzip 5.19 kB). Two minor Rule 1 deviations: catch(_) → bare catch (ESLint), tabular-nums on root vs .__meta (JSX freeze).
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Continuing Phase 04 — Plan 04-03 (Wave 3 Deliberation surfaces): migrate ChatInterface + Stage1 + Stage2 + Stage3 + Stage4 + QualityToggle + ReasoningDisclosure + Markdown wrapper to consume design tokens. Same swap-map pattern as MessageHeader.css. JSX class names are stable; Phase 3 already locked them.
-3. Wave 2 entry contract delivered: branded global header visible at all times; theme toggle works end-to-end; app-shell grid established; MessageHeader fully migrated.
+2. Continuing Phase 04 — Plan 04-04 (Wave 4 — last 15-20%): Sidebar + Modal + Menu CSS token migration; favicon SVG asset; ErrorBanner component; close `.markdown-content` block in index.css (table borders + inline-code background) which still holds Phase-3 placeholders. After Wave 4 closes, VIS-01 / VIS-02 / VIS-04 are 100% done and Phase 4 enters verification.
+3. Wave 3 entry contract delivered: Stage 3 terracota panel visible (no Bootstrap green); progress strip animates with staggered dots and auto-collapses; welcome state copy locked; ReasoningDisclosure has modern accordion contract.
 
 **Files most recently touched by GSD tooling:**
 
-- `frontend/src/hooks/useTheme.js` (Plan 04-02 — NEW, useTheme hook)
-- `frontend/src/components/Header.jsx` (Plan 04-02 — NEW, branded header)
-- `frontend/src/components/Header.css` (Plan 04-02 — NEW, token-only styles)
-- `frontend/src/App.jsx` (Plan 04-02 — Header mount; SSE wiring untouched)
-- `frontend/src/App.css` (Plan 04-02 — flex → grid + tokens + mobile drawer)
-- `frontend/src/components/MessageHeader.css` (Plan 04-02 — Phase-3 hex → tokens + tabular nums)
-- `.planning/phases/04-visual-identity-implementation/04-02-SUMMARY.md` (Plan 04-02 summary)
+- `frontend/src/components/Stage1Progress.jsx` (Plan 04-03 — NEW, 3-segment progress strip)
+- `frontend/src/components/Stage1Progress.css` (Plan 04-03 — NEW, dot-pulse staggered + auto-collapse)
+- `frontend/src/components/Stage1.jsx` (Plan 04-03 — modelShort helper + failed-tab)
+- `frontend/src/components/Stage1.css` (Plan 04-03 — tokens, active tab border-bottom 2px accent)
+- `frontend/src/components/Stage2.css` (Plan 04-03 — tokens, tabular-nums on aggregate)
+- `frontend/src/components/Stage3.css` (Plan 04-03 — Bootstrap green replaced by accent-soft + 3px border-left)
+- `frontend/src/components/Stage4.css` (Plan 04-03 — transparent bg + var(--color-warn) chip)
+- `frontend/src/components/ChatInterface.jsx` (Plan 04-03 — Stage1Progress mount + welcome state)
+- `frontend/src/components/ChatInterface.css` (Plan 04-03 — full token migration)
+- `frontend/src/components/QualityToggle.css` (Plan 04-03 — active border accent + microcopy cost)
+- `frontend/src/components/ReasoningDisclosure.css` (Plan 04-03 — chevron rotation + grid accordion)
+- `.planning/phases/04-visual-identity-implementation/04-03-SUMMARY.md` (Plan 04-03 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Plan 04-02 marked complete; Phase 4 progress 2/4)
+- `.planning/ROADMAP.md` (Plan 04-03 marked complete; Phase 4 progress 3/4)
 
 ---
 *State initialized: 2026-05-09*
+*Last updated: 2026-05-10 after Plan 04-03 (Phase 4 Wave 3 Deliberation surfaces: 6 .css migrations + Stage1Progress NEW + ChatInterface welcome state + Stage1.jsx modelShort/failed-tab; VIS-01 ~80% closed — Wave 4 closes Sidebar/Modal/Menu/favicon).*
 *Last updated: 2026-05-10 after Plan 04-02 (Phase 4 Wave 2 Branded shell: useTheme + Header + App.css grid + MessageHeader migration; VIS-02 + VIS-03 + VIS-04 closed; VIS-01 still open until Wave 3-4).*
 *Last updated: 2026-05-10 after Plan 04-01 (Phase 4 Foundations: token system + self-hosted variable fonts + FOUC blocker landed; VIS-01..04 still open — components migration in Waves 2-4).*
 *Last updated: 2026-05-10 after Plan 03-05 (frontend QR wiring: QUAL-03 + RSCH-03 + RSCH-05 closed; Phase 03 complete with 21/21 requirements coverage).*
