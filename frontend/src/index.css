@@ -1,13 +1,151 @@
-:root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* ============================================================================
+   @font-face — Self-hosted variable fonts (SIL OFL 1.1)
+   Source binaries committed to frontend/public/fonts/.
+   font-display: swap → no FOIT; renders fallback then swaps when loaded (D-19).
+   ============================================================================ */
 
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  src: url('/fonts/SourceSerif4-Variable-Roman.woff2') format('woff2-variations'),
+       url('/fonts/SourceSerif4-Variable-Roman.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  src: url('/fonts/SourceSerif4-Variable-Italic.woff2') format('woff2-variations'),
+       url('/fonts/SourceSerif4-Variable-Italic.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Variable';
+  src: url('/fonts/Inter-Variable.woff2') format('woff2-variations'),
+       url('/fonts/Inter-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  src: url('/fonts/JetBrainsMono-Variable.woff2') format('woff2-variations'),
+       url('/fonts/JetBrainsMono-Variable.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================================
+   :root — Light mode tokens (default theme)
+   Token taxonomy locked by Phase 04 UI-SPEC §Design System (Direction A).
+   Components consume via var(--*) — never hardcode hex.
+   ============================================================================ */
+
+:root {
+  /* Color — light mode (13 tokens) */
+  --color-bg-primary: #FAF8F4;
+  --color-bg-secondary: #F2EFE8;
+  --color-bg-elevated: #FFFFFF;
+  --color-fg-primary: #2A2724;
+  --color-fg-secondary: #6B635A;
+  --color-fg-muted: #9A9088;
+  --color-accent: #B05A2A;
+  --color-accent-soft: #EFD9C5;
+  --color-border-subtle: #E5DFD4;
+  --color-border-strong: #C8BFB2;
+  --color-focus-ring: rgba(176, 90, 42, 0.35);
+  --color-error: #A03828;
+  --color-warn: #8C6620;
+
+  /* Typography families (3 chains) */
+  --font-serif: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:  'JetBrains Mono Variable', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Typography sizes (rem-based, 17px body anchor — 9 tokens) */
+  --font-size-display: 2rem;          /* 32px */
+  --font-size-h1: 1.625rem;           /* 26px */
+  --font-size-h2: 1.375rem;           /* 22px */
+  --font-size-h3: 1.125rem;           /* 18px */
+  --font-size-body: 1.0625rem;        /* 17px */
+  --font-size-body-small: 0.875rem;   /* 14px */
+  --font-size-code: 0.9375rem;        /* 15px inline */
+  --font-size-label: 0.8125rem;       /* 13px */
+  --font-size-microcopy: 0.75rem;     /* 12px */
+
+  /* Line heights (3 tokens) */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.4;
+  --line-height-loose: 1.65;
+
+  /* Spacing (4px base — 7 tokens) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Layout constants (4 tokens) */
+  --layout-header-h: 52px;
+  --layout-sidebar-w: 280px;
+  --layout-content-max-w: 65ch;
+  --layout-content-padding: clamp(24px, 5vw, 64px);
+
+  /* Radius (2 tokens) */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+
+  /* Shadow (light mode — 2 tokens) */
+  --shadow-sm: 0 4px 12px rgba(42, 39, 36, 0.10);
+  --shadow-md: 0 8px 24px rgba(42, 39, 36, 0.08);
+
+  /* Motion (4 tokens) */
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 180ms;
+  --motion-duration-slow: 300ms;
+  --motion-easing-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Global font hints (theme-agnostic, not tokens) */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================================================
+   Dark mode — re-declare only theme-dependent tokens.
+   Activated by FOUC blocker script in index.html setting <html data-theme="dark">.
+   Structural tokens (sizes, spacings, motions, radii) are theme-agnostic.
+   ============================================================================ */
+
+[data-theme="dark"] {
+  --color-bg-primary: #1C1A17;
+  --color-bg-secondary: #23201D;
+  --color-bg-elevated: #2A2723;
+  --color-fg-primary: #EFEAE2;
+  --color-fg-secondary: #B5ADA1;
+  --color-fg-muted: #7E766C;
+  --color-accent: #E08A4F;
+  --color-accent-soft: #3A2A20;
+  --color-border-subtle: #34302B;
+  --color-border-strong: #4A443D;
+  --color-focus-ring: rgba(224, 138, 79, 0.45);
+  --color-error: #D86B55;
+  --color-warn: #C99650;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.50);
+}
+
+/* ============================================================================
+   Base resets — preserve existing baseline.
+   ============================================================================ */
 
 * {
   margin: 0;
@@ -19,7 +157,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--color-bg-primary);
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-loose);
 }
 
 #root {
@@ -28,7 +170,29 @@ body {
   overflow: hidden;
 }
 
-/* Global markdown styling */
+/* ============================================================================
+   Reduced motion — global override per RESEARCH §Pitfall 4.
+   Preserves :focus-visible outline so keyboard a11y survives motion-off.
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color-focus-ring) !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* ============================================================================
+   Global markdown styling — UNCHANGED from baseline.
+   Migration to design tokens deferred to Wave 3 (Plans 04-03 Stage1/2/3 .css).
+   Hex placeholders below are intentional Phase 4 transition markers.
+   ============================================================================ */
 .markdown-content {
   padding: 12px;
 }
