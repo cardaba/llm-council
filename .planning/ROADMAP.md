@@ -68,7 +68,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
   5. El `stage4_threshold` viaja en cada request `quality_research` como campo opcional Pydantic-validado (`ge=1, le=10`) y `research_strategy.run` acepta `threshold_override`; requests v1 sin el campo siguen funcionando idénticos. La density aplica vía el FOUC blocker en `index.html` (sync, sin flicker), font-size aplica vía React state (single-render flicker aceptable).
 
 **Plans:** 7 plans
-- [ ] 06-01-PLAN.md — OpenRouter `usage.cost` shape spike + RESEARCH annotation (Wave 1, gate before any cost-aggregation code)
+- [x] 06-01-PLAN.md — OpenRouter `usage.cost` shape spike + RESEARCH annotation (Wave 1, gate before any cost-aggregation code)
 - [ ] 06-02-PLAN.md — PERS-01/02 fresh-streaming metadata pack (label_to_model + aggregate_rankings) (Wave 2)
 - [ ] 06-03-PLAN.md — COST-01 query_model cost capture + council/research_strategy per-stage accumulation + metadata.cost pack (Wave 3)
 - [ ] 06-04-PLAN.md — COST-02 + COST-03 + COST-04 MessageHeader cost line + backend/stats.py + /api/stats/cost + Sidebar footer (Wave 4)
