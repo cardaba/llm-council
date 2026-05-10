@@ -144,6 +144,36 @@
 }
 
 /* ============================================================================
+   Density override — Phase 6 SET-04.
+   Retunes intra-component spacing only (--space-2, --space-3); layout grid
+   tokens (--space-4..7, --layout-*) intentionally untouched so the global
+   grid + outer panel padding are stable across density modes.
+   ============================================================================ */
+
+[data-density="compact"] {
+  --space-2: 6px;   /* was 8px — tightens v-stack gaps + small paddings */
+  --space-3: 10px;  /* was 12px — tightens MessageHeader / item paddings */
+}
+
+/* ============================================================================
+   Font-size root anchor — Phase 6 SET-02.
+   Sets root font-size so every rem-based --font-size-* token cascades.
+   No transition: animating root font-size jitters every component at once.
+   ============================================================================ */
+
+[data-fontsize="s"] {
+  font-size: 15px;
+}
+
+[data-fontsize="m"] {
+  font-size: 17px;
+}
+
+[data-fontsize="l"] {
+  font-size: 19px;
+}
+
+/* ============================================================================
    Base resets — preserve existing baseline.
    ============================================================================ */
 
