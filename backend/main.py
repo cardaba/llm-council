@@ -119,12 +119,24 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         request.content, request.profile,
     )
 
-    # Add assistant message with all stages
+    # Build per-message metadata (D-25 shape) — persisted verbatim alongside
+    # the assistant message so the saved-message header can reflect WHICH
+    # profile produced WHICH deliberation. Fast / Quality omit critic and
+    # stage4_triggered keys (D-26); Plan 03-04 adds them for quality_research.
+    profile_config = PROFILES[request.profile]
+    message_metadata = {
+        "profile": request.profile,
+        "models": profile_config["council_models"],
+        "chairman": profile_config["chairman_model"],
+    }
+
+    # Add assistant message with all stages + profile metadata
     storage.add_assistant_message(
         conversation_id,
         stage1_results,
         stage2_results,
-        stage3_result
+        stage3_result,
+        metadata=message_metadata,
     )
 
     # Return the complete response with metadata
@@ -132,7 +144,8 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         "stage1": stage1_results,
         "stage2": stage2_results,
         "stage3": stage3_result,
-        "metadata": metadata
+        "metadata": metadata,  # legacy SSE-style metadata (label_to_model, aggregate_rankings)
+        "message_metadata": message_metadata,  # NEW — profile/models/chairman shape
     }
 
 
@@ -199,13 +212,28 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
                 storage.update_conversation_title(conversation_id, title)
                 yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
 
-            # Save complete assistant message
+            # Build per-message metadata (D-25 shape) — Fast / Quality only.
+            # Plan 03-04 owns the quality_research path and will emit the
+            # extended shape (with critic + stage4_triggered keys) from the
+            # research_strategy module.
+            message_metadata = {
+                "profile": request.profile,
+                "models": council_models,
+                "chairman": chairman_model,
+            }
+
+            # Save complete assistant message with profile metadata
             storage.add_assistant_message(
                 conversation_id,
                 stage1_results,
                 stage2_results,
-                stage3_result
+                stage3_result,
+                metadata=message_metadata,
             )
+
+            # Emit metadata event so the frontend can hydrate the saved
+            # message header BEFORE the `complete` event closes the stream.
+            yield f"data: {json.dumps({'type': 'message_metadata', 'data': message_metadata})}\n\n"
 
             # Send completion event
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"

@@ -161,28 +161,48 @@ def add_assistant_message(
     conversation_id: str,
     stage1: List[Dict[str, Any]],
     stage2: List[Dict[str, Any]],
-    stage3: Dict[str, Any]
+    stage3: Dict[str, Any],
+    metadata: Optional[Dict[str, Any]] = None,
 ):
     """
-    Add an assistant message with all 3 stages to a conversation.
+    Add an assistant message with all stages + optional profile metadata.
 
     Args:
         conversation_id: Conversation identifier
         stage1: List of individual model responses
         stage2: List of model rankings
         stage3: Final synthesized response
+        metadata: Optional opaque dict persisted verbatim. Per QUAL-04 / D-25
+            shape:
+                {
+                    "profile": "fast" | "quality" | "quality_research",
+                    "models": [str, ...],
+                    "chairman": str,
+                    # quality_research only (added by Plan 03-04):
+                    "critic": str,
+                    "stage4_triggered": bool,
+                }
+
+    Backwards compat (D-27): messages persisted before Phase 3 have no
+    `metadata` field. The frontend renders 'Quality (legacy)' for those —
+    no migration of historical JSON files happens here.
     """
     conversation = get_conversation(conversation_id)
     if conversation is None:
         raise ConversationNotFoundError(conversation_id)
 
-    conversation["messages"].append({
+    message = {
         "role": "assistant",
         "stage1": stage1,
         "stage2": stage2,
-        "stage3": stage3
-    })
-
+        "stage3": stage3,
+    }
+    if metadata is not None:
+        message["metadata"] = metadata
+    # Plan 03-04 will pass critic + stage4_triggered keys through this same
+    # `metadata` dict for the quality_research path; no further schema change
+    # required here.
+    conversation["messages"].append(message)
     save_conversation(conversation)
 
 
