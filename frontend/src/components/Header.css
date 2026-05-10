@@ -1,0 +1,58 @@
+/* Header — branded shell. All values are tokens (no hardcoded hex). */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  height: var(--layout-header-h);
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* Feeds the ampersand <text> currentColor. */
+  color: var(--color-fg-secondary);
+}
+
+.app-header__mark {
+  flex-shrink: 0;
+  color: var(--color-fg-secondary);
+}
+
+.app-header__name {
+  font-family: var(--font-serif);
+  font-size: 1.125rem; /* 18px per D-17 (18-20px range) */
+  font-weight: 600;
+  color: var(--color-fg-primary);
+  letter-spacing: -0.005em;
+}
+
+.app-header__theme-toggle {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-fg-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-base) var(--motion-easing-out),
+    color var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.app-header__theme-toggle:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-fg-primary);
+}
+
+.app-header__theme-toggle:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
