@@ -9,32 +9,165 @@ Stage 4 threshold, and the `:online` reasoning model lists. Council
 accesses `PROFILES[profile]` with a variable, never with a literal.
 """
 
-from typing import List, Dict, Any, Tuple
+import re
+from typing import List, Dict, Any, Tuple, Optional, Pattern
 from .openrouter import query_models_parallel, query_model
 from .config import PROFILES
 from . import research_strategy
 
 
+# ---------------------------------------------------------------------------
+# Critique-mode helpers (Phase 5 Plan 02)
+# ---------------------------------------------------------------------------
+# Stage 2 truncate constants — PITFALLS.md §CRIT-1
+STAGE2_TRUNCATE_MARKER = "\n\n[…truncated, full text in Stage 1 tab]"
+STAGE2_TRUNCATE_DEFAULT_CHARS = 600 * 4  # 600 tokens × 4 chars/token heuristic = 2400 chars
+
+# Anonymization patterns — D-08 verbatim from CONTEXT.md
+# Model IDs come from PROFILES so a future quality-profile bump auto-updates the set.
+_MODEL_ID_PATTERNS: List[Pattern] = [
+    re.compile(re.escape(m_id), re.IGNORECASE)
+    for m_id in PROFILES["quality"]["council_models"]
+]
+# D-08 first-person self-reference patterns (verbatim from CONTEXT.md).
+# Third-person mentions (e.g. "GPT-4 hallucinations") are intentionally NOT
+# stripped (D-09) — only first-person self-references and literal model IDs.
+_SELF_REF_PATTERNS: List[Pattern] = [
+    re.compile(r"\bAs Claude\b", re.IGNORECASE),
+    re.compile(r"\bI am (Claude|GPT|Gemini|Opus)\b", re.IGNORECASE),
+    re.compile(r"\bI, (GPT|Claude|Gemini|Opus)\b", re.IGNORECASE),
+    re.compile(r"\bas an AI assistant from (Anthropic|OpenAI|Google)\b", re.IGNORECASE),
+]
+
+
+def _build_critique_prompts(
+    critique_instruction: str,
+    external_context: Dict[str, Dict[str, Any]],
+    council_models: List[str],
+) -> Dict[str, List[Dict[str, str]]]:
+    """Per-model messages — each model sees ALL files, its own marked [YOUR PRIOR WORK].
+
+    Args:
+        critique_instruction: User-provided critique directive.
+        external_context: {model_id: {"filename": str, "content": str, "size_bytes": int}}
+        council_models: Active council models (one per uploaded slot).
+
+    Returns:
+        {model_id: [{"role": "user", "content": <prompt>}]}. Each model's prompt
+        includes ALL files, attributed by author; the model's own file is marked
+        `[YOUR PRIOR WORK]`, peers' files `[PEER'S PRIOR WORK]`.
+    """
+    prompts: Dict[str, List[Dict[str, str]]] = {}
+    for self_model in council_models:
+        sections = []
+        for other_model, file_obj in external_context.items():
+            marker = "[YOUR PRIOR WORK]" if other_model == self_model else "[PEER'S PRIOR WORK]"
+            sections.append(
+                f"--- {marker} authored by {other_model} (file: {file_obj['filename']}) ---\n"
+                f"{file_obj['content']}\n"
+                f"--- END ---"
+            )
+        full = "\n\n".join(sections)
+        prompt = (
+            "You are participating in a council critique. Below are 1-3 deep "
+            "research outputs. One is marked [YOUR PRIOR WORK] — that is YOUR "
+            "own previous research that you must now critique self-critically. "
+            "The others are [PEER'S PRIOR WORK].\n\n"
+            f"{full}\n\n"
+            f"USER'S CRITIQUE INSTRUCTION:\n{critique_instruction}\n\n"
+            "Produce a critique addressing the instruction above. Be specific, "
+            "cite sections, and treat your own prior work with the same scrutiny "
+            "as your peers'."
+        )
+        prompts[self_model] = [{"role": "user", "content": prompt}]
+    return prompts
+
+
+async def _query_models_individually(
+    models: List[str],
+    messages_per_model: Dict[str, List[Dict[str, str]]],
+) -> Dict[str, Optional[Dict[str, Any]]]:
+    """Per-model fan-out — DIFFERENT messages per model.
+
+    Analog of `query_models_parallel` but each model receives its own message
+    list (built by `_build_critique_prompts`). Failures return None per model
+    and are filtered out by the caller (graceful degradation idiom).
+    """
+    import asyncio
+    tasks = [query_model(model, messages_per_model[model]) for model in models]
+    responses = await asyncio.gather(*tasks)
+    return {model: response for model, response in zip(models, responses)}
+
+
+def _anonymize_critique_text(text: str, slot_index: int) -> str:
+    """Strip authorship signals BEFORE Stage 2 concatenation (D-08).
+
+    Replaces literal model IDs from `PROFILES["quality"]["council_models"]`
+    with `Author N` (slot_index+1) and first-person self-references with
+    `[author redacted]`. Third-person mentions (e.g. "GPT-4 hallucinations")
+    are intentionally NOT stripped (D-09).
+
+    Args:
+        text: Raw Stage 1 response text from a single model.
+        slot_index: Zero-based slot index used to derive the redacted label.
+
+    Returns:
+        Anonymized copy of `text`. Does not mutate the caller.
+    """
+    result = text
+    author_label = f"Author {slot_index + 1}"
+    for pattern in _MODEL_ID_PATTERNS:
+        result = pattern.sub(author_label, result)
+    for pattern in _SELF_REF_PATTERNS:
+        result = pattern.sub("[author redacted]", result)
+    return result
+
+
+def _truncate_for_stage2(text: str, max_chars: int = STAGE2_TRUNCATE_DEFAULT_CHARS) -> str:
+    """Truncate to max_chars with marker. PITFALLS.md §CRIT-1.
+
+    Runs AFTER anonymization so the un-truncated tail can't leak a model name.
+    """
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars] + STAGE2_TRUNCATE_MARKER
+
+
 async def stage1_collect_responses(
     user_query: str,
     council_models: List[str],
+    external_context: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
 
     Args:
-        user_query: The user's question
-        council_models: Council model IDs for this profile (PROFILES[profile]["council_models"])
+        user_query: The user's question (or critique instruction in critique mode).
+        council_models: Council model IDs for this profile (PROFILES[profile]["council_models"]).
+        external_context: Optional per-model file context for critique mode.
+            Shape: ``{model_id: {"filename": str, "content": str, "size_bytes": int}}``.
+            - ``None`` (default): legacy fresh-prompt broadcast — every model
+              sees the same single user message. Behavior unchanged from v1.
+            - non-``None``: critique-mode path — each model receives a per-model
+              prompt built by ``_build_critique_prompts`` so its own file is
+              attributed ``[YOUR PRIOR WORK]`` and peers' files
+              ``[PEER'S PRIOR WORK]``.
 
     Returns:
-        List of dicts with 'model' and 'response' keys
+        List of dicts with 'model' and 'response' keys.
     """
-    messages = [{"role": "user", "content": user_query}]
+    if external_context is None:
+        # Existing fresh-prompt path — broadcast same message to all models.
+        messages = [{"role": "user", "content": user_query}]
+        responses = await query_models_parallel(council_models, messages)
+    else:
+        # Critique path — per-model prompts (each model sees ALL files attributed).
+        messages_per_model = _build_critique_prompts(
+            user_query, external_context, council_models
+        )
+        responses = await _query_models_individually(council_models, messages_per_model)
 
-    # Query all models in parallel
-    responses = await query_models_parallel(council_models, messages)
-
-    # Format results
+    # Format results — same loop for both paths.
     stage1_results = []
     for model, response in responses.items():
         if response is not None:  # Only include successful responses
@@ -50,18 +183,42 @@ async def stage2_collect_rankings(
     user_query: str,
     stage1_results: List[Dict[str, Any]],
     council_models: List[str],
+    anonymize_critiques: bool = False,
+    truncate_per_response_tokens: Optional[int] = None,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, str]]:
     """
     Stage 2: Each model ranks the anonymized responses.
 
     Args:
-        user_query: The original user query
-        stage1_results: Results from Stage 1
-        council_models: Council model IDs for this profile
+        user_query: The original user query (or critique instruction).
+        stage1_results: Results from Stage 1. NEVER mutated — copies are made
+            internally when anonymization or truncation are enabled.
+        council_models: Council model IDs for this profile.
+        anonymize_critiques: When True (critique mode), strip literal model IDs
+            and first-person self-references from each Stage 1 response BEFORE
+            concatenation (D-08). Third-person mentions are preserved (D-09).
+        truncate_per_response_tokens: When set (e.g. 600 for critique mode),
+            truncate each Stage 1 response to ``tokens * 4`` chars with a
+            marker before concatenation (PITFALLS.md §CRIT-1). Truncation
+            runs AFTER anonymization so the tail cannot leak a model name.
 
     Returns:
-        Tuple of (rankings list, label_to_model mapping)
+        Tuple of (rankings list, label_to_model mapping).
     """
+    # Critique-mode transforms — operate on a COPY so the caller's stage1_results
+    # (and the persisted Stage 1 tab) stay un-anonymized / un-truncated.
+    if anonymize_critiques:
+        stage1_results = [
+            {**r, "response": _anonymize_critique_text(r["response"], i)}
+            for i, r in enumerate(stage1_results)
+        ]
+    if truncate_per_response_tokens is not None:
+        truncate_chars = truncate_per_response_tokens * 4
+        stage1_results = [
+            {**r, "response": _truncate_for_stage2(r["response"], truncate_chars)}
+            for r in stage1_results
+        ]
+
     # Create anonymized labels for responses (Response A, Response B, etc.)
     labels = [chr(65 + i) for i in range(len(stage1_results))]  # A, B, C, ...
 
