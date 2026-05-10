@@ -76,7 +76,12 @@ export default function Menu({ x, y, items, onClose }) {
             item.onClick();
           }}
         >
-          {item.label}
+          <span className="menu-item__label">{item.label}</span>
+          {item.shortcut && (
+            <span className="menu-item__shortcut" aria-hidden="true">
+              {item.shortcut}
+            </span>
+          )}
         </button>
       ))}
     </div>

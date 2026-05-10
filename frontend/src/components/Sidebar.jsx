@@ -60,18 +60,23 @@ function RenameInput({ conv, onCommitRename, onCancelRename }) {
   };
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      className="conversation-title-input"
-      value={draftTitle}
-      onChange={(e) => setDraftTitle(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      onClick={(e) => e.stopPropagation()}
-      maxLength={200}
-      aria-label="Conversation title"
-    />
+    <>
+      <input
+        ref={inputRef}
+        type="text"
+        className="conversation-title-input"
+        value={draftTitle}
+        onChange={(e) => setDraftTitle(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        onClick={(e) => e.stopPropagation()}
+        maxLength={200}
+        aria-label="Conversation title"
+      />
+      <p className="sidebar__rename-hint">
+        Enter para guardar · Esc para cancelar
+      </p>
+    </>
   );
 }
 
@@ -304,7 +309,12 @@ export default function Sidebar({
 
       <div className="conversation-list">
         {conversations.length === 0 ? (
-          <div className="no-conversations">No conversations yet</div>
+          <div className="sidebar__empty">
+            <span className="sidebar__empty-mark" aria-hidden="true">&amp;</span>
+            <p className="sidebar__empty-body">
+              No conversations yet. Start one to see it here.
+            </p>
+          </div>
         ) : filteredConversations.length === 0 ? (
           <div className="no-conversations">
             {debouncedQuery
@@ -356,12 +366,14 @@ export default function Sidebar({
           items={[
             {
               label: 'Rename',
+              shortcut: 'R',
               onClick: () => {
                 setEditingId(openMenuFor.id);
               },
             },
             {
               label: 'Delete',
+              shortcut: '⌫',
               destructive: true,
               onClick: () => {
                 const conv = conversations.find(
@@ -378,18 +390,20 @@ export default function Sidebar({
         isOpen={!!pendingDelete}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title="Delete conversation"
+        title="Delete this conversation?"
         body={
           pendingDelete ? (
-            <>
-              <p>
-                Delete &quot;{pendingDelete.title || 'New Conversation'}&quot;?
-              </p>
-              <p>This cannot be undone.</p>
-            </>
+            <p className="modal-body__meta">
+              <em>
+                &ldquo;{pendingDelete.title || 'New Conversation'}&rdquo;
+              </em>
+              {' · '}
+              {pendingDelete.message_count ?? 0}{' '}
+              {pendingDelete.message_count === 1 ? 'message' : 'messages'}
+            </p>
           ) : null
         }
-        confirmLabel="Delete"
+        confirmLabel="Delete conversation"
         cancelLabel="Cancel"
         destructive
       />

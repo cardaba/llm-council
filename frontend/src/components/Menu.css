@@ -1,41 +1,61 @@
-/* Menu — Bootstrap-flavored palette. Phase 4 will restyle. */
+/* Menu — Phase 4 / Plan 04-04 token migration.
+   Direction A skin: cream elevated popover with accent-soft hover.
+   Tokens-only. */
 
 .menu-popover {
-  background: #fff;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  min-width: 160px;
-  padding: 4px 0;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  min-width: 180px;
+  padding: var(--space-1) 0;
   z-index: 900;
+  font-family: var(--font-sans);
 }
 
 .menu-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   text-align: left;
-  padding: 8px 14px;
-  background: none;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: #222;
-  font-family: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  color: var(--color-fg-primary);
+  transition: background-color var(--motion-duration-fast) var(--motion-easing-out);
+  gap: var(--space-3);
 }
+
 .menu-item:hover {
-  background: #f0f0f0;
+  background: var(--color-accent-soft);
 }
+
 .menu-item:focus-visible {
-  outline: 2px solid #4a90e2;
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
 }
 
-/* Destructive variant — same Bootstrap danger family as the destructive
-   modal button (#d9534f). Hover uses a soft red tint instead of the solid
-   fill, since hovering an item should feel lighter than confirming. */
-.menu-item-destructive {
-  color: #d9534f;
+.menu-item__label {
+  flex: 1;
 }
-.menu-item-destructive:hover {
-  background: #fdecea;
+
+.menu-item__shortcut {
+  color: var(--color-fg-muted);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+}
+
+/* Destructive variant — text stays error-red; hover keeps accent-soft per
+   UI-SPEC §Color Allowlist item 10. */
+.menu-item-destructive {
+  color: var(--color-error);
+}
+
+.menu-item-destructive .menu-item__shortcut {
+  color: var(--color-error);
+  opacity: 0.7;
 }
