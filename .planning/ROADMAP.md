@@ -13,7 +13,7 @@ The Quality dial works as advertised at every level. A `Fast` query returns a us
 
 - [x] **Phase 1: Hardening & Conversation Management** — Close Vuln 2 path traversal and ship the sidebar conversation lifecycle (delete / rename / search) on top of the hardened storage layer. *(completed 2026-05-09)*
 - [x] **Phase 2: UX Research & Design Brief** — Produce the cognitive walkthrough, Nielsen audit, redesign proposal, and component mockups that will drive the visual rework. No code change. *(completed 2026-05-10)*
-- [ ] **Phase 3: Quality Dial & Pragmatic Deep Research** — Ship the 3-profile Quality selector end-to-end (toggle in UI, profile-aware backend routing) including the `quality_research` profile with reasoning models, web-search-capable model, optional Stage 4 refinement, isolated strategy module, and `reasoning_details` rendering.
+- [x] **Phase 3: Quality Dial & Pragmatic Deep Research** — Ship the 3-profile Quality selector end-to-end (toggle in UI, profile-aware backend routing) including the `quality_research` profile with reasoning models, web-search-capable model, optional Stage 4 refinement, isolated strategy module, and `reasoning_details` rendering. (completed 2026-05-10)
 - [ ] **Phase 4: Visual Identity Implementation** — Apply the artifacts from Phase 2: bespoke palette, characterful typography, branded shell, polished microinteractions.
 
 ## Phase Details
@@ -67,13 +67,13 @@ Plans:
   3. User can pick `Quality+Research` and receive a deliberation in which at least one council member is a web-search-capable model (e.g. `:online` or `perplexity/sonar`) and the others are reasoning variants; when the chairman synthesis scores below the council's quality threshold, an additional Stage 4 refinement runs and is rendered as a fourth stage in the UI.
   4. The model-selection and stage-orchestration logic for `quality_research` lives in a dedicated module (e.g. `backend/research_strategy.py`) with a clean interface, and `backend/council.py` does not import any research-specific model lists or branching logic — verifiable by inspection.
   5. When a model in any profile returns `reasoning_details`, the corresponding Stage 1 (or Stage 4) tab shows a collapsed "Show reasoning" disclosure that the user can expand to inspect the chain of thought.
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 - [x] 03-01-PLAN.md (wave 1) — Foundation: PROFILES dict en config.py + reasoning kwarg opcional en query_model (QUAL-02, RSCH-01) — completed 2026-05-10 (commits `4497f09`, `c8eec8e`)
 - [x] 03-02-PLAN.md (wave 2) — Routing por profile en SendMessageRequest + council.py para fast/quality (placeholder QR) (QUAL-01)
 - [x] 03-03-PLAN.md (wave 3) — Persistencia de metadata por mensaje + MessageHeader inline (QUAL-04) — completed 2026-05-10 (commits `6fd4d48`, `0b09892`)
 - [x] 03-04-PLAN.md (wave 4) — research_strategy.py module aislado: 4 reasoning models :online + critic LLM-as-judge + Stage 4 conditional (QUAL-02 ext, RSCH-01..04)
-- [ ] 03-05-PLAN.md (wave 5) — Frontend: QualityToggle + ReasoningDisclosure + Stage4 sub-section + download .md extendido (QUAL-03, RSCH-03, RSCH-05)
+- [x] 03-05-PLAN.md (wave 5) — Frontend: QualityToggle + ReasoningDisclosure + Stage4 sub-section + download .md extendido (QUAL-03, RSCH-03, RSCH-05)
 **UI hint**: yes
 
 ### Phase 4: Visual Identity Implementation
@@ -95,7 +95,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Hardening & Conversation Management | 5/5 | Complete | 2026-05-09 |
 | 2. UX Research & Design Brief | 6/6 | Complete | 2026-05-10 |
-| 3. Quality Dial & Pragmatic Deep Research | 4/5 | In Progress|  |
+| 3. Quality Dial & Pragmatic Deep Research | 5/5 | Complete   | 2026-05-10 |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |
 
 ## Coverage

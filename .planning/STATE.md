@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-10T09:07:52.223Z"
+last_updated: "2026-05-10T09:19:47.531Z"
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 16
-  completed_plans: 15
-  percent: 94
+  completed_plans: 16
+  percent: 100
 ---
 
 # State: LLM Council — Personal Edition
@@ -28,22 +28,22 @@ progress:
 
 ## Current Focus
 
-Phase 03 in progress — 4/5 plans shipped. Plan 03-04 closes RSCH-01..04 + extends QUAL-02 (quality_research path) by introducing `backend/research_strategy.py` (CRITIC_RUBRIC + parse_critic_score + async generator `run`), replacing the QR placeholders in `council.py` and `main.py` with single-line delegates, and extending `storage.add_assistant_message` with an optional `stage4` kwarg.
+Phase 03 COMPLETE — 5/5 plans shipped. Plan 03-05 closes QUAL-03 + RSCH-03 + RSCH-05 by adding the QualityToggle 3-state segmented control (Direction A footnote-style cost surfacing), the ReasoningDisclosure colapsable per Stage 1 tab and per Stage 4 panel (whitelist filter: reasoning.summary + reasoning.text only), the Stage 4 sub-section rendered inside the Stage 3 panel, and extending the markdown export helpers to include critic + Stage 4 sections. All 21/21 v1 requirements satisfied. Phase 4 (Visual Identity Implementation) is next.
 
 ## Current Position
 
-Phase: 03 (quality-dial-pragmatic-deep-research) — EXECUTING
-Plan: 5 of 5 (Plans 01 + 02 + 03 + 04 complete)
+Phase: 03 (quality-dial-pragmatic-deep-research) — COMPLETE
+Plan: 5 of 5 (all plans complete)
 
 - **Phase:** 3
-- **Plan:** 03-04 complete; 03-05 next
-- **Status:** Executing Phase 03
-- **Progress:** [█████████░] 94%
+- **Plan:** 03-05 complete; Phase 03 closed
+- **Status:** Phase 03 complete; Phase 04 pending
+- **Progress:** [██████████] 100%
 
 ```
 [#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
 [#####] 100% Phase 2 plans — verified 2026-05-10
-[#### ]  80% Phase 3 — 4/5 plans complete (03-01 foundation, 03-02 routing, 03-03 metadata+header, 03-04 research_strategy)
+[#####] 100% Phase 3 — 5/5 plans complete (03-01 foundation, 03-02 routing, 03-03 metadata+header, 03-04 research_strategy, 03-05 frontend wiring)
 [     ]   0% Phase 4 — not started
 ```
 
@@ -53,17 +53,17 @@ Plan: 5 of 5 (Plans 01 + 02 + 03 + 04 complete)
 |---|-------|--------|
 | 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
 | 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
-| 3 | Quality Dial & Pragmatic Deep Research | In progress (4/5 plans complete) |
+| 3 | Quality Dial & Pragmatic Deep Research | All 5 plans complete (closed 2026-05-10) |
 | 4 | Visual Identity Implementation | Pending |
 
 ## Performance Metrics
 
 - Phases planned: 4
-- Phases complete: 2
-- Plans complete: 15
+- Phases complete: 3
+- Plans complete: 16
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 16/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-01, QUAL-02, QUAL-04, RSCH-01, RSCH-02, RSCH-03, RSCH-04, +RSCH-01 retained)
+- Requirements satisfied: 21/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-01, QUAL-02, QUAL-03, QUAL-04, RSCH-01, RSCH-02, RSCH-03, RSCH-04, RSCH-05 — all v1 requirements closed)
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -82,6 +82,7 @@ Plan: 5 of 5 (Plans 01 + 02 + 03 + 04 complete)
 | 03 | 02 | ~12 min | 2 | 2 | 2026-05-10 |
 | 03 | 03 | ~9 min  | 2 | 6 | 2026-05-10 |
 | 03 | 04 | ~14 min | 3 | 4 | 2026-05-10 |
+| 03 | 05 | ~22 min | 2 | 13 | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -146,13 +147,18 @@ Plan: 5 of 5 (Plans 01 + 02 + 03 + 04 complete)
 - **Phase 03 / Plan 04:** `council.py` module docstring rewritten to express the RSCH-04 isolation rule semantically rather than enumerating the forbidden tokens (`critic_model`, `stage4_threshold`, `CRITIC_RUBRIC`) by name. Same constraint, satisfies the literal `grep -c == 0` acceptance criteria, no behaviour change.
 - **Phase 03 / Plan 04:** Non-streaming `/message` endpoint returns `stage4` as a top-level sibling of `stage1/2/3` in the JSON body. The legacy `metadata` field (label_to_model + aggregate_rankings) becomes `null` for QR — those aggregates are emitted only by the streaming endpoint via `stage2_complete` events. No UI consumer of the non-streaming endpoint exists in v1, so this asymmetry is acceptable.
 - **Phase 03 / Plan 04:** Calibration of `stage4_threshold` deliberately deferred. Initial value remains 8/10 (D-06). With critic = chairman = Opus 4.7 (D-06), the LLM-as-judge self-preference pitfall predicts scores skewing high. Recommendation: monitor `metadata.stage4_triggered` rate over the first 5-10 real queries; if 0% → raise threshold, if >50% → lower. The strategy module never needs to change for this; only `config.PROFILES["quality_research"]["stage4_threshold"]`.
+- **Phase 03 / Plan 05:** QualityToggle implemented as a segmented control with hidden native radios — the `<label>` is the visual control, `role="radiogroup"` + `aria-label` preserve keyboard a11y. Direction A footnote-style cost surfacing (always visible, no tooltip per D-20). Cost strings (`~$0.001` / `~$0.05 typical` / `~$0.45 typical`) literal-mirror the backend `typical_cost` (D-21).
+- **Phase 03 / Plan 05:** Stage 4 mounted as a child of `<Stage3>`, NOT a sibling at `ChatInterface` level. The `.stage3` panel's frame visually contains both the synthesis and the refinement; `.stage4` CSS resets `background: transparent` and adds a `border-top: 1px dashed` so it reads as a continuation of the same panel. Implements D-15 ("sub-sección DEBAJO de Stage 3 EN EL MISMO PANEL") literally. ChatInterface.jsx does NOT import Stage4 — the prop drilling stops at Stage3.
+- **Phase 03 / Plan 05:** ReasoningDisclosure defensively normalises `details` (object → wrapped array; null/undefined → empty) BEFORE the whitelist filter. Whitelist accepts ONLY `reasoning.summary` and `reasoning.text`; encrypted blobs and unknown types are dropped without warning. Empty filtered array → component returns null entirely (D-23 — no UI affordance for empty state).
+- **Phase 03 / Plan 05:** Stage 4 spinner placed BETWEEN Stage 3 spinner and the Stage 3 panel render. When `stage4_start` fires, `msg.stage3` is already truthy and the panel renders. Putting the spinner above the panel = parent layout shifts down to make room; when `stage4_complete` arrives the spinner disappears and Stage 4 sub-section materialises INSIDE the panel = net layout shift zero. Critic invocation has no spinner (single fast call, no `critic_start` event in the strategy).
+- **Phase 03 / Plan 05:** download.js extended signatures preserve back-compat. `buildFinalAnswerMarkdown` without `stage4` produces the legacy title; `buildFullDeliberationMarkdown` without `critic`/`stage4`/`messageMetadata` skips the new sections via truthy gates. Pre-Phase-3 conversations re-opened from disk export verbatim as before. The new `## Critic` and `## Stage 4 — Refinement` sections only appear when QR refinement fired.
+- **Phase 03 / Plan 05:** `profile` state is intentionally NOT reset after send. Single-shot conversation design (PROJECT.md Out of Scope) hides the input form once `messages.length > 0`, so resetting would have zero observable effect. Forward-compatible with multi-turn (also Out of Scope) without rework.
 
 ### Open Todos
 
-- Plan 03-05 next: frontend wiring for QR. Add SSE handlers for `critic_complete`, `stage4_start`, `stage4_complete`. Render Stage 4 sub-section. Add Quality toggle (QUAL-03), ReasoningDisclosure (RSCH-05), extended download .md (RSCH-03). The MessageHeader component already supports `metadata.stage4_triggered` (Plan 03-03 wired the suffix) and the saved-message header will automatically render `... + Stage 4 refinement` when QR refinement fires.
 - Calibration of `stage4_threshold` after first 5-10 real QR queries (CD-04). Adjust `config.PROFILES["quality_research"]["stage4_threshold"]` only — strategy module is immune to this calibration.
 - Web search annotations (`data['choices'][0]['message']['annotations']`) NOT captured in v1; deferred to RSCH-V2-02 (citation extraction).
-- Phase 04 still depends on Phase 03 closing (Quality toggle DOM must exist before styling). `MessageHeader.css` is already a clean target for the token migration.
+- Phase 04 — Visual Identity Implementation: pending. The hex placeholders in `QualityToggle.css`, `ReasoningDisclosure.css`, `Stage4.css`, and `MessageHeader.css` are intentional Phase 4 transition tokens. Direction A swap will replace them with semantic design tokens without touching JSX or class names.
 
 ### Blockers
 
@@ -169,25 +175,30 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-10):** Executed Plan 03-04 (research_strategy module + critic + Stage 4 — RSCH-01..04 + QUAL-02 extension). Three atomic commits: `96d3511` (feat: new `backend/research_strategy.py` ~290 lines with `CRITIC_RUBRIC` + `STAGE4_PROMPT` constants, defensive `parse_critic_score` parser, async generator `run(user_query, profile_config)` orchestrating Stage 1 [4× `:online` reasoning models in `asyncio.gather`] → Stage 2 [rankings reusing `council.parse_ranking_from_text` + `calculate_aggregate_rankings`] → Stage 3 [chairman synthesis] → critic invocation [no reasoning] → conditional Stage 4 [refinement with reasoning when score < threshold]; profile-agnostic — `PROFILES[` grep count = 0 in module), `32c50c1` (feat: `council.py` placeholder `raise NotImplementedError` replaced by single async-for delegate to `research_strategy.run`; module docstring rewritten to express RSCH-04 isolation semantically; `storage.add_assistant_message` extended with optional `stage4` kwarg persisted verbatim only when refinement fires), `134cc06` (feat: `main.py.event_generator` new dedicated QR branch consumes `research_strategy.run()` and forwards every non-underscore event verbatim as SSE; `_final` event intercepted to feed `storage.add_assistant_message`; `title_task` hoisted before QR branch for concurrency; non-streaming `/message` endpoint extracts message_metadata + stage4 from combined_metadata for QR; placeholder error event removed). All acceptance grep checks passed; `uv run python -c 'from backend import main; print('import OK')'` succeeded; parser smoke-test covered last-match anchor + clamp 1-10 + empty/garbage. RSCH-01..04 marked satisfied (16/21 requirements).
+**Last session (2026-05-10):** Executed Plan 03-05 (frontend wiring for Quality Dial — QUAL-03 + RSCH-03 + RSCH-05). Two atomic commits: `927130e` (feat: QualityToggle 3-state segmented control with Direction A footnote-style cost surfacing; ReasoningDisclosure colapsable component with whitelist filter for `reasoning.summary` + `reasoning.text` only — encrypted blobs and unknown types dropped, returns null when filtered array is empty per D-23; ChatInterface profile state hook + QualityToggle mounted above input-row + onSendMessage carries profile; api.sendMessageStream + sendMessage extended with profile arg; App.handleSendMessage propagates profile + assistant message placeholder includes stage4/critic/loading.stage4 slots; new SSE event cases critic_complete + stage4_start + stage4_complete; Stage1 mounts ReasoningDisclosure per active tab), `a9c043c` (feat: Stage4 component renders sub-section INSIDE the Stage 3 panel as child of <Stage3> per D-15, with header "Stage 4: Refinement", critic-meta box with amber-highlighted score, primary concern citation, refined markdown, optional ReasoningDisclosure when reasoning_details present; Stage3 accepts stage4 prop and prefers stage4.response in download; ChatInterface adds Stage 4 spinner between Stage 3 spinner and panel render + drills stage4 prop + passes stage4/critic/messageMetadata to buildFullDeliberationMarkdown; download.js buildFinalAnswerMarkdown prefers stage4.response when refined and tags title with "(refined)" + critic footnote, buildFullDeliberationMarkdown appends ## Critic + ## Stage 4 — Refinement sections plus optional profile footer). All grep acceptance criteria passed; `npm --prefix frontend run build` completed in 3.6s with no warnings. QUAL-03 + RSCH-03 + RSCH-05 marked satisfied → 21/21 requirements coverage. Phase 03 closed.
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/03-quality-dial-pragmatic-deep-research/03-04-SUMMARY.md` to understand the new SSE event shape (`critic_complete`, `stage4_start`, `stage4_complete`) and the persisted message shape (`metadata.critic` + `metadata.stage4_triggered` + optional `stage4` payload).
-3. Running `/gsd-execute-phase` for Plan 03-05: frontend wiring for QR (Quality toggle UI per QUAL-03, ReasoningDisclosure per RSCH-05, Stage 4 sub-section, extended download .md per RSCH-03 + RSCH-05). The `MessageHeader` already supports `metadata.stage4_triggered` from Plan 03-03 — no rework needed there.
+2. Running `/gsd-transition` to formally close Phase 03 and open Phase 04 planning.
+3. Phase 04 entry contract: Direction A token migration. The hex placeholders in `QualityToggle.css`, `ReasoningDisclosure.css`, `Stage4.css`, and `MessageHeader.css` are intentional transition tokens. The component shapes (JSX, class names) are final — Phase 4 only swaps colors/typography/spacing for design tokens.
 
 **Files most recently touched by GSD tooling:**
 
-- `backend/research_strategy.py` (Plan 03-04 — NEW, async generator strategy)
-- `backend/council.py` (Plan 03-04 — single-line delegate, docstring rewording)
-- `backend/storage.py` (Plan 03-04 — `stage4` kwarg)
-- `backend/main.py` (Plan 03-04 — event_generator QR branch + non-streaming endpoint update)
-- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-04-SUMMARY.md` (Plan 03-04 summary)
+- `frontend/src/components/QualityToggle.jsx` + `.css` (Plan 03-05 — NEW, segmented control)
+- `frontend/src/components/ReasoningDisclosure.jsx` + `.css` (Plan 03-05 — NEW, colapsable disclosure)
+- `frontend/src/components/Stage4.jsx` + `.css` (Plan 03-05 — NEW, sub-section component)
+- `frontend/src/components/Stage1.jsx` (Plan 03-05 — mounts ReasoningDisclosure)
+- `frontend/src/components/Stage3.jsx` (Plan 03-05 — accepts stage4 prop, mounts <Stage4>)
+- `frontend/src/components/ChatInterface.jsx` + `.css` (Plan 03-05 — QualityToggle integration, Stage 4 spinner, prop drilling)
+- `frontend/src/api.js` (Plan 03-05 — sendMessageStream + sendMessage profile arg)
+- `frontend/src/App.jsx` (Plan 03-05 — handleSendMessage profile arg + critic_complete + stage4_start + stage4_complete handlers)
+- `frontend/src/utils/download.js` (Plan 03-05 — extended buildFinalAnswerMarkdown + buildFullDeliberationMarkdown)
+- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-05-SUMMARY.md` (Plan 03-05 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 3 progress 4/5)
-- `.planning/REQUIREMENTS.md` (RSCH-01..04 marked complete)
+- `.planning/ROADMAP.md` (Phase 3 closed)
+- `.planning/REQUIREMENTS.md` (QUAL-03 + RSCH-05 marked complete)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-10 after Plan 03-04 (research_strategy module + critic + Stage 4: RSCH-01..04 closed; quality_research profile produces real deliberations).*
+*Last updated: 2026-05-10 after Plan 03-05 (frontend QR wiring: QUAL-03 + RSCH-03 + RSCH-05 closed; Phase 03 complete with 21/21 requirements coverage).*

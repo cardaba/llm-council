@@ -20,7 +20,7 @@
 
 - [x] **QUAL-01**: Backend `SendMessageRequest` accepts an optional `profile` field with values `fast` / `quality` / `quality_research` (default: `fast`), propagated through the 3-stage council and persisted in the assistant message metadata.
 - [x] **QUAL-02**: `backend/config.py` defines a `PROFILES` mapping from profile name to `{council_models, chairman_model}`, with `fast` using the current cheap mix, `quality` using premium tiers (gpt-5.5 / claude-opus-4.7 / gemini-3.1-pro / opus chairman), and `quality_research` overlaid on top of `quality` with reasoning + web search variants. *(Plan 03-01, commit `4497f09`. Substitution: `gemini-3.1-pro` → `gemini-3.1-pro-preview` per RESEARCH.md / CD-05.)*
-- [ ] **QUAL-03**: User can pick the profile per query via a 3-state toggle visible next to the textarea in `frontend/src/components/ChatInterface.jsx`, with the selected profile saved to local component state and sent with the message.
+- [x] **QUAL-03**: User can pick the profile per query via a 3-state toggle visible next to the textarea in `frontend/src/components/ChatInterface.jsx`, with the selected profile saved to local component state and sent with the message.
 - [x] **QUAL-04**: The active profile and its model set are visible in each saved assistant message (rendered inline in the message header, e.g. "Quality+Research • 4 models • Chairman: claude-opus-4.7") so the user can tell at a glance which dial setting produced which deliberation. *(Plan 03-03, commits `6fd4d48` + `0b09892`. `add_assistant_message(metadata=...)` persists the shape verbatim; new SSE event `message_metadata` hydrates the frontend mid-stream; `MessageHeader.jsx` renders it; legacy fallback `Quality (legacy)` per D-27.)*
 
 ### Pragmatic Deep Research
@@ -29,7 +29,7 @@
 - [x] **RSCH-02**: At least one council member in `quality_research` is a web-search-capable model (`:online` suffix or equivalent like `perplexity/sonar`) so the council has at least one source of grounded information per query.
 - [x] **RSCH-03**: When `quality_research` is selected, an optional Stage 4 council-refinement pass critiques the chairman synthesis and produces a refined final answer; the refinement is gated by a council vote and skipped if the chairman synthesis already scores high.
 - [x] **RSCH-04**: The model-selection and stage-orchestration logic for `quality_research` lives in a dedicated module (`backend/research_strategy.py` or equivalent) with a clean interface, isolated from `council.py`, so a future fully-agentic deep-research loop can replace it without rewriting the council orchestration.
-- [ ] **RSCH-05**: When a model returns `reasoning_details` (already captured in `backend/openrouter.py:48`), the frontend renders it as a collapsed "Show reasoning" disclosure inside the corresponding Stage 1 / Stage 4 tab.
+- [x] **RSCH-05**: When a model returns `reasoning_details` (already captured in `backend/openrouter.py:48`), the frontend renders it as a collapsed "Show reasoning" disclosure inside the corresponding Stage 1 / Stage 4 tab.
 
 ### Conversation Management
 
@@ -99,13 +99,13 @@
 | UXR-04 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Complete |
-| QUAL-03 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Complete |
 | QUAL-04 | Phase 3 | Complete |
 | RSCH-01 | Phase 3 | Complete |
 | RSCH-02 | Phase 3 | Complete |
 | RSCH-03 | Phase 3 | Complete |
 | RSCH-04 | Phase 3 | Complete |
-| RSCH-05 | Phase 3 | Pending |
+| RSCH-05 | Phase 3 | Complete |
 | VIS-01 | Phase 4 | Pending |
 | VIS-02 | Phase 4 | Pending |
 | VIS-03 | Phase 4 | Pending |
