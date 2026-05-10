@@ -7,6 +7,7 @@ import Stage1Progress from './Stage1Progress';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
 import StageNavigationStrip from './StageNavigationStrip';
+import BackToTopButton from './BackToTopButton';
 import CritiqueWelcome from './CritiqueWelcome';
 import {
   ATTACHMENT_LIMITS,
@@ -305,6 +306,11 @@ export default function ChatInterface({
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* NAV-04: floating back-to-top button anchored to .chat-interface
+          (which has position: relative). Listens to .messages-container
+          scrollTop; visible after >800px. Honors prefers-reduced-motion. */}
+      <BackToTopButton scrollContainerRef={messagesContainerRef} />
 
       {/* Fresh-prompt input form — hidden when the conversation is critique-mode,
           where CritiqueWelcome owns the entire entry-point UI (D-02 lock). */}

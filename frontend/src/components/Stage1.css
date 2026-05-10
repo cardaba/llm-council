@@ -91,3 +91,76 @@
   font-size: var(--font-size-body);
   line-height: var(--line-height-loose);
 }
+
+/* ----------------------------------------------------------------------
+   NAV-03: Stage 1 Show-more accordion. Same grid-template-rows: 0fr → 1fr
+   trick as ReasoningDisclosure — CSS-only, no magic-number max-height.
+   ---------------------------------------------------------------------- */
+
+.stage1-collapsible {
+  position: relative;
+}
+
+.stage1-collapsible__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-duration-slow) var(--motion-easing-out);
+}
+
+.stage1-collapsible[data-open="true"] .stage1-collapsible__panel {
+  grid-template-rows: 1fr;
+}
+
+.stage1-collapsible__panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* When collapsed, cap the visible height and show a fade-out at the bottom
+   so the user reads it as "there's more". Gradient ends at --color-bg-primary
+   to match the page background. */
+.stage1-collapsible:not([data-open="true"]) .stage1-collapsible__panel {
+  max-height: 400px;
+}
+
+.stage1-collapsible:not([data-open="true"]) .stage1-collapsible__panel-inner {
+  position: relative;
+}
+
+.stage1-collapsible:not([data-open="true"]) .stage1-collapsible__panel-inner::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--space-6);
+  background: linear-gradient(to bottom, transparent, var(--color-bg-primary));
+  pointer-events: none;
+}
+
+.stage1-collapsible__toggle {
+  display: inline-block;
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  transition: color var(--motion-duration-base) var(--motion-easing-out),
+              background var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.stage1-collapsible__toggle:hover {
+  background: var(--color-bg-elevated);
+  color: var(--color-fg-primary);
+}
+
+.stage1-collapsible__toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}

@@ -12,6 +12,8 @@
   color: var(--color-fg-primary);
   font-family: var(--font-serif);
   overflow: hidden;
+  /* NAV-04: anchor for the absolute-positioned BackToTopButton. */
+  position: relative;
 }
 
 .messages-container {
