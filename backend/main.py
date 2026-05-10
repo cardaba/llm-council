@@ -1,10 +1,10 @@
 """FastAPI backend for LLM Council."""
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Form, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Literal
+from typing import List, Dict, Any, Literal, Optional
 import uuid
 import json
 import asyncio
@@ -13,6 +13,14 @@ from . import storage
 from . import research_strategy
 from .config import PROFILES
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+
+
+# ---------------------------------------------------------------------------
+# Critique-mode upload caps (Phase 5 Plan 02)
+# ---------------------------------------------------------------------------
+MAX_CRITIQUE_FILE_BYTES = 750 * 1024     # 750KB cap per slot (D-04 lock)
+PREFLIGHT_TOKEN_CAP = 150_000             # CONTEXT.md lock — 150K total tokens
+HEURISTIC_TOKENS_PER_CHAR = 0.25          # PITFALLS.md §CRIT-1 — 4 chars/token estimate
 
 app = FastAPI(title="LLM Council API")
 
@@ -327,6 +335,205 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
         }
+    )
+
+
+async def _read_and_validate_upload(
+    upload: Optional[UploadFile],
+) -> Optional[Dict[str, Any]]:
+    """Read + validate a single multipart upload slot.
+
+    Returns ``None`` if the slot is empty (UploadFile is None). Otherwise
+    returns ``{"filename", "content", "size_bytes"}`` after enforcing:
+        - 750KB byte cap         → HTTP 413
+        - .md / .txt extension   → HTTP 415
+        - UTF-8 decoding         → HTTP 400
+
+    Errors raise HTTPException so they fire BEFORE the StreamingResponse —
+    the client sees a normal HTTP error, not a half-loaded SSE stream.
+    """
+    if upload is None:
+        return None
+    content_bytes = await upload.read()
+    size = len(content_bytes)
+    if size > MAX_CRITIQUE_FILE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File '{upload.filename}' is {size} bytes; max is {MAX_CRITIQUE_FILE_BYTES}",
+        )
+    name = (upload.filename or "").lower()
+    if not (name.endswith(".md") or name.endswith(".txt")):
+        raise HTTPException(
+            status_code=415,
+            detail=f"File '{upload.filename}' must be .md or .txt",
+        )
+    try:
+        text = content_bytes.decode("utf-8-sig")  # strips BOM if present
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="File must be UTF-8")
+    text = text.replace("\r\n", "\n").replace("\r", "\n")  # normalize line endings
+    return {"filename": upload.filename, "content": text, "size_bytes": size}
+
+
+@app.post("/api/conversations/{conversation_id}/critique/stream")
+async def critique_stream(
+    conversation_id: str,
+    critique_instruction: str = Form(..., min_length=1),
+    file_slot_0: Optional[UploadFile] = File(None),
+    file_slot_1: Optional[UploadFile] = File(None),
+    file_slot_2: Optional[UploadFile] = File(None),
+):
+    """Critique-mode SSE endpoint (Phase 5 Plan 02).
+
+    Multipart form fields:
+        - critique_instruction: required; user-provided directive.
+        - file_slot_0..2: up to 3 .md/.txt uploads, each ≤ 750KB.
+
+    Pre-stream errors (raised as HTTPException — normal HTTP responses):
+        - 400: invalid conversation ID, no files submitted, non-UTF-8 file.
+        - 404: conversation not found.
+        - 413: file > 750KB OR estimated input > 150K tokens.
+        - 415: file extension not .md / .txt.
+
+    SSE event sequence (after validation passes):
+        stage1_start
+        stage1_complete         data=stage1_results
+        stage2_start
+        stage2_complete         data, metadata.{label_to_model, aggregate_rankings}
+                                (n=1 → data=[], empty metadata so the existing
+                                 React reducer drains without UI changes)
+        stage3_start
+        stage3_complete         data=stage3_result
+        title_complete          (optional, best-effort)
+        message_metadata        metadata.{label_to_model, aggregate_rankings, mode}
+        complete
+
+    n=1/2/3 council collapses dynamically per D-05: only slots that received
+    an upload contribute a council member. Each member sees ALL files
+    attributed; its own marked [YOUR PRIOR WORK].
+    """
+    # UUID validity + existence — same idiom as send_message_stream.
+    try:
+        conversation = storage.get_conversation(conversation_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # Read + validate slots (may raise 413/415/400).
+    uploads = [
+        await _read_and_validate_upload(file_slot_0),
+        await _read_and_validate_upload(file_slot_1),
+        await _read_and_validate_upload(file_slot_2),
+    ]
+
+    # Build active council — collapse dynamically per D-05.
+    quality_config = PROFILES["quality"]
+    slot_models = quality_config["council_models"]
+    chairman_model = quality_config["chairman_model"]
+
+    active = [
+        (model, upload)
+        for model, upload in zip(slot_models, uploads)
+        if upload is not None
+    ]
+    if len(active) == 0:
+        raise HTTPException(status_code=400, detail="Submit at least one file")
+
+    active_council_models = [m for m, _ in active]
+    external_context: Dict[str, Dict[str, Any]] = {m: upload for m, upload in active}
+
+    # Pre-flight token cap — PITFALLS.md §CRIT-1.
+    # Each council model sees ALL files in its prompt → multiply per-file
+    # char-count by n active members. Critique instruction is included once.
+    total_input_chars = sum(len(u["content"]) for u in uploads if u) + len(critique_instruction)
+    estimated_total_stage1_tokens = int(total_input_chars * HEURISTIC_TOKENS_PER_CHAR) * len(active)
+    if estimated_total_stage1_tokens > PREFLIGHT_TOKEN_CAP:
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                f"Estimated input is ~{estimated_total_stage1_tokens // 1000}K tokens, "
+                f"exceeding the {PREFLIGHT_TOKEN_CAP // 1000}K cap. "
+                f"Reduce file sizes or use fewer files."
+            ),
+        )
+
+    async def event_generator():
+        try:
+            # Persist user message — the critique instruction.
+            storage.add_user_message(conversation_id, critique_instruction)
+
+            # Stage 1 — per-model critique prompts via external_context.
+            yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
+            stage1_results = await stage1_collect_responses(
+                critique_instruction,
+                active_council_models,
+                external_context=external_context,
+            )
+            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
+
+            # Stage 2 — anonymize + truncate; n=1 emits empty payload so the
+            # existing React reducer drains without any frontend change (D-05).
+            yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
+            if len(stage1_results) <= 1:
+                stage2_results: List[Dict[str, Any]] = []
+                label_to_model: Dict[str, str] = {}
+                aggregate_rankings: List[Dict[str, Any]] = []
+            else:
+                stage2_results, label_to_model = await stage2_collect_rankings(
+                    critique_instruction,
+                    stage1_results,
+                    active_council_models,
+                    anonymize_critiques=True,
+                    truncate_per_response_tokens=600,
+                )
+                aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+            yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
+
+            # Stage 3 — chairman synthesises across the (un-anonymized) Stage 1
+            # results and the Stage 2 rankings (which were computed from the
+            # anonymized copy but stored verbatim from the model).
+            yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
+            stage3_result = await stage3_synthesize_final(
+                critique_instruction, stage1_results, stage2_results, chairman_model
+            )
+            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
+
+            # Title generation — best-effort; non-fatal on failure.
+            try:
+                title = await generate_conversation_title(critique_instruction)
+                storage.update_conversation_title(conversation_id, title)
+                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+            except Exception:
+                pass  # fresh-prompt path also tolerates title failure
+
+            # Persist with external_research so reload hydration finds the files.
+            metadata = {
+                "label_to_model": label_to_model,
+                "aggregate_rankings": aggregate_rankings,
+                "mode": "critique",
+            }
+            storage.add_assistant_message(
+                conversation_id,
+                stage1_results,
+                stage2_results,
+                stage3_result,
+                metadata=metadata,
+                external_research=external_context,
+            )
+
+            yield f"data: {json.dumps({'type': 'message_metadata', 'data': metadata})}\n\n"
+            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+
+        except storage.ConversationNotFoundError:
+            yield f"data: {json.dumps({'type': 'error', 'kind': 'not_found', 'message': 'Conversation not found'})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
     )
 
 
