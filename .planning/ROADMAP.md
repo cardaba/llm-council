@@ -67,7 +67,14 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
   4. Un gear icon en el Header abre un slide-out panel desde la derecha (380px desktop, full-width mobile) con 4 controles: theme toggle (duplicado del header), font-size S/M/L radio (15/17/19px), density compact/comfortable, y `stage4_threshold` slider 1-10; los 4 persisten en localStorage vía un nuevo hook `useSettings()` (~30 LOC mirror de `useTheme`).
   5. El `stage4_threshold` viaja en cada request `quality_research` como campo opcional Pydantic-validado (`ge=1, le=10`) y `research_strategy.run` acepta `threshold_override`; requests v1 sin el campo siguen funcionando idénticos. La density aplica vía el FOUC blocker en `index.html` (sync, sin flicker), font-size aplica vía React state (single-render flicker aceptable).
 
-**Plans**: TBD
+**Plans:** 7 plans
+- [ ] 06-01-PLAN.md — OpenRouter `usage.cost` shape spike + RESEARCH annotation (Wave 1, gate before any cost-aggregation code)
+- [ ] 06-02-PLAN.md — PERS-01/02 fresh-streaming metadata pack (label_to_model + aggregate_rankings) (Wave 2)
+- [ ] 06-03-PLAN.md — COST-01 query_model cost capture + council/research_strategy per-stage accumulation + metadata.cost pack (Wave 3)
+- [ ] 06-04-PLAN.md — COST-02 + COST-03 + COST-04 MessageHeader cost line + backend/stats.py + /api/stats/cost + Sidebar footer (Wave 4)
+- [ ] 06-05-PLAN.md — SET-04 FOUC blocker extension (density + fontSize sync) + index.css overrides (Wave 1)
+- [ ] 06-06-PLAN.md — SET-01 + SET-02 useSettings hook + SettingsPanel <dialog> + Header gear icon (Wave 4)
+- [ ] 06-07-PLAN.md — SET-03 SendMessageRequest.stage4_threshold + research_strategy.run threshold_override + api.js body wiring (Wave 5)
 **UI hint**: yes
 
 ---
@@ -97,7 +104,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
 | 3. Quality Dial & Pragmatic Deep Research | v1.0 | 5/5 | Complete | 2026-05-10 |
 | 4. Visual Identity Implementation | v1.0 | 4/4 | Complete | 2026-05-10 |
 | 5. Critique mode + Schema migration + In-conversation navigation | v2.0 | 5/5 | Implemented (pending verify) | 2026-05-10 |
-| 6. Persistence completeness + Cost analytics + Settings panel | v2.0 | 0/0 | Not started | — |
+| 6. Persistence completeness + Cost analytics + Settings panel | v2.0 | 0/7 | Planned (awaiting execute) | — |
 | 7. Mobile responsive + Visual regression + Tests | v2.0 | 0/0 | Not started | — |
 
 ## Cross-Phase Notes (v2.0)
@@ -117,9 +124,10 @@ La synthesis de research recomendó 6 fases (Phase 5–10) con persistence + cri
 ### Decisiones diferidas a plan-time
 
 - **Storage shape para critique files** (CRIT-4): inline vs sidecar — resolver en Phase 5 plan-1. Recomendación tentativa de SUMMARY.md: inline + cap 750KB/file (Pydantic) + sidebar listing que solo lee `index.json` lightweight. Plan-checker debe forzar la decisión antes de execute.
-- **OpenRouter `usage.cost` shape verification** (CRIT-2): 5-min spike (log de un response real) ANTES de Phase 6 plan-1.
+- **OpenRouter `usage.cost` shape verification** (CRIT-2): 5-min spike (log de un response real) — owned por Phase 6 plan-01 (Wave 1 gate).
 - **Swipe gesture MOBL-04 scope-cut**: si el plan-checker de Phase 7 detecta que el budget aprieta, MOBL-04 se difiere a v2.1 con tap-to-open hamburger como suelo. MOBL-01..03 son no negociables.
 
 ---
+*Last updated: 2026-05-11 — Phase 6 planned (7 plans, 5 waves)*
 *Last updated: 2026-05-10 — v2.0 milestone roadmap created (3 phases, coarse granularity, override de SUMMARY.md por user directive "ir a saco")*
 *Last updated: 2026-05-10 after v1.0 milestone close*
