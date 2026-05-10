@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Awaiting next milestone
-last_updated: "2026-05-10T17:02:11.983Z"
-last_activity: 2026-05-10 — Milestone v1.0 completed and archived
+milestone: v2.0
+milestone_name: Council as External Critic + Hardening
+status: planning
+last_updated: "2026-05-10T17:24:15.592Z"
+last_activity: 2026-05-10
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 20
-  completed_plans: 20
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: LLM Council — Personal Edition
@@ -33,10 +33,10 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.0 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-05-10 — Milestone v1.0 completed and archived
+Status: Defining requirements
+Last activity: 2026-05-10 — Milestone v2.0 started
 
 ## Phase Progression
 

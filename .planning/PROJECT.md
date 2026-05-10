@@ -14,6 +14,32 @@ A personal multi-LLM deliberation app forked from `karpathy/llm-council`, extend
 
 The Quality dial works at every level: Fast returns useful answers in seconds at near-zero cost; Quality+Research orchestrates 4 reasoning models with `:online` web search + critic-gated Stage 4 refinement. Direction A "Research notebook" applied uniformly — zero Bootstrap defaults, light + dark with UI toggle, branded shell with ampersand mark.
 
+## Current Milestone: v2.0 Council as External Critic + Hardening
+
+**Goal:** Convert the council from "fresh-deliberation only" into a tool that ALSO accepts externally-generated deep research as input and uses the council to critique it — closing simultaneously the v1.0 backlog (persistence completeness, observability, mobile, minimum testing).
+
+**Target features:**
+
+A. **External Deep Research Critique (NEW core feature, PARALLEL entry point)** — A new entry point ALONGSIDE the existing fresh-prompt flow (does NOT replace Quality mode or any existing flow). When the user has already generated deep research externally (ChatGPT o3, Claude.ai Extended Thinking, Gemini AI Studio Pro Deep Research, etc.), they choose this alternative path: upload `.md`/`.txt` files (one per Quality-mode council model — the file is associated with the model that generated it externally). Stage 1: each council member sees ALL three deep researches as context (with model authorship labels visible) + the user's critique instruction, generates a critique. Stage 2: anonymized peer-review of the critiques. Stage 3: chairman (Opus) synthesizes the best critique + recommendations. Persistence: file content + model attribution + critique survive reload. The existing fresh-prompt flow (textarea-only with Fast/Quality/Quality+Research) is preserved unchanged — both flows coexist as user-chosen alternatives.
+
+B. **Persistence completeness** — Persist `label_to_model` and `aggregate_rankings` to disk (PERS-V2-01); Stage 2 metadata hydrates correctly when reloading historical conversations.
+
+C. **Cost analytics & observability** — Track OpenRouter spend per profile per session, surface real cost post-hoc beyond the "typical" preview in the toggle.
+
+D. **Settings/Preferences page** — Tuning of `stage4_threshold`, font-size override, density preference, plus the existing theme toggle moved (or duplicated) to settings.
+
+E. **Mobile responsive (≤768px) completo** — Beyond v1's basic drawer (W23): tablet landscape, swipe gestures, focus trap, touch targets ≥44×44.
+
+F. **Visual regression testing (Playwright + screenshots)** — Lock the Direction A skin via snapshot tests on welcome state, Stage 3 highlight, ErrorBanner, sidebar empty state, theme toggle light/dark.
+
+G. **Automated test suite (minimum)** — Backend: pytest async client → CRUD endpoints + UUID validation + profile routing + research_strategy critic parser. Frontend: vitest + React Testing Library → useTheme, MessageHeader, QualityToggle, ReasoningDisclosure accordion. Target ~60% on critical paths, not 100% coverage.
+
+**Key context:**
+- v2.0 is a major bump justified by (1) the new core feature (critique mode) which changes the conversation schema and adds a UI entry point, (2) the volume of accumulated backlog (≥6 distinct areas).
+- BYOK allowlist unchanged — uploaded files are NOT processed via OpenRouter (they are local input passed as Stage 1 prompt context).
+- Critique mode reuses the existing council machinery (Stage 1/2/3, anonymization, chairman synthesis) — no new strategy module isolated like `research_strategy.py`. Conceptually it is a parallel entry point that pre-loads file context into Stage 1 prompts; the textarea-only Quality flow keeps its current behavior bit-for-bit.
+- Cadence: 1-2 sessions/week. Granularity: 6-8 phases (more than v1.0's 4) — phase numbering continues from Phase 5.
+
 ## Requirements
 
 ### Validated
@@ -39,20 +65,15 @@ The Quality dial works at every level: Fast returns useful answers in seconds at
 
 ### Active
 
-<!-- Hypotheses for the next milestone. Will be defined via /gsd-new-milestone. -->
+<!-- v2.0 milestone hypotheses — will be detailed in REQUIREMENTS.md after research. -->
 
-*v1.1 milestone goals not yet defined. Run `/gsd-new-milestone` to question → research → requirements → roadmap.*
-
-Candidate themes from v1.0 backlog (informational, non-binding):
-
-- Calibrate `stage4_threshold` (currently 8 with critic=chairman=Opus) after observing 5-10 real queries — tune via config, no code change.
-- Persist `label_to_model` and `aggregate_rankings` to disk (PERS-V2-01) — currently ephemeral in SSE events only.
-- Reload-time hydration of Stage 2 metadata when reading historical conversations.
-- Visual regression testing (Playwright + screenshots) to lock the Direction A skin.
-- Mobile responsive ≤768px completo más allá del drawer básico (W23).
-- Automated test suite (backend pytest + frontend vitest) — accepted v1.0 debt.
-- Cost analytics/observability (OpenRouter spend per profile per session).
-- Multi-turn within a conversation (revisits the "1 conversation = 1 deliberation" lock — out of scope for v1, may revisit in v2 if user demands).
+- [ ] **External Deep Research Critique** — Parallel entry point (NOT a replacement of Quality mode). User chooses this alternative path; uploads `.md`/`.txt` files (one per Quality-mode council model, file ↔ model association captures who generated each external deep research); council critiques via existing 3-stage flow (Stage 1 individual critique with all 3 files as context, Stage 2 anonymized peer review, Stage 3 chairman synthesis). Existing fresh-prompt Quality mode preserved unchanged.
+- [ ] **Persistence completeness** — `label_to_model` and `aggregate_rankings` persisted (PERS-V2-01) and hydrated on reload.
+- [ ] **Cost analytics & observability** — Track real OpenRouter spend per profile per session, surface in UI.
+- [ ] **Settings/Preferences page** — `stage4_threshold` tuning, font-size override, density preference.
+- [ ] **Mobile responsive completo (≤768px)** — Beyond drawer-only: tablet, swipe gestures, focus trap, touch targets ≥44×44.
+- [ ] **Visual regression testing** — Playwright + screenshots locking Direction A skin.
+- [ ] **Automated test suite (minimum)** — Backend pytest + frontend vitest on critical paths (~60% coverage target).
 
 ### Out of Scope
 
@@ -121,4 +142,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-10 after v1.0 milestone close*
+*Last updated: 2026-05-10 after v2.0 milestone start*
