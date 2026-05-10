@@ -297,7 +297,7 @@ def _extract_cost(data: dict) -> dict:
 
 Why safe defaults: per OpenRouter API reference (verified), `cost` and `cost_details` are both OPTIONAL fields. They are populated on BYOK requests (our entire stack) but defensive code is cheap and prevents `None` arithmetic downstream.
 
-> **VERIFIED 2026-05-11:** see `06-SPIKE-USAGE-COST.md` for the raw JSON capture from each Quality-profile model. The field paths in `_extract_cost` above use the verbatim strings from the VERIFIED block (`usage.cost` + `usage.cost_details.upstream_inference_cost`). Surprises captured in the spike artifact: `is_byok` was `false` on every call despite `provider.only` BYOK routing (fee waiver not active), and `usage.cost` equalled `upstream_inference_cost` on all 3 models (0% OpenRouter markup observed at capture time).
+> **VERIFIED 2026-05-11 (re-spike post-BYOK enforcement):** see `06-SPIKE-USAGE-COST.md` (both the original ## VERIFIED block and the appended `## Re-spike post-BYOK enforcement` section). Field paths confirmed: `usage.cost` (= BYOK fee tier, currently `0` because account is under 1M req/mes free-tier; will become 5% of OpenRouter equivalent post-Oct 2026 cutoff if exceeded) and `usage.cost_details.upstream_inference_cost` (= native provider price, the **single source of truth for real user spend during v2.0**). `is_byok: true` confirmed on all 3 Quality models once "Always use this key" was enabled in Settings → Integrations. The original spike had the flag at FALSE, which let OpenRouter silently fall back to pool credits (`is_byok: false`, `cost == upstream`); the re-spike clarifies the BYOK semantics and validates the D-01/D-02 design contract.
 
 ### Pattern 3: `useSettings()` as exact mirror of `useTheme`
 
@@ -406,7 +406,7 @@ Theme is **delegated** to `useTheme` (not duplicated inside `useSettings`) so th
 | `pydantic` | Request validation (incl. new `stage4_threshold` field) | ✓ | 2.12.4 | — |
 | Node.js + npm | Frontend dev/build | ✓ | per repo | — |
 | Browser `<dialog>` + `showModal()` | Settings panel | ✓ | All evergreen 2026 (Safari 15.4+, Chrome 37+, Firefox 98+); the v1.0 codebase already targets the same baseline | — |
-| OpenRouter `usage.cost` + `cost_details.upstream_inference_cost` fields | Cost capture | VERIFIED 2026-05-11 against live BYOK calls for all 3 Quality models — see `06-SPIKE-USAGE-COST.md` | — | Both fields confirmed present and non-null on every Quality-model response. The safe-default `_extract_cost` (§3 Pattern 2) remains the implementation pattern in case future models omit the fields. |
+| OpenRouter `usage.cost` + `cost_details.upstream_inference_cost` fields | Cost capture | VERIFIED 2026-05-11 (re-spike post-BYOK enforcement) — see `06-SPIKE-USAGE-COST.md` ## VERIFIED + ## Re-spike sections | — | Both fields present on every Quality-model response. With "Always use this key" enabled in Settings → Integrations, `is_byok: true` and `cost == 0` on all 3 models (BYOK free-tier <1M req/mes). `upstream_inference_cost` is the single source of truth for real user spend during v2.0. Safe-default `_extract_cost` (§3 Pattern 2) handles the edge case where future fallback to pool would re-populate `cost`. |
 
 **Missing dependencies with no fallback:** None.
 **Missing dependencies with fallback:** OpenRouter `usage` runtime shape — see Plan-1 spike strategy in §3.

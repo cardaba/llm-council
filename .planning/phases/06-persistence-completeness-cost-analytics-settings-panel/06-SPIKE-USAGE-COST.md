@@ -224,3 +224,109 @@ def _extract_cost(data: dict) -> dict:
 ```
 
 Plan 03 may extend this with the bonus prompt/completion segmentation if desired, but the two must-have keys are `usage.cost` and `usage.cost_details.upstream_inference_cost`.
+
+---
+
+## Re-spike post-BYOK enforcement (2026-05-11)
+
+**Trigger:** the original spike was captured with **"Always use this key" = FALSE** in OpenRouter Settings → Integrations, which let OpenRouter silently fall back to its pooled credits. Per the official BYOK guide (`openrouter.ai/docs/guides/overview/auth/byok`), `is_byok` only flips to `true` when the request actually consumed BYOK credentials — so the original `is_byok: false` was correct **but unrepresentative of intended production behaviour**. The flag was toggled to **TRUE** ("Never fall back to OpenRouter credits") and the spike script was re-executed verbatim.
+
+**Re-spike command:** `uv run scripts/spike_usage_cost.py` (unchanged — same prompt `Say OK.`, same 3 Quality models, same `provider.only` payload).
+
+### Raw responses (post-BYOK enforcement)
+
+#### `openai/gpt-5.5`
+
+```json
+{
+  "id": "gen-1778456246-brF8Udckhq7k4UToAyj9",
+  "model": "openai/gpt-5.5-20260423",
+  "provider": "OpenAI",
+  "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 5,
+    "total_tokens": 14,
+    "cost": 0,
+    "is_byok": true,
+    "cost_details": {
+      "upstream_inference_cost": 0.000195,
+      "upstream_inference_prompt_cost": 4.5e-05,
+      "upstream_inference_completions_cost": 0.00015
+    }
+  }
+}
+```
+
+#### `anthropic/claude-opus-4.7`
+
+```json
+{
+  "id": "gen-1778456251-47Evxtdingt47VfIuVrk",
+  "model": "anthropic/claude-4.7-opus-20260416",
+  "provider": "Anthropic",
+  "usage": {
+    "prompt_tokens": 16,
+    "completion_tokens": 7,
+    "total_tokens": 23,
+    "cost": 0,
+    "is_byok": true,
+    "cost_details": {
+      "upstream_inference_cost": 0.000255,
+      "upstream_inference_prompt_cost": 8e-05,
+      "upstream_inference_completions_cost": 0.000175
+    }
+  }
+}
+```
+
+#### `google/gemini-3.1-pro-preview`
+
+```json
+{
+  "id": "gen-1778456253-LuW3LgWbuw2CIZaaaig4",
+  "model": "google/gemini-3.1-pro-preview-20260219",
+  "provider": "Google AI Studio",
+  "usage": {
+    "prompt_tokens": 4,
+    "completion_tokens": 68,
+    "total_tokens": 72,
+    "cost": 0,
+    "is_byok": true,
+    "cost_details": {
+      "upstream_inference_cost": 0.000824,
+      "upstream_inference_prompt_cost": 8e-06,
+      "upstream_inference_completions_cost": 0.000816
+    }
+  }
+}
+```
+
+### Comparison vs. original spike
+
+| Model | original `is_byok` | original `cost` | original `upstream_inference_cost` | new `is_byok` | new `cost` | new `upstream_inference_cost` |
+|---|---|---|---|---|---|---|
+| `openai/gpt-5.5` | `false` | `0.000525` | `0.000525` | **`true`** | **`0`** | `0.000195` |
+| `anthropic/claude-opus-4.7` | `false` | `0.000255` | `0.000255` | **`true`** | **`0`** | `0.000255` |
+| `google/gemini-3.1-pro-preview` | `false` | `0.0011` (approx) | `0.0011` | **`true`** | **`0`** | `0.000824` |
+
+### Conclusion — Rama B: BYOK enforced, gratuito hasta cutoff
+
+**3/3 modelos devolvieron `is_byok: true`** y `usage.cost == 0` — la cuenta está aprovechando la free-tier BYOK (≤1M requests/mes hasta Oct 2026, después 5% del precio OpenRouter equivalente). `cost_details.upstream_inference_cost` continúa siendo el precio nativo del proveedor y es la **única fuente de verdad del coste real del usuario** durante v2.0.
+
+**Implicaciones para el diseño:**
+
+- **D-01 (MessageHeader)** sigue siendo válido como contrato de UI (campos `upstream` + `fee` rendered). Aplica la regla "hide-zero" del CONTEXT.md (`Cost line hide-zero threshold: total < 0.001`) sobre la **fee**: mientras BYOK on, `cost == 0` → ocultar la microcopy `· $0.000 fee` y mostrar solo `$X.XXX upstream`. Cuando OpenRouter empiece a cobrar el 5% (post-Oct >1M req), la fee aparecerá automáticamente.
+- **D-02 (Sidebar footer)** sigue siendo válido como contrato. La columna izquierda mostrará `$0.00 / $100` durante v2.0 y la progress bar nunca aparecerá (siempre <80% del cap). Esto comunica honestamente al usuario que su gasto OR pool es $0 — es información útil, no ruido.
+- **`metadata.cost` schema** se mantiene `{stage1, stage2, stage3, stage4, total, upstream_total, currency}`. `total` (OpenRouter pool) será 0 en condiciones normales; `upstream_total` es el dato significativo para el usuario.
+- **`_extract_cost` helper** del bloque anterior (líneas 215-223) sigue siendo correcto sin cambios. La interpretación de los campos cambia (cost = BYOK fee tier — actualmente 0), pero la lectura de campos es la misma.
+- **Pitfall 2 de RESEARCH.md** queda resuelto: la semántica anticipada (BYOK + free tier → `cost=0`) coincide con la realidad observada una vez el flag está activo. La nota original sobre "Plan 03 MUST NOT assume `cost=0` on BYOK" se mantiene como salvaguarda defensiva — si el usuario excede 1M req/mes o cambia la configuración, `cost` volverá a ser no-cero.
+- **`is_byok` field** vale capturarlo en `metadata.cost` aunque no se renderice en UI v2.0. Sirve como audit-trail en `data/conversations/*.json` por si alguna conversación accidentalmente sale por pool (fallback inesperado).
+
+**Plan 06-03 (COST-01 instrumentación) puede arrancar tal cual está planificado** — no necesita cambios al diseño ni al `_extract_cost` helper. Plan 06-04 (UI de coste) tampoco — la regla hide-zero ya está en CONTEXT.md.
+
+**Recommend next:** continuar `/gsd-execute-phase 06` para los plans 06-02..06-07.
+
+### Coste del re-spike
+
+Total: **$0.00 OpenRouter pool** + **~$0.00127 upstream** (sum of `upstream_inference_cost` × 3 calls). Pagado vía BYOK keys configuradas (OpenAI / Anthropic / Google AI Studio).
+
