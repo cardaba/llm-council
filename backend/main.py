@@ -27,8 +27,16 @@ app.add_middleware(
 
 
 class CreateConversationRequest(BaseModel):
-    """Request to create a new conversation."""
-    pass
+    """Request to create a new conversation.
+
+    `mode` selects the conversation entry point per Phase 5:
+        - "fresh" (default, v1 behaviour): standard prompt → 3-stage council.
+        - "critique": critique-mode entry point (Phase 5 Wave 1+).
+
+    Default keeps v1 callers green — clients sending an empty body or omitting
+    `mode` get fresh-mode conversations as before.
+    """
+    mode: Literal["fresh", "critique"] = "fresh"
 
 
 class SendMessageRequest(BaseModel):
@@ -71,10 +79,16 @@ async def list_conversations():
 
 
 @app.post("/api/conversations", response_model=Conversation)
-async def create_conversation(request: CreateConversationRequest):
-    """Create a new conversation."""
+async def create_conversation(request: CreateConversationRequest = CreateConversationRequest()):
+    """Create a new conversation.
+
+    Accepts an optional JSON body `{"mode": "fresh"|"critique"}`. Empty/missing
+    body defaults to `mode="fresh"` so v1 clients continue to work unchanged.
+    The selected mode is stamped at the root of the saved JSON alongside
+    `schema_version` (Phase 5 Wave 0).
+    """
     conversation_id = str(uuid.uuid4())
-    conversation = storage.create_conversation(conversation_id)
+    conversation = storage.create_conversation(conversation_id, mode=request.mode)
     return conversation
 
 
