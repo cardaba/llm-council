@@ -6,6 +6,7 @@ import Stage1 from './Stage1';
 import Stage1Progress from './Stage1Progress';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
+import CritiqueWelcome from './CritiqueWelcome';
 import {
   ATTACHMENT_LIMITS,
   buildDeliberationFilename,
@@ -33,6 +34,7 @@ function findQuestionFor(messages, assistantIndex) {
 export default function ChatInterface({
   conversation,
   onSendMessage,
+  onSubmitCritique,
   isLoading,
 }) {
   const [input, setInput] = useState('');
@@ -172,7 +174,16 @@ export default function ChatInterface({
         isComplete={isStageComplete}
       />
       <div className="messages-container">
-        {conversation.messages.length === 0 ? (
+        {conversation.messages.length === 0 && conversation.mode === 'critique' ? (
+          // Phase 5 D-02 — critique-mode welcome state.
+          // Renders 3 dropzones + textarea + cost + Submit. The form dispatches
+          // through onSubmitCritique which lands in App.jsx::handleSubmitCritique
+          // and drains the SSE stream via the shared handleStreamEvent reducer.
+          <CritiqueWelcome
+            onSubmit={onSubmitCritique}
+            isLoading={isLoading}
+          />
+        ) : conversation.messages.length === 0 ? (
           <div className="chat-interface__welcome">
             <h1 className="chat-interface__welcome-title">What do you want to think about today?</h1>
             <p className="chat-interface__welcome-lead">
@@ -276,7 +287,9 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      {conversation.messages.length === 0 && (
+      {/* Fresh-prompt input form — hidden when the conversation is critique-mode,
+          where CritiqueWelcome owns the entire entry-point UI (D-02 lock). */}
+      {conversation.messages.length === 0 && conversation.mode !== 'critique' && (
         <form className="input-form" onSubmit={handleSubmit}>
           {attachments.length > 0 && (
             <div className="attachment-list">

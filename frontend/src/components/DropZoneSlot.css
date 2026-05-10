@@ -1,0 +1,110 @@
+/* DropZoneSlot — Phase 5 D-04 lock.
+   One per Quality-mode council model. States: idle / dragover / loaded.
+   All values from the token system in frontend/src/index.css.
+   Declared exception: min-height 120px (content-area dimension, not gap). */
+
+.drop-zone-slot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.drop-zone-slot__label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-body-small);
+  color: var(--color-fg-primary);
+}
+
+.drop-zone-slot__area {
+  min-height: 120px;                                       /* UI-SPEC exception */
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-duration-base) var(--motion-easing-out),
+    background var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.drop-zone-slot__area:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.drop-zone-slot__area.is-dragover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+
+.drop-zone-slot__area.is-loaded {
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+  cursor: default;
+}
+
+.drop-zone-slot__empty {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+
+.drop-zone-slot__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  color: var(--color-fg-primary);
+  max-width: 100%;
+}
+
+.drop-zone-slot__filename {
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.drop-zone-slot__size {
+  font-size: var(--font-size-microcopy);
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.drop-zone-slot__remove {
+  background: transparent;
+  border: none;
+  color: var(--color-fg-secondary);
+  cursor: pointer;
+  padding: var(--space-1);
+  font-size: var(--font-size-body-small);
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: var(--radius-sm);
+}
+
+.drop-zone-slot__remove:hover,
+.drop-zone-slot__remove:focus-visible {
+  color: var(--color-error);
+  outline: none;
+}
+
+.drop-zone-slot__remove:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.drop-zone-slot__error {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  color: var(--color-error);
+}

@@ -1,0 +1,191 @@
+/* CritiqueWelcome — Phase 5 D-02/D-04/D-07.
+   Geometry mirrors the existing .chat-interface__welcome so muscle memory
+   carries between fresh and critique entry points.
+   Tokens-only — no hardcoded hex, no hardcoded px other than the declared
+   exception 120px in DropZoneSlot. */
+
+.critique-welcome {
+  max-width: 65ch;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.critique-welcome__title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+  color: var(--color-fg-primary);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.critique-welcome__lead {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-loose);
+  color: var(--color-fg-secondary);
+  margin: 0 0 var(--space-6) 0;
+}
+
+.critique-welcome__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.critique-welcome__instruction {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+  color: var(--color-fg-primary);
+  resize: vertical;
+}
+
+.critique-welcome__instruction:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.critique-welcome__instruction::placeholder {
+  color: var(--color-fg-muted);
+  font-style: italic;
+}
+
+.critique-welcome__error {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  color: var(--color-error);
+}
+
+.critique-welcome__cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.critique-welcome__cost {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.critique-welcome__submit {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent);
+  color: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--motion-duration-base) var(--motion-easing-out);
+  min-height: 44px;
+}
+
+.critique-welcome__submit:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.critique-welcome__submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.critique-welcome__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Rate-limit re-confirmation dialog (CRIT-07).
+   Lightweight inline modal — does NOT depend on the shared Modal component
+   so the welcome state has no extra import surface. */
+.critique-welcome__reconfirm-backdrop {
+  position: fixed;
+  inset: 0;
+  /* Match the existing Modal.css backdrop pattern — theme-agnostic alpha
+     over fg-primary base so the dialog reads on light + dark themes. */
+  background: rgba(28, 26, 23, 0.55);
+  z-index: 99;
+}
+
+.critique-welcome__reconfirm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-bg-elevated);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 320px;
+  max-width: 480px;
+}
+
+.critique-welcome__reconfirm-msg {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+  color: var(--color-fg-primary);
+  margin: 0;
+}
+
+.critique-welcome__reconfirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.critique-welcome__reconfirm-cancel,
+.critique-welcome__reconfirm-confirm {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  transition: filter var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.critique-welcome__reconfirm-cancel {
+  background: var(--color-bg-elevated);
+  color: var(--color-fg-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.critique-welcome__reconfirm-cancel:hover {
+  background: var(--color-bg-secondary);
+}
+
+.critique-welcome__reconfirm-confirm {
+  background: var(--color-accent);
+  color: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
+}
+
+.critique-welcome__reconfirm-confirm:hover {
+  filter: brightness(0.92);
+}
+
+.critique-welcome__reconfirm-cancel:focus-visible,
+.critique-welcome__reconfirm-confirm:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
