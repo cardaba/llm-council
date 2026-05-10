@@ -39,7 +39,7 @@
 
 ### Visual Identity
 
-- [ ] **VIS-01**: A bespoke color palette replaces the current Bootstrap-flavored defaults (`#4a90e2`, `#f5f5f5`, `#f0fff0`, etc.). Palette and design tokens live in `frontend/src/index.css` (or a dedicated theme file) and are applied consistently across all components. Source: UXR-03 / UXR-04.
+- [x] **VIS-01**: A bespoke color palette replaces the current Bootstrap-flavored defaults (`#4a90e2`, `#f5f5f5`, `#f0fff0`, etc.). Palette and design tokens live in `frontend/src/index.css` (or a dedicated theme file) and are applied consistently across all components. Source: UXR-03 / UXR-04. _Completed in Phase 04 / Plans 04-01..04-04 (2026-05-10) — token taxonomy + 4 wave migration; phase-wide grep gate passes (zero Bootstrap hex in `frontend/src/`)._
 - [x] **VIS-02**: Typography is replaced from `system-ui` to a characterful family (e.g. Inter / IBM Plex / DM Sans / etc.) loaded efficiently and applied site-wide. Source: UXR-03 / UXR-04.
 - [x] **VIS-03**: A branded app shell — header with name + icon, distinctive sidebar styling, intentional empty states — replaces the current minimal shell. Source: UXR-04.
 - [x] **VIS-04**: Microinteractions and polished states applied: smooth transitions between stages, non-generic loading spinners (or skeletons), hover states on interactive elements (chips, tabs, buttons), animated stage progress. Source: UXR-04.
@@ -106,7 +106,7 @@
 | RSCH-03 | Phase 3 | Complete |
 | RSCH-04 | Phase 3 | Complete |
 | RSCH-05 | Phase 3 | Complete |
-| VIS-01 | Phase 4 | Pending |
+| VIS-01 | Phase 4 | Complete |
 | VIS-02 | Phase 4 | Complete |
 | VIS-03 | Phase 4 | Complete |
 | VIS-04 | Phase 4 | Complete |
@@ -119,3 +119,4 @@
 ---
 *Requirements defined: 2026-05-09*
 *Last updated: 2026-05-10 — QUAL-04 marked complete after Plan 03-03 (per-message metadata persistence + MessageHeader inline render).*
+*Last updated: 2026-05-10 — VIS-01 marked complete after Plan 04-04 (Sidebar/Modal/Menu token migration + ErrorBanner + favicon + .markdown-content cleanup; phase-wide grep gate passes). All 21 v1 requirements satisfied.*
