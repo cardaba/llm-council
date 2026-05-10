@@ -8,7 +8,8 @@ from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL, get_provider_for_mod
 async def query_model(
     model: str,
     messages: List[Dict[str, str]],
-    timeout: float = 120.0
+    timeout: float = 120.0,
+    reasoning: bool = False,
 ) -> Optional[Dict[str, Any]]:
     """
     Query a single model via OpenRouter API.
@@ -17,6 +18,12 @@ async def query_model(
         model: OpenRouter model identifier (e.g., "openai/gpt-4o")
         messages: List of message dicts with 'role' and 'content'
         timeout: Request timeout in seconds
+        reasoning: If True, enable model reasoning via the OpenRouter `reasoning`
+                   payload parameter (`{"enabled": true}`). Required for o4-mini /
+                   gpt-5.5 / claude-opus-4.7 / gemini-3.1-pro-preview to expose
+                   `reasoning_details` in the response. Per RESEARCH.md: the
+                   `:thinking` suffix does NOT exist — thinking is opt-in via
+                   payload, not via model ID.
 
     Returns:
         Response dict with 'content' and optional 'reasoning_details', or None if failed
@@ -36,6 +43,12 @@ async def query_model(
     provider = get_provider_for_model(model)
     if provider is not None:
         payload["provider"] = {"only": [provider]}
+
+    # Per RESEARCH.md: reasoning is opt-in via payload, not via :thinking suffix.
+    # Anthropic Opus uses adaptive thinking; Gemini/o4-mini/gpt-5.5 expose
+    # reasoning_details when this flag is set.
+    if reasoning:
+        payload["reasoning"] = {"enabled": True}
 
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
