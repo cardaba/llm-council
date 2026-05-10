@@ -18,7 +18,7 @@
 
 ### Quality Dial
 
-- [ ] **QUAL-01**: Backend `SendMessageRequest` accepts an optional `profile` field with values `fast` / `quality` / `quality_research` (default: `fast`), propagated through the 3-stage council and persisted in the assistant message metadata.
+- [x] **QUAL-01**: Backend `SendMessageRequest` accepts an optional `profile` field with values `fast` / `quality` / `quality_research` (default: `fast`), propagated through the 3-stage council and persisted in the assistant message metadata.
 - [x] **QUAL-02**: `backend/config.py` defines a `PROFILES` mapping from profile name to `{council_models, chairman_model}`, with `fast` using the current cheap mix, `quality` using premium tiers (gpt-5.5 / claude-opus-4.7 / gemini-3.1-pro / opus chairman), and `quality_research` overlaid on top of `quality` with reasoning + web search variants. *(Plan 03-01, commit `4497f09`. Substitution: `gemini-3.1-pro` → `gemini-3.1-pro-preview` per RESEARCH.md / CD-05.)*
 - [ ] **QUAL-03**: User can pick the profile per query via a 3-state toggle visible next to the textarea in `frontend/src/components/ChatInterface.jsx`, with the selected profile saved to local component state and sent with the message.
 - [ ] **QUAL-04**: The active profile and its model set are visible in each saved assistant message (rendered inline in the message header, e.g. "Quality+Research • 4 models • Chairman: claude-opus-4.7") so the user can tell at a glance which dial setting produced which deliberation.
@@ -97,7 +97,7 @@
 | UXR-02 | Phase 2 | Complete |
 | UXR-03 | Phase 2 | Complete |
 | UXR-04 | Phase 2 | Complete |
-| QUAL-01 | Phase 3 | Pending |
+| QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Complete |
 | QUAL-03 | Phase 3 | Pending |
 | QUAL-04 | Phase 3 | Pending |

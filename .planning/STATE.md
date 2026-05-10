@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-10T08:38:36.978Z"
+last_updated: "2026-05-10T08:48:48.649Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 16
-  completed_plans: 12
-  percent: 75
+  completed_plans: 13
+  percent: 81
 ---
 
 # State: LLM Council — Personal Edition
@@ -33,17 +33,17 @@ Phase 02 (UX Research & Design Brief) closed and verified — all 6 plans shippe
 ## Current Position
 
 Phase: 03 (quality-dial-pragmatic-deep-research) — EXECUTING
-Plan: 2 of 5 (Plan 01 complete)
+Plan: 3 of 5 (Plans 01 + 02 complete)
 
 - **Phase:** 3
-- **Plan:** 03-01 complete; 03-02 next
+- **Plan:** 03-02 complete; 03-03 next
 - **Status:** Executing Phase 03
-- **Progress:** 12/17 plans complete; 2/4 phases formally complete.
+- **Progress:** [████████░░] 81%
 
 ```
 [#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
 [#####] 100% Phase 2 plans — verified 2026-05-10
-[#    ]  20% Phase 3 — 1/5 plans complete (03-01 foundation)
+[##   ]  40% Phase 3 — 2/5 plans complete (03-01 foundation, 03-02 routing)
 [     ]   0% Phase 4 — not started
 ```
 
@@ -53,17 +53,17 @@ Plan: 2 of 5 (Plan 01 complete)
 |---|-------|--------|
 | 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
 | 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
-| 3 | Quality Dial & Pragmatic Deep Research | In progress (1/5 plans complete) |
+| 3 | Quality Dial & Pragmatic Deep Research | In progress (2/5 plans complete) |
 | 4 | Visual Identity Implementation | Pending |
 
 ## Performance Metrics
 
 - Phases planned: 4
 - Phases complete: 2
-- Plans complete: 12
+- Plans complete: 13
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 10/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-02, RSCH-01)
+- Requirements satisfied: 11/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-01, QUAL-02, RSCH-01)
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -79,6 +79,7 @@ Plan: 2 of 5 (Plan 01 complete)
 | 02 | 05 | doc-only | 3 | 3 | 2026-05-10 |
 | 02 | 06 | doc-only | 1 | 1 | 2026-05-10 |
 | 03 | 01 | ~8 min  | 2 | 2 | 2026-05-10 |
+| 03 | 02 | ~12 min | 2 | 2 | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -125,10 +126,16 @@ Plan: 2 of 5 (Plan 01 complete)
 - **Phase 03 / Plan 01:** Substitution applied (CD-05): `google/gemini-3.1-pro` → `google/gemini-3.1-pro-preview` in both `quality` and `quality_research` profiles; this is the canonical OpenRouter ID.
 - **Phase 03 / Plan 01:** `quality_research` uses 4 reasoning models all with `:online` (D-10). Critic = Opus-4.7 (D-06). Stage-4 threshold = 8/10 (D-06). typical_cost = \$0.45 (D-14). BYOK allowlist preserved — `get_provider_for_model` splits on `/` so `:online` suffixes do not break BYOK routing.
 - **Phase 03 / Plan 01:** `query_models_parallel` left untouched. Plan 03-04 will wrap it if it needs to forward `reasoning=True` per-model, keeping the low-level transport stable.
+- **Phase 03 / Plan 02:** `SendMessageRequest.profile` uses Pydantic `Literal["fast","quality","quality_research"]` with default `"fast"` (D-28 + D-29). Unknown values yield 422 before the handler runs — no custom validator, no custom error.
+- **Phase 03 / Plan 02:** `council.py` is now profile-agnostic except for a single placeholder branch in `run_full_council`. Stages take `council_models` / `chairman_model` as explicit args; legacy `COUNCIL_MODELS` / `CHAIRMAN_MODEL` imports dropped from `council.py` (kept in `config.py` as views-into-PROFILES['fast'] for any external caller).
+- **Phase 03 / Plan 02:** `quality_research` routes through one delegate point per endpoint type — `run_full_council` raises `NotImplementedError` (sync) and `event_generator` emits a structured SSE error event `{'type':'error','message':'quality_research lands in Plan 03-04'}` (stream). Plan 03-04 replaces both with `research_strategy` delegations without touching the rest of the file.
+- **Phase 03 / Plan 02:** QR check placed BEFORE `title_task` creation in `event_generator`. Avoids spending a Gemini Flash title call on a request that immediately errors out.
+- **Phase 03 / Plan 02:** Module docstring on `council.py` codifies the RSCH-04 isolation rule (no `critic_model`, no `stage4_threshold`, no `:online` lists). Future plans must NOT regress this.
 
 ### Open Todos
 
-- Run Plan 03-02 next: routing por profile en SendMessageRequest + council.py para fast/quality (placeholder QR) (QUAL-01).
+- Run Plan 03-03 next: persist `profile` metadata in `add_assistant_message` and surface in saved-message header (QUAL-04).
+- Plan 03-04 will replace the `quality_research` placeholder branches in both `council.py` and `main.py` with the `research_strategy.run` delegate (RSCH-01..04 + QUAL-04 stage4 metadata).
 - Phase 04 is unblocked from Phase 02's perspective but still depends on Phase 03 (Quality toggle DOM must exist before it gets styled).
 
 ### Blockers
@@ -146,23 +153,23 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-10):** Executed Plan 03-01 (Quality Dial foundation — config + transport). Two atomic commits: `4497f09` (PROFILES dict in `backend/config.py` with fast/quality/quality_research tiers, critic_model + stage4_threshold + typical_cost_usd, legacy aliases preserved as references into `PROFILES['fast']`), `c8eec8e` (`query_model(reasoning=False)` opt-in kwarg in `backend/openrouter.py` injecting `{"reasoning": {"enabled": True}}` after BYOK provider routing). Both inline acceptance tests passed. Substitutions applied: `gemini-3.1-pro` → `gemini-3.1-pro-preview` (CD-05). No `:thinking` suffix used (RESEARCH.md override). BYOK allowlist preserved end-to-end including `:online`-suffixed IDs.
+**Last session (2026-05-10):** Executed Plan 03-02 (Backend profile routing — QUAL-01). Two atomic commits: `b660b9f` (refactor: `council.py` stages take `council_models` / `chairman_model` as explicit args; `run_full_council(user_query, profile='fast')` reads `PROFILES[profile]`; `quality_research` raises `NotImplementedError`; legacy `COUNCIL_MODELS`/`CHAIRMAN_MODEL` imports dropped; module docstring codifies RSCH-04 isolation), `58dd517` (feat: `SendMessageRequest.profile: Literal["fast","quality","quality_research"] = "fast"`; both `/message` endpoints propagate `request.profile`; streaming endpoint resolves `PROFILES[profile]` once at the top of `event_generator` and emits structured SSE error event for `quality_research`). All acceptance grep checks + inline `python -c` tests passed. QUAL-01 marked satisfied (11/21 requirements).
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/03-quality-dial-pragmatic-deep-research/03-01-SUMMARY.md` to understand the foundation contract (PROFILES shape + reasoning kwarg).
-3. Running `/gsd-execute-phase` for Plan 03-02: routing por profile en `SendMessageRequest` + `council.py` for fast/quality (placeholder QR) — QUAL-01.
+2. Reading `.planning/phases/03-quality-dial-pragmatic-deep-research/03-02-SUMMARY.md` to understand the wiring contract (profile field shape + run_full_council signature + the two QR placeholder points Plan 03-04 must replace).
+3. Running `/gsd-execute-phase` for Plan 03-03: persist `profile` metadata in `add_assistant_message` + saved-message header (QUAL-04).
 
 **Files most recently touched by GSD tooling:**
 
-- `backend/config.py` (Plan 03-01 — PROFILES dict)
-- `backend/openrouter.py` (Plan 03-01 — reasoning kwarg)
-- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-01-SUMMARY.md` (Plan 03-01 summary)
+- `backend/council.py` (Plan 03-02 — profile-agnostic stages + QR placeholder)
+- `backend/main.py` (Plan 03-02 — SendMessageRequest.profile + propagation in both endpoints)
+- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-02-SUMMARY.md` (Plan 03-02 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 3 progress 1/5)
-- `.planning/REQUIREMENTS.md` (QUAL-02 + RSCH-01 transport-layer foundations marked complete)
+- `.planning/ROADMAP.md` (Phase 3 progress 2/5)
+- `.planning/REQUIREMENTS.md` (QUAL-01 marked complete)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-10 after Plan 03-01 (Quality Dial foundation: PROFILES dict + reasoning kwarg).*
+*Last updated: 2026-05-10 after Plan 03-02 (Backend profile routing: SendMessageRequest.profile + run_full_council branching).*
