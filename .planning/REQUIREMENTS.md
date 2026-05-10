@@ -26,9 +26,9 @@
 ### Pragmatic Deep Research
 
 - [x] **RSCH-01**: `quality_research` profile uses reasoning models for the council members (e.g. `openai/o4-mini`, `anthropic/claude-opus-4.7:thinking`, `google/gemini-3.1-pro` with thinking enabled). *(Plan 03-01, commits `4497f09` + `c8eec8e`. Note: `:thinking` suffix does NOT exist on OpenRouter per RESEARCH.md; reasoning is enabled via the `reasoning` payload param added to `query_model`. The 4 QR council models all carry `:online` for native web search.)*
-- [ ] **RSCH-02**: At least one council member in `quality_research` is a web-search-capable model (`:online` suffix or equivalent like `perplexity/sonar`) so the council has at least one source of grounded information per query.
-- [ ] **RSCH-03**: When `quality_research` is selected, an optional Stage 4 council-refinement pass critiques the chairman synthesis and produces a refined final answer; the refinement is gated by a council vote and skipped if the chairman synthesis already scores high.
-- [ ] **RSCH-04**: The model-selection and stage-orchestration logic for `quality_research` lives in a dedicated module (`backend/research_strategy.py` or equivalent) with a clean interface, isolated from `council.py`, so a future fully-agentic deep-research loop can replace it without rewriting the council orchestration.
+- [x] **RSCH-02**: At least one council member in `quality_research` is a web-search-capable model (`:online` suffix or equivalent like `perplexity/sonar`) so the council has at least one source of grounded information per query.
+- [x] **RSCH-03**: When `quality_research` is selected, an optional Stage 4 council-refinement pass critiques the chairman synthesis and produces a refined final answer; the refinement is gated by a council vote and skipped if the chairman synthesis already scores high.
+- [x] **RSCH-04**: The model-selection and stage-orchestration logic for `quality_research` lives in a dedicated module (`backend/research_strategy.py` or equivalent) with a clean interface, isolated from `council.py`, so a future fully-agentic deep-research loop can replace it without rewriting the council orchestration.
 - [ ] **RSCH-05**: When a model returns `reasoning_details` (already captured in `backend/openrouter.py:48`), the frontend renders it as a collapsed "Show reasoning" disclosure inside the corresponding Stage 1 / Stage 4 tab.
 
 ### Conversation Management
@@ -102,9 +102,9 @@
 | QUAL-03 | Phase 3 | Pending |
 | QUAL-04 | Phase 3 | Complete |
 | RSCH-01 | Phase 3 | Complete |
-| RSCH-02 | Phase 3 | Pending |
-| RSCH-03 | Phase 3 | Pending |
-| RSCH-04 | Phase 3 | Pending |
+| RSCH-02 | Phase 3 | Complete |
+| RSCH-03 | Phase 3 | Complete |
+| RSCH-04 | Phase 3 | Complete |
 | RSCH-05 | Phase 3 | Pending |
 | VIS-01 | Phase 4 | Pending |
 | VIS-02 | Phase 4 | Pending |
