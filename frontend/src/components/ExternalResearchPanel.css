@@ -1,0 +1,86 @@
+/*
+ * ExternalResearchPanel — collapsable file chips above critique assistant
+ * messages (CRIT-08). Reuses the CSS-only accordion grid trick from
+ * ReasoningDisclosure.css:59-67 (grid-template-rows 0fr → 1fr).
+ *
+ * prefers-reduced-motion is honored globally via index.css:178-189 — no
+ * local override needed.
+ */
+
+.external-research-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  margin-bottom: var(--space-4);
+}
+
+.research-chip {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.research-chip__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  color: var(--color-fg-primary);
+  transition: background var(--motion-duration-base) var(--motion-easing-out);
+}
+.research-chip__toggle:hover {
+  background: var(--color-bg-elevated);
+}
+.research-chip__toggle:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px var(--color-focus-ring);
+}
+
+.research-chip__model {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-body-small);
+  color: var(--color-fg-primary);
+}
+.research-chip__sep {
+  color: var(--color-fg-muted);
+}
+.research-chip__filename {
+  font-family: var(--font-mono);
+}
+.research-chip__size {
+  font-size: var(--font-size-microcopy);
+  color: var(--color-fg-muted);
+}
+.research-chip__chevron {
+  margin-left: auto;
+  color: var(--color-fg-secondary);
+}
+
+/* CSS-only accordion — same grid trick as ReasoningDisclosure (verified at
+   ReasoningDisclosure.css:59-67). Class names renamed; mechanism identical. */
+.research-chip__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-duration-slow) var(--motion-easing-out);
+}
+.research-chip[data-open="true"] .research-chip__panel {
+  grid-template-rows: 1fr;
+}
+.research-chip__panel-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 var(--space-3);
+}
+.research-chip[data-open="true"] .research-chip__panel-inner {
+  padding: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+}
