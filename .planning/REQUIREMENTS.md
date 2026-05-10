@@ -11,10 +11,10 @@
 
 ### UX Research
 
-- [ ] **UXR-01**: Cognitive walkthrough of the current end-to-end flows produces a documented audit identifying friction points (using `cognitive-walkthrough` skill) — output committed under `.planning/ux/`.
-- [ ] **UXR-02**: Nielsen heuristic audit of the current UI produces a scored evaluation across the 10 heuristics (using `nielsen-heuristics-audit` skill) — output committed under `.planning/ux/`.
-- [ ] **UXR-03**: UX redesign proposal with information architecture, interaction patterns, and rationale (using `ui-ux-designer` skill) — output committed under `.planning/ux/`.
-- [ ] **UXR-04**: Component-level mockups for the new visual identity (palette, typography, header, key screens with the Quality selector and conversation management features) using `impeccable` and/or `frontend-design` skills — output committed under `.planning/ux/` as ASCII or markdown wireframes.
+- [x] **UXR-01**: Cognitive walkthrough of the current end-to-end flows produces a documented audit identifying friction points (using `cognitive-walkthrough` skill) — output committed under `.planning/ux/`.
+- [x] **UXR-02**: Nielsen heuristic audit of the current UI produces a scored evaluation across the 10 heuristics (using `nielsen-heuristics-audit` skill) — output committed under `.planning/ux/`.
+- [x] **UXR-03**: UX redesign proposal with information architecture, interaction patterns, and rationale (using `ui-ux-designer` skill) — output committed under `.planning/ux/`.
+- [x] **UXR-04**: Component-level mockups for the new visual identity (palette, typography, header, key screens with the Quality selector and conversation management features) using `impeccable` and/or `frontend-design` skills — output committed under `.planning/ux/` as ASCII or markdown wireframes.
 
 ### Quality Dial
 
@@ -93,10 +93,10 @@
 | CONV-01 | Phase 1 | Complete |
 | CONV-02 | Phase 1 | Complete |
 | CONV-03 | Phase 1 | Complete |
-| UXR-01 | Phase 2 | Pending |
-| UXR-02 | Phase 2 | Pending |
-| UXR-03 | Phase 2 | Pending |
-| UXR-04 | Phase 2 | Pending |
+| UXR-01 | Phase 2 | Complete |
+| UXR-02 | Phase 2 | Complete |
+| UXR-03 | Phase 2 | Complete |
+| UXR-04 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Pending |
 | QUAL-02 | Phase 3 | Pending |
 | QUAL-03 | Phase 3 | Pending |

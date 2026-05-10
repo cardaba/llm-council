@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-05-09T22:00:34.380Z"
+status: executing
+last_updated: "2026-05-10T12:00:00.000Z"
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  completed_phases: 2
+  total_plans: 17
+  completed_plans: 11
+  percent: 65
 ---
 
 # State: LLM Council — Personal Edition
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-10
 
 ## Project Reference
 
@@ -28,39 +28,42 @@ progress:
 
 ## Current Focus
 
-Phase 01 plans all shipped, including gap-closure plan 01-05 (BL-01 + BL-02 closed). Phase 01 ready for **re-verification** via `/gsd-verify-phase 1` before closure and handoff to Phase 02 (UX Research & Design Brief).
+Phase 02 (UX Research & Design Brief) closed and verified — all 6 plans shipped, all 4 ROADMAP success criteria verified, all 4 UXR requirements satisfied. Direction A (Research notebook) selected for Phase 4. Ready to start Phase 03 (Quality Dial & Pragmatic Deep Research).
 
 ## Current Position
 
-Phase: 01 (Hardening & Conversation Management) — ALL PLANS COMPLETE (incl. gap closure)
-Plan: 5 of 5 (last shipped)
+Phase: 03 (quality-dial-deep-research) — NEXT
+Plan: 0 of TBD
 
-- **Phase:** 2
+- **Phase:** 3
 - **Plan:** Not started
-- **Status:** Ready to plan
-- **Progress:** 5/5 plans complete in Phase 1; 0/4 phases formally complete overall (awaiting verifier).
+- **Status:** Phase 02 complete; awaiting `/gsd-plan-phase 3` to lay out Phase 03 plans.
+- **Progress:** 11/17 plans complete; 2/4 phases formally complete.
 
 ```
-[#####] 100% Phase 1 plans (incl. gap closure) — re-verification next
+[#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
+[#####] 100% Phase 2 plans — verified 2026-05-10
+[     ]   0% Phase 3 — not started
+[     ]   0% Phase 4 — not started
 ```
 
 ## Phase Progression
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Hardening & Conversation Management | All 5 plans complete (incl. gap closure 01-05); awaiting re-verification |
-| 2 | UX Research & Design Brief | Pending |
+| 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
+| 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
 | 3 | Quality Dial & Pragmatic Deep Research | Pending |
 | 4 | Visual Identity Implementation | Pending |
 
 ## Performance Metrics
 
 - Phases planned: 4
-- Phases complete: 0 (Phase 1 awaiting `/gsd-verify-phase` re-run after gap closure)
-- Plans complete: 5
+- Phases complete: 2
+- Plans complete: 11
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 4/21 (SEC-01, CONV-01, CONV-02, CONV-03) — SEC-01 and CONV-02 hardened by 01-05
+- Requirements satisfied: 8/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04)
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -69,6 +72,12 @@ Plan: 5 of 5 (last shipped)
 | 01 | 03 | ~7 min  | 2 | 5  | 2026-05-09 |
 | 01 | 04 | ~4 min  | 1 | 2  | 2026-05-09 |
 | 01 | 05 | ~12 min | 2 | 2  | 2026-05-09 |
+| 02 | 01 | doc-only | 1 | 1 | 2026-05-10 |
+| 02 | 02 | doc-only | 1 | 1 | 2026-05-10 |
+| 02 | 03 | doc-only | 1 | 1 | 2026-05-10 |
+| 02 | 04 | doc-only | 1 | 1 | 2026-05-10 |
+| 02 | 05 | doc-only | 3 | 3 | 2026-05-10 |
+| 02 | 06 | doc-only | 1 | 1 | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -107,12 +116,14 @@ Plan: 5 of 5 (last shipped)
 - **Phase 01 / Plan 05:** Canonicalised the UUID at `get_conversation_path` (single chokepoint) via `str(uuid.UUID(id))` — braced/URN/unhyphenated/upper-case forms now collapse to the same hyphenated lowercase filename. Eliminates the Windows NTFS ADS interaction (URN's `:`) and makes GET/PATCH/DELETE round-trip platform-independent.
 - **Phase 01 / Plan 05:** SSE error event for the missing-file race uses structured `kind: 'not_found'` so frontend can disambiguate without parsing message strings. Generic transport/generation errors keep the original shape via the trailing `except Exception` branch.
 - **Phase 01 / Plan 05:** Did NOT modify the non-streaming `send_message` handler (`backend/main.py:90-134`); its unwrapped mutator calls now raise `ConversationNotFoundError` directly to FastAPI (still a 500). Out of scope per VERIFICATION.md (BL-01 was scoped to PATCH and the streaming path); tracked under SUMMARY's Deferred Issues for future hardening if the non-streaming path is reactivated.
+- **Phase 02 / Plans 01-06:** Severity scale = Nielsen original 0-4 (D-03), NOT low/medium/high. 6 anticipatory findings on Phase 3 surfaces (QUAL-03, RSCH-05) — exceeds D-05 minimum of ≥2. 3 tonal directions explored in parallel (Research notebook / Tactical cockpit / Claude-like minimal); brutalist editorial explicitly rejected (D-08).
+- **Phase 02 / Plan 06:** Direction A (Research notebook) selected as the canonical visual identity for Phase 4. Rationale: Stage 2 / Stage 3 are long-form editorial content; only Direction A's serif body (Source Serif 4) + strong typographic hierarchy + medium-low density respects long reading without fatiguing. Cockpit (B) too instrumental for sustained reading; Minimal (C) hides the aggregate ranking and cost surfacing too aggressively. Phase 4 entry contract documented in `03-redesign-proposal.md` lines 771-779.
+- **Phase 02:** Throwaway HTML disclaimer (D-15) explicitly prevents Phase 4 from lifting CSS verbatim from the sketches. Phase 4 reads only: tokens documented in proposal, typography stack, microinteractions, IA from wireframes. The HTML sketches are a visual validation tool, not source code.
 
 ### Open Todos
 
-- Re-run `/gsd-verify-phase 1` to flip BL-01 and BL-02 from `partial` → `verified` and formally close Phase 01.
-- Then run `/gsd-execute-phase 2` to launch Phase 02 (UX Research & Design Brief).
-- (Optional, deferred) Wrap the non-streaming `send_message` handler's storage mutators with `except ConversationNotFoundError -> HTTPException(404)` if that path is ever exercised again.
+- Run `/gsd-plan-phase 3` to lay out Phase 03 plans (Quality Dial & Pragmatic Deep Research — QUAL-01..04, RSCH-01..05).
+- Phase 04 is unblocked from Phase 02's perspective but still depends on Phase 03 (Quality toggle DOM must exist before it gets styled).
 
 ### Blockers
 
@@ -125,25 +136,33 @@ None.
 - **Fragile FINAL RANKING parser** — not a v1 requirement; revisit only if a Phase 3 change destabilises it.
 - **Stage 2 full-context broadcast cost** — relevant to Phase 3 pricing of `quality_research`; called out as input to plan-level decisions, not a phase requirement.
 - **No automated tests** — accepted milestone debt; tests added opportunistically per phase need.
+- **Phase 2 anticipatory findings** — H1-04 (cost visible in Quality toggle), H5-03 (extra friction on Q+R send), H1-05/H6-05/H8-05 (reasoning_details disclosure pattern), H8-06 (Quality toggle minimalism) MUST inform Phase 3 implementation. The redesign proposal already specifies these for Direction A.
 
 ## Session Continuity
 
-**Last session (2026-05-09):** Completed `01-05-PLAN.md` (gap closure) — closed BL-01 (PATCH/SSE TOCTOU now returns 404 via new `storage.ConversationNotFoundError`) and BL-02 (UUID canonicalised at `get_conversation_path` so braced/URN/unhyphenated forms round-trip). Two task commits (`bbb4120`, `f4d37dc`). SUMMARY at `.planning/phases/01-hardening-conversation-management/01-05-SUMMARY.md`. **All 5 plans of Phase 01 are now shipped (4 original + 1 gap closure).**
+**Last session (2026-05-10):** Completed Phase 02 (UX Research & Design Brief). All 6 plans shipped: cognitive walkthrough (29 friction points), Nielsen audit (10 heuristics, 36 findings, 6 anticipatory), redesign proposal (3 directions × full structure), 23 wireframes (W01-W23), 3 throwaway HTML sketches (light + dark), and Direction A (Research notebook) selected with rationale. Phase verification PASSED (`02-VERIFICATION.md`): 4/4 ROADMAP success criteria + 4/4 UXR requirements + all critical D-XX/CD-XX decisions verified. Closure commit `da6f1a5`.
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Reading `.planning/phases/01-hardening-conversation-management/01-05-SUMMARY.md` for the new `ConversationNotFoundError` contract and the canonicalisation invariant.
-3. Either (a) running `/gsd-verify-phase 1` to re-verify and formally close Phase 01 (BL-01/BL-02 should flip from `partial` → `verified`), or (b) running `/gsd-execute-phase 2` to begin Phase 02 (UX Research & Design Brief, no code) if the user wants to skip a formal verification gate.
+2. Reading `.planning/phases/02-ux-research-design-brief/02-VERIFICATION.md` for the Phase 4 entry contract anchored in Direction A.
+3. Reading `.planning/ux/03-redesign-proposal.md` Direction A section + `## Recommendation & decision` to understand the visual identity that Phase 4 will implement.
+4. Running `/gsd-plan-phase 3` to lay out Phase 03 (Quality Dial & Pragmatic Deep Research). The anticipatory findings from the Nielsen audit (cost surfacing, reasoning_details disclosure, send-button friction on Q+R) should inform Plan 03 design decisions.
 
 **Files most recently touched by GSD tooling:**
 
-- `backend/storage.py` (Plan 05 — `ConversationNotFoundError` class + canonical UUID path + 3 mutator raises switched)
-- `backend/main.py` (Plan 05 — PATCH `except ConversationNotFoundError -> 404` + SSE structured `kind: 'not_found'`)
-- `.planning/phases/01-hardening-conversation-management/01-05-SUMMARY.md` (Plan 05 summary)
+- `.planning/ux/01-cognitive-walkthrough.md` (Plan 02-01)
+- `.planning/ux/02-nielsen-audit.md` (Plan 02-02)
+- `.planning/ux/03-redesign-proposal.md` (Plan 02-03 + Plan 02-06 closure)
+- `.planning/ux/04-mockups/wireframes.md` (Plan 02-04)
+- `.planning/ux/04-mockups/sketch-notebook.html` (Plan 02-05 — Direction A)
+- `.planning/ux/04-mockups/sketch-cockpit.html` (Plan 02-05 — Direction B)
+- `.planning/ux/04-mockups/sketch-minimal.html` (Plan 02-05 — Direction C)
+- `.planning/phases/02-ux-research-design-brief/02-VERIFICATION.md` (Phase 02 verification)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 1 progress 5/5)
+- `.planning/ROADMAP.md` (Phase 2 progress 6/6)
+- `.planning/REQUIREMENTS.md` (UXR-01..04 status flipped to Complete)
 
 ---
 *State initialized: 2026-05-09*
-*Last updated: 2026-05-09 after Plan 01-05 completion (Phase 01 gap closure complete; all 5 plans shipped).*
+*Last updated: 2026-05-10 after Phase 02 verification (UX research & design brief shipped; Direction A selected).*

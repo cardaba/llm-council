@@ -12,7 +12,7 @@ The Quality dial works as advertised at every level. A `Fast` query returns a us
 ## Phases
 
 - [x] **Phase 1: Hardening & Conversation Management** — Close Vuln 2 path traversal and ship the sidebar conversation lifecycle (delete / rename / search) on top of the hardened storage layer. *(completed 2026-05-09)*
-- [ ] **Phase 2: UX Research & Design Brief** — Produce the cognitive walkthrough, Nielsen audit, redesign proposal, and component mockups that will drive the visual rework. No code change.
+- [x] **Phase 2: UX Research & Design Brief** — Produce the cognitive walkthrough, Nielsen audit, redesign proposal, and component mockups that will drive the visual rework. No code change. *(completed 2026-05-10)*
 - [ ] **Phase 3: Quality Dial & Pragmatic Deep Research** — Ship the 3-profile Quality selector end-to-end (toggle in UI, profile-aware backend routing) including the `quality_research` profile with reasoning models, web-search-capable model, optional Stage 4 refinement, isolated strategy module, and `reasoning_details` rendering.
 - [ ] **Phase 4: Visual Identity Implementation** — Apply the artifacts from Phase 2: bespoke palette, characterful typography, branded shell, polished microinteractions.
 
@@ -48,12 +48,12 @@ Plans:
   4. Component-level mockups (ASCII or markdown wireframes) under `.planning/ux/` cover the palette, typography choice, branded header, and key screens including the Quality selector and the renamed/searched/deletable sidebar — at a fidelity sufficient for Phase 4 to implement without re-deciding visuals.
 **Plans:** 6 plans
 Plans:
-- [ ] 02-01-PLAN.md (wave 1) — Cognitive walkthrough de los 4 flujos (UXR-01)
-- [ ] 02-02-PLAN.md (wave 1) — Nielsen heuristic audit con escala 0-4 + anticipatory findings Phase 3 (UXR-02)
-- [ ] 02-03-PLAN.md (wave 2) — Redesign proposal con 3 direcciones tonales paralelas (UXR-03)
-- [ ] 02-04-PLAN.md (wave 3) — Wireframes ASCII/markdown — cobertura completa D-13 (UXR-04)
-- [ ] 02-05-PLAN.md (wave 3) — 3 HTML throwaway sketches one-page con light+dark (UXR-04)
-- [ ] 02-06-PLAN.md (wave 4) — Checkpoint de elección de dirección + registro en redesign proposal (UXR-03, UXR-04)
+- [x] 02-01-PLAN.md (wave 1) — Cognitive walkthrough de los 4 flujos (UXR-01) — completed 2026-05-10 (commit `a631db8`)
+- [x] 02-02-PLAN.md (wave 1) — Nielsen heuristic audit con escala 0-4 + anticipatory findings Phase 3 (UXR-02) — completed 2026-05-10 (commit `4084856`)
+- [x] 02-03-PLAN.md (wave 2) — Redesign proposal con 3 direcciones tonales paralelas (UXR-03) — completed 2026-05-10 (commit `5b7aaee`)
+- [x] 02-04-PLAN.md (wave 3) — Wireframes ASCII/markdown — cobertura completa D-13 (UXR-04) — completed 2026-05-10 (commit `24a4de1`)
+- [x] 02-05-PLAN.md (wave 3) — 3 HTML throwaway sketches one-page con light+dark (UXR-04) — completed 2026-05-10 (commits `5047148`, `b84c869`, `317041d`)
+- [x] 02-06-PLAN.md (wave 4) — Checkpoint de elección de dirección + registro en redesign proposal (UXR-03, UXR-04) — completed 2026-05-10 (commit `da6f1a5`)
 **UI hint**: yes
 
 ### Phase 3: Quality Dial & Pragmatic Deep Research
@@ -88,7 +88,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Hardening & Conversation Management | 5/5 | Complete | 2026-05-09 |
-| 2. UX Research & Design Brief | 0/0 | Not started | - |
+| 2. UX Research & Design Brief | 6/6 | Complete | 2026-05-10 |
 | 3. Quality Dial & Pragmatic Deep Research | 0/0 | Not started | - |
 | 4. Visual Identity Implementation | 0/0 | Not started | - |
 
