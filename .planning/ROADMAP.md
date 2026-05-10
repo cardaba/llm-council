@@ -44,7 +44,12 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
   4. Toda conversación v1.0 en `data/conversations/` carga sin lanzar `TypeError` después del deploy v2.0: el `get_conversation` server-side detecta ausencia de `schema_version` y aplica `migrate_message_v1_to_v2` lazy; nuevas writes llevan `schema_version: 2` en el root.
   5. Una deliberación larga (Stage 1 + Stage 2 + Stage 3 + Stage 4 opcional) se lee orientada: los headers de stage hacen `position: sticky` bajo el Header global; un strip horizontal de chips ("Stage 1 · 4 responses", "Stage 2 · evaluating", "Stage 3 · synthesis") permite saltar a cada sección con scroll-spy highlight; las respuestas Stage 1 >600px colapsan a "Show more" en históricas; un botón "Back to top" aparece tras scroll >800px y honra `prefers-reduced-motion`.
 
-**Plans**: TBD
+**Plans:** 5 plans
+- [ ] 05-01-PLAN.md — Schema migration v1→v2 + mode/external_research storage shape (Wave 0, depends_on: [])
+- [ ] 05-02-PLAN.md — Backend critique pipeline: POST /critique/stream + anonymization + truncate + n=1/2/3 SSE (Wave 1, depends_on: [05-01])
+- [ ] 05-03-PLAN.md — Frontend critique entry: sidebar button + pill + CritiqueWelcome + DropZoneSlot + rate-limit (Wave 2, depends_on: [05-01, 05-02])
+- [ ] 05-04-PLAN.md — File chip hydration on reload (CRIT-08 ExternalResearchPanel) (Wave 3, depends_on: [05-01, 05-02, 05-03])
+- [ ] 05-05-PLAN.md — In-conversation navigation: sticky headers + StageNavigationStrip + Show-more + Back-to-top (Wave 4, depends_on: [05-03])
 **UI hint**: yes
 
 ---
@@ -91,7 +96,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
 | 2. UX Research & Design Brief | v1.0 | 6/6 | Complete | 2026-05-10 |
 | 3. Quality Dial & Pragmatic Deep Research | v1.0 | 5/5 | Complete | 2026-05-10 |
 | 4. Visual Identity Implementation | v1.0 | 4/4 | Complete | 2026-05-10 |
-| 5. Critique mode + Schema migration + In-conversation navigation | v2.0 | 0/0 | Not started | — |
+| 5. Critique mode + Schema migration + In-conversation navigation | v2.0 | 0/5 | Planned | — |
 | 6. Persistence completeness + Cost analytics + Settings panel | v2.0 | 0/0 | Not started | — |
 | 7. Mobile responsive + Visual regression + Tests | v2.0 | 0/0 | Not started | — |
 
