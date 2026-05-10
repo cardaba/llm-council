@@ -1,48 +1,95 @@
 /*
- * ReasoningDisclosure — collapsable per Stage 1 tab + Stage 4 sub-section.
- * Hex placeholders are Phase 4 transition tokens.
+ * ReasoningDisclosure — collapsable accordion (Stage 1 tab + Stage 4).
+ * Modern grid trick: grid-template-rows 0fr → 1fr (RESEARCH Example 5,
+ * UI-SPEC §Microinteractions line 295). No magic-number max-height.
+ *
+ * NOTE: Existing JSX (ReasoningDisclosure.jsx) gates the body via
+ * `{expanded && <div className="reasoning-body">…</div>}`. We keep the
+ * grid-trick contract here so any future JSX migration to a permanent
+ * mount + data-open attribute drops in without CSS rewrites.
  */
 
 .reasoning-disclosure {
-  margin-top: 12px;
-  border-top: 1px dashed #e5e5e5;
-  padding-top: 8px;
+  margin-top: var(--space-3);
+  border-top: 1px dashed var(--color-border-subtle);
+  padding-top: var(--space-2);
 }
 
 .reasoning-toggle {
   background: transparent;
   border: none;
-  color: #666;
-  font-size: 0.8125rem;
+  color: var(--color-fg-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  font-weight: 500;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-family: inherit;
-  transition: background 240ms ease, color 240ms ease;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: background var(--motion-duration-base) var(--motion-easing-out),
+              color var(--motion-duration-base) var(--motion-easing-out);
+}
+
+.reasoning-toggle::before {
+  content: "›";
+  display: inline-block;
+  margin-right: var(--space-2);
+  transition: transform var(--motion-duration-base) var(--motion-easing-out);
+  transform: rotate(0deg);
+}
+
+.reasoning-toggle[aria-expanded="true"]::before,
+.reasoning-disclosure[data-open="true"] .reasoning-toggle::before {
+  transform: rotate(90deg);
 }
 
 .reasoning-toggle:hover {
-  background: #f0f0f0;
-  color: #333;
+  background: var(--color-bg-secondary);
+  color: var(--color-fg-primary);
 }
 
 .reasoning-toggle:focus-visible {
-  outline: 2px solid #4a90e2;
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
 
+/* ----------------------------------------------------------------------
+   Accordion grid trick — modern (CSS-only). Used when JSX permanently
+   mounts the panel and toggles via data-open or aria-expanded.
+   ---------------------------------------------------------------------- */
+.reasoning-disclosure__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-duration-slow) var(--motion-easing-out);
+}
+.reasoning-disclosure__panel[data-open="true"],
+.reasoning-disclosure[data-open="true"] .reasoning-disclosure__panel {
+  grid-template-rows: 1fr;
+}
+.reasoning-disclosure__panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.reasoning-disclosure__chevron {
+  transition: transform var(--motion-duration-base) var(--motion-easing-out);
+}
+.reasoning-disclosure[data-open="true"] .reasoning-disclosure__chevron {
+  transform: rotate(90deg);
+}
+
 .reasoning-body {
-  margin-top: 8px;
-  padding: 12px 14px;
-  background: #f7f7f7;
-  border-left: 3px solid #d0d0d0;
-  border-radius: 0 4px 4px 0;
-  color: #555;
-  font-size: 0.9375rem;
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-border-strong);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--color-fg-secondary);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body-small);
+  line-height: var(--line-height-loose);
 }
 
 .reasoning-block + .reasoning-block {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed #e0e0e0;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border-subtle);
 }

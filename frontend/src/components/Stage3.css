@@ -1,53 +1,84 @@
+/*
+ * Stage 3 — Chairman's final synthesis. THE most visible change of Phase 4:
+ * Bootstrap-flavored green replaced by --color-accent-soft + 3px terracota
+ * border-left. UI-SPEC §Color allowlist line 207-211 — explicit prohibition.
+ */
+
 .stage3 {
-  background: #f0fff0;
-  border-color: #c8e6c8;
+  background: var(--color-accent-soft);
+  border-left: 3px solid var(--color-accent);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  /* Reveal animation per UI-SPEC §Microinteractions "Stage 3 reveal". */
+  animation: stage3-reveal var(--motion-duration-slow) var(--motion-easing-out) 1;
+}
+
+@keyframes stage3-reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.stage3 .markdown-content {
+  color: var(--color-fg-primary);
 }
 
 .stage3-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 
 .stage3-header .stage-title {
   margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
+  font-weight: 600;
+  color: var(--color-fg-primary);
+  line-height: var(--line-height-tight);
 }
 
 .download-btn {
-  background: #ffffff;
-  color: #2d8a2d;
-  border: 1px solid #c8e6c8;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
+  background: var(--color-bg-elevated);
+  color: var(--color-accent);
+  border: 1px solid var(--color-border-subtle);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
   cursor: pointer;
-  font-family: inherit;
+  transition: background var(--motion-duration-base) var(--motion-easing-out),
+              color var(--motion-duration-base) var(--motion-easing-out);
 }
 
 .download-btn:hover {
-  background: #2d8a2d;
-  color: #ffffff;
+  background: var(--color-accent);
+  color: var(--color-bg-elevated);
+  border-color: var(--color-accent);
 }
 
 .final-response {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid #c8e6c8;
+  background: var(--color-bg-elevated);
+  padding: var(--space-5);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .chairman-label {
-  color: #2d8a2d;
-  font-size: 12px;
-  font-family: monospace;
-  margin-bottom: 12px;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-microcopy);
+  margin-bottom: var(--space-3);
   font-weight: 600;
 }
 
 .final-text {
-  color: #333;
-  line-height: 1.7;
-  font-size: 15px;
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  line-height: var(--line-height-loose);
+  font-size: var(--font-size-body);
 }

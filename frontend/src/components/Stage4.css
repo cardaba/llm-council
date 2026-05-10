@@ -1,15 +1,14 @@
 /*
- * Stage 4 — visually subordinate to Stage 3 (D-15: sub-section, not peer).
- * Renders inside the .stage3 panel; hex placeholders are Phase 4 transition
- * tokens (Direction A will swap them for design tokens).
+ * Stage 4 — Refinement, sub-section inside the Stage 3 panel (D-15).
+ * Background transparent (inherits accent-soft from .stage3); dashed top
+ * border-subtle to read as a continuation of the same panel.
+ * Critic score chip: --color-warn (amber from token system).
  */
 
 .stage4 {
-  /* Reset the .stage block defaults inherited if mounted as sibling — but
-     since we render INSIDE .stage3 the parent's bg/border are visible. */
-  margin: 16px 0 0 0;
-  padding: 16px 0 0 0;
-  border-top: 1px dashed #c8e6c8;
+  margin: var(--space-4) 0 0 0;
+  padding: var(--space-4) 0 0 0;
+  border-top: 1px dashed var(--color-border-subtle);
   background: transparent;
   border-left: none;
   border-right: none;
@@ -18,37 +17,49 @@
 }
 
 .stage4 .stage-title {
-  font-size: 1rem;
-  color: #555;
-  margin: 0 0 12px 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
+  font-weight: 600;
+  color: var(--color-fg-primary);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--space-3) 0;
 }
 
 .stage4-meta {
-  background: #fffaf0;
-  padding: 10px 14px;
-  border-radius: 6px;
-  border: 1px solid #f5e1c4;
-  margin-bottom: 14px;
-  font-size: 0.875rem;
+  /* Soft amber tinted background — inline rgba per Plan 04-03 token-set-closed
+     rule. var(--color-warn) used for borders/text. */
+  background: rgba(140, 102, 32, 0.12);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  margin-bottom: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+}
+
+.critic-score {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .critic-score strong {
-  color: #d97706;
+  color: var(--color-warn);
   font-weight: 600;
 }
 
 .critic-concern {
-  color: #666;
-  margin-top: 6px;
-  line-height: 1.45;
+  color: var(--color-fg-secondary);
+  margin-top: var(--space-2);
+  line-height: var(--line-height-normal);
 }
 
 .stage4-response {
-  background: #ffffff;
-  padding: 16px 18px;
-  border-radius: 6px;
-  border: 1px solid #c8e6c8;
-  color: #333;
-  line-height: 1.7;
-  font-size: 15px;
+  background: var(--color-bg-elevated);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  line-height: var(--line-height-loose);
+  font-size: var(--font-size-body);
 }

@@ -1,65 +1,79 @@
+/*
+ * Stage 1 — Individual responses tabs.
+ * Direction A tokens; active tab indicator = border-bottom 2px accent.
+ */
+
 .stage {
-  margin: 24px 0;
-  padding: 20px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  margin: var(--space-5) 0;
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .stage-title {
-  margin: 0 0 16px 0;
-  color: #333;
-  font-size: 16px;
+  margin: 0 0 var(--space-4) 0;
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
   font-weight: 600;
+  line-height: var(--line-height-tight);
 }
 
 .tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
   flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .tab {
-  padding: 8px 16px;
-  background: #ffffff;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px 6px 0 0;
-  color: #666;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-fg-secondary);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  transition: color var(--motion-duration-base) var(--motion-easing-out),
+              border-color var(--motion-duration-base) var(--motion-easing-out);
 }
 
 .tab:hover {
-  background: #f0f0f0;
-  color: #333;
-  border-color: #4a90e2;
+  color: var(--color-fg-primary);
 }
 
 .tab.active {
-  background: #ffffff;
-  color: #4a90e2;
-  border-color: #4a90e2;
-  border-bottom-color: #ffffff;
+  color: var(--color-fg-primary);
+  border-bottom: 2px solid var(--color-accent);
   font-weight: 600;
 }
 
+.tab--failed {
+  text-decoration: line-through;
+  color: var(--color-error);
+}
+
 .tab-content {
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  background: var(--color-bg-elevated);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .model-name {
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 12px;
-  font-family: monospace;
+  color: var(--color-fg-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-microcopy);
+  margin-bottom: var(--space-3);
 }
 
 .response-text {
-  color: #333;
-  line-height: 1.6;
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-loose);
 }

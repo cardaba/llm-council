@@ -1,12 +1,19 @@
+/*
+ * Stage 2 — Peer rankings (anonymized) + aggregate ranking panel.
+ * Tabular numerals on aggregate column for digit alignment (UI-SPEC line 128).
+ */
+
 .stage2 {
-  background: #fafafa;
+  background: var(--color-bg-secondary);
 }
 
 .stage2 h4 {
-  margin: 20px 0 8px 0;
-  color: #333;
-  font-size: 14px;
+  margin: var(--space-5) 0 var(--space-2) 0;
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
   font-weight: 600;
+  line-height: var(--line-height-tight);
 }
 
 .stage2 h4:first-of-type {
@@ -14,140 +21,152 @@
 }
 
 .stage-description {
-  margin: 0 0 12px 0;
-  color: #666;
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 0 0 var(--space-3) 0;
+  color: var(--color-fg-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-small);
+  line-height: var(--line-height-normal);
 }
 
 .aggregate-rankings {
-  background: #f0f7ff;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 2px solid #d0e7ff;
+  background: var(--color-bg-elevated);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--color-border-subtle);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .aggregate-rankings h4 {
-  margin: 0 0 12px 0;
-  color: #2a7ae2;
-  font-size: 15px;
+  margin: 0 0 var(--space-3) 0;
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h3);
 }
 
 .aggregate-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .aggregate-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px;
-  background: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d0e7ff;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .rank-position {
-  color: #2a7ae2;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--font-size-body);
   min-width: 35px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .rank-model {
   flex: 1;
-  color: #333;
-  font-family: monospace;
-  font-size: 14px;
+  color: var(--color-fg-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-body-small);
   font-weight: 500;
 }
 
 .rank-score {
-  color: #666;
-  font-size: 13px;
-  font-family: monospace;
+  color: var(--color-fg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .stage2 .tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
   flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .stage2 .tab {
-  padding: 8px 16px;
-  background: #ffffff;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px 6px 0 0;
-  color: #666;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-fg-secondary);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  transition: color var(--motion-duration-base) var(--motion-easing-out),
+              border-color var(--motion-duration-base) var(--motion-easing-out);
 }
 
 .stage2 .tab:hover {
-  background: #f0f0f0;
-  color: #333;
-  border-color: #4a90e2;
+  color: var(--color-fg-primary);
 }
 
 .stage2 .tab.active {
-  background: #ffffff;
-  color: #4a90e2;
-  border-color: #4a90e2;
-  border-bottom-color: #ffffff;
+  color: var(--color-fg-primary);
+  border-bottom: 2px solid var(--color-accent);
   font-weight: 600;
 }
 
 .stage2 .tab-content {
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-  margin-bottom: 20px;
+  background: var(--color-bg-elevated);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  margin-bottom: var(--space-5);
 }
 
 .ranking-model {
-  color: #888;
-  font-size: 12px;
-  font-family: monospace;
-  margin-bottom: 12px;
+  color: var(--color-fg-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-microcopy);
+  margin-bottom: var(--space-3);
 }
 
 .ranking-content {
-  color: #333;
-  line-height: 1.6;
-  font-size: 14px;
+  color: var(--color-fg-primary);
+  font-family: var(--font-serif);
+  line-height: var(--line-height-loose);
+  font-size: var(--font-size-body-small);
 }
 
 .parsed-ranking {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 2px solid #e0e0e0;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .parsed-ranking strong {
-  color: #2a7ae2;
-  font-size: 13px;
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
 }
 
 .parsed-ranking ol {
-  margin: 8px 0 0 0;
-  padding-left: 24px;
-  color: #333;
+  margin: var(--space-2) 0 0 0;
+  padding-left: var(--space-5);
+  color: var(--color-fg-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .parsed-ranking li {
-  margin: 4px 0;
-  font-family: monospace;
-  font-size: 13px;
+  margin: var(--space-1) 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
 }
 
 .rank-count {
-  color: #999;
-  font-size: 12px;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-microcopy);
 }

@@ -1,26 +1,28 @@
 /*
  * QualityToggle — Direction A footnote-style segmented control (W13 wireframe).
- * Hex values are Phase 4 transition tokens; structure (class names, layout)
- * is final and Phase 4 will swap colors for design tokens without touching JSX.
+ * Active chip border = --color-accent (UI-SPEC accent allowlist).
  */
 
 .quality-toggle {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  background: #fafafa;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
 }
 
 .quality-option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 240ms ease;
+  border: 1px solid transparent;
+  transition: background var(--motion-duration-base) var(--motion-easing-out),
+              box-shadow var(--motion-duration-base) var(--motion-easing-out),
+              border-color var(--motion-duration-base) var(--motion-easing-out);
   user-select: none;
 }
 
@@ -30,29 +32,43 @@
 }
 
 .quality-option:hover:not(.active) {
-  background: #f0f0f0;
+  background: var(--color-bg-elevated);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
 }
 
 .quality-option.active {
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  box-shadow: 0 1px 3px rgba(42, 39, 36, 0.08);
 }
 
 .quality-label {
-  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
   font-weight: 500;
-  color: #333;
+  color: var(--color-fg-primary);
 }
 
 .quality-cost {
-  font-size: 0.75rem;
-  color: #888;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  font-weight: 400;
+  color: var(--color-fg-muted);
   margin-top: 2px;
   font-style: italic;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  opacity: 0.85;
+  transition: opacity var(--motion-duration-fast) var(--motion-easing-out);
+}
+
+.quality-option:hover .quality-cost {
+  opacity: 1;
 }
 
 .quality-option.active .quality-cost {
-  color: #555;
+  color: var(--color-fg-secondary);
+  opacity: 1;
 }
 
 .quality-option input:disabled + .quality-label,
