@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-05-10T13:58:05.240Z"
+status: executing
+last_updated: "2026-05-10T15:35:06.962Z"
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_plans: 20
+  completed_plans: 17
+  percent: 85
 ---
 
 # State: LLM Council — Personal Edition
@@ -28,23 +28,23 @@ progress:
 
 ## Current Focus
 
-Phase 03 COMPLETE — 5/5 plans shipped. Plan 03-05 closes QUAL-03 + RSCH-03 + RSCH-05 by adding the QualityToggle 3-state segmented control (Direction A footnote-style cost surfacing), the ReasoningDisclosure colapsable per Stage 1 tab and per Stage 4 panel (whitelist filter: reasoning.summary + reasoning.text only), the Stage 4 sub-section rendered inside the Stage 3 panel, and extending the markdown export helpers to include critic + Stage 4 sections. All 21/21 v1 requirements satisfied. Phase 4 (Visual Identity Implementation) is next.
+Phase 04 EXECUTING — Plan 04-01 (Foundations) complete. Tokens CSS (60 unique custom properties: color light + dark, typography sizes/families/line-heights, spacing, layout, radius, shadow, motion), 4 self-hosted variable woff2 (Source Serif 4 Roman + Italic, Inter Variable, JetBrains Mono Variable v2.304 converted from canonical TTF via fontTools+Brotli), FOUC blocker inline sync script in index.html (reads localStorage.theme + prefers-color-scheme fallback, writes data-theme before first paint), prefers-reduced-motion override with focus-visible preservation, and LLM Council branded title — all in place. Components legacy still use hex hardcoded (intentional Wave 2-4 transition tokens per CONTEXT D-08). Wave 2 (Branded shell — Header, useTheme, MessageHeader migration) is next.
 
 ## Current Position
 
-Phase: 03 (quality-dial-pragmatic-deep-research) — COMPLETE
-Plan: 5 of 5 (all plans complete)
+Phase: 04 (visual-identity-implementation) — EXECUTING
+Plan: 2 of 4 (next: 04-02 Branded shell)
 
-- **Phase:** 3
-- **Plan:** 03-05 complete; Phase 03 closed
-- **Status:** Phase 03 complete; Phase 04 pending
-- **Progress:** [██████████] 100%
+- **Phase:** 4
+- **Plan:** 04-01 complete (commits `64e1328`, `113da15`, `170592b`)
+- **Status:** Executing Phase 04
+- **Progress:** [██████████] 85%
 
 ```
 [#####] 100% Phase 1 plans (incl. gap closure) — verified 2026-05-09
 [#####] 100% Phase 2 plans — verified 2026-05-10
 [#####] 100% Phase 3 — 5/5 plans complete (03-01 foundation, 03-02 routing, 03-03 metadata+header, 03-04 research_strategy, 03-05 frontend wiring)
-[     ]   0% Phase 4 — not started
+[##   ]  25% Phase 4 — 1/4 plans complete (04-01 foundations)
 ```
 
 ## Phase Progression
@@ -54,16 +54,16 @@ Plan: 5 of 5 (all plans complete)
 | 1 | Hardening & Conversation Management | All 5 plans complete + verified (closed 2026-05-09) |
 | 2 | UX Research & Design Brief | All 6 plans complete + verified (closed 2026-05-10) |
 | 3 | Quality Dial & Pragmatic Deep Research | All 5 plans complete (closed 2026-05-10) |
-| 4 | Visual Identity Implementation | Pending |
+| 4 | Visual Identity Implementation | 1/4 plans complete (04-01 foundations) — executing |
 
 ## Performance Metrics
 
 - Phases planned: 4
 - Phases complete: 3
-- Plans complete: 16
+- Plans complete: 17
 - Requirements coverage: 21/21 (100%)
 - Orphaned requirements: 0
-- Requirements satisfied: 21/21 (SEC-01, CONV-01, CONV-02, CONV-03, UXR-01, UXR-02, UXR-03, UXR-04, QUAL-01, QUAL-02, QUAL-03, QUAL-04, RSCH-01, RSCH-02, RSCH-03, RSCH-04, RSCH-05 — all v1 requirements closed)
+- Requirements satisfied: 17/21 (SEC-01, CONV-01..03, UXR-01..04, QUAL-01..04, RSCH-01..05). VIS-01..04 in progress — Plan 04-01 establishes the token foundation but does NOT close any VIS requirement yet (legacy hex placeholders intentionally coexist until Waves 2-4 migrate components).
 
 | Phase | Plan | Duration | Tasks | Files | Date |
 |-------|------|----------|-------|-------|------|
@@ -83,6 +83,7 @@ Plan: 5 of 5 (all plans complete)
 | 03 | 03 | ~9 min  | 2 | 6 | 2026-05-10 |
 | 03 | 04 | ~14 min | 3 | 4 | 2026-05-10 |
 | 03 | 05 | ~22 min | 2 | 13 | 2026-05-10 |
+| 04 | 01 | ~14 min | 3 | 6  | 2026-05-10 |
 
 ## Accumulated Context
 
@@ -153,6 +154,13 @@ Plan: 5 of 5 (all plans complete)
 - **Phase 03 / Plan 05:** Stage 4 spinner placed BETWEEN Stage 3 spinner and the Stage 3 panel render. When `stage4_start` fires, `msg.stage3` is already truthy and the panel renders. Putting the spinner above the panel = parent layout shifts down to make room; when `stage4_complete` arrives the spinner disappears and Stage 4 sub-section materialises INSIDE the panel = net layout shift zero. Critic invocation has no spinner (single fast call, no `critic_start` event in the strategy).
 - **Phase 03 / Plan 05:** download.js extended signatures preserve back-compat. `buildFinalAnswerMarkdown` without `stage4` produces the legacy title; `buildFullDeliberationMarkdown` without `critic`/`stage4`/`messageMetadata` skips the new sections via truthy gates. Pre-Phase-3 conversations re-opened from disk export verbatim as before. The new `## Critic` and `## Stage 4 — Refinement` sections only appear when QR refinement fired.
 - **Phase 03 / Plan 05:** `profile` state is intentionally NOT reset after send. Single-shot conversation design (PROJECT.md Out of Scope) hides the input form once `messages.length > 0`, so resetting would have zero observable effect. Forward-compatible with multi-turn (also Out of Scope) without rework.
+- **Phase 04 / Plan 01:** Token taxonomy declared in `:root` of `frontend/src/index.css` (60 unique custom properties: 13 colors light, 13 dark override, 9 typography sizes, 3 line-heights, 7 spacing, 4 layout, 2 radii, 2 shadows light + 2 dark reinforced, 4 motion, 3 font families). Components consume via `var(--*)` — never hardcode hex going forward. Wave 1 deliberately aislada: legacy hex placeholders coexist hasta Waves 2-4 (D-08).
+- **Phase 04 / Plan 01:** JetBrains Mono variable woff2 generated by converting the canonical TTF (`fonts/variable/JetBrainsMono[wght].ttf` from release v2.304) to woff2 via `fontTools` + `Brotli`. The official zip release does NOT include variable woff2 — only static woff2 (Bold, ExtraBold, etc.) and variable .ttf. Conversion is lossless data-wise; reduces 303KB → 113KB.
+- **Phase 04 / Plan 01:** FOUC blocker script in `index.html` is intentionally NOT `type="module"` (modules are async-by-default and would break sync pre-paint blocking). Sets `<html data-theme="...">` reading `localStorage.theme` with `prefers-color-scheme: dark` fallback and `try/catch` for private-browsing.
+- **Phase 04 / Plan 01:** `<link rel="preload">` only for Source Serif 4 Roman + Inter Variable (UI-SPEC line 99: mono is low-priority — only inside code blocks; Italic loads lazy via @font-face).
+- **Phase 04 / Plan 01:** `prefers-reduced-motion: reduce` global override explicitly preserves `*:focus-visible { outline: 2px solid var(--color-focus-ring) }` (RESEARCH §Pitfall 4). Without this, `transition: none !important` would also kill focus ring outlines and break keyboard a11y.
+- **Phase 04 / Plan 01:** No `--color-bootstrap-*` legacy aliases (CONTEXT D-06). Tras revisar el código, NO son necesarios — los componentes legacy seguirán con hex hardcoded hasta sus respectivas waves (Plans 04-02, 04-03, 04-04). VIS-01..04 no se cierran en este plan; las waves siguientes los liberan.
+- **Phase 04 / Plan 01:** `favicon-ampersand.svg` slot reserved in `<link rel="icon">` aunque el asset aún no existe — Plan 04-04 Task 3 lo commitea. 404 silencioso aceptable hasta entonces.
 
 ### Open Todos
 
@@ -175,30 +183,27 @@ None.
 
 ## Session Continuity
 
-**Last session (2026-05-10):** Executed Plan 03-05 (frontend wiring for Quality Dial — QUAL-03 + RSCH-03 + RSCH-05). Two atomic commits: `927130e` (feat: QualityToggle 3-state segmented control with Direction A footnote-style cost surfacing; ReasoningDisclosure colapsable component with whitelist filter for `reasoning.summary` + `reasoning.text` only — encrypted blobs and unknown types dropped, returns null when filtered array is empty per D-23; ChatInterface profile state hook + QualityToggle mounted above input-row + onSendMessage carries profile; api.sendMessageStream + sendMessage extended with profile arg; App.handleSendMessage propagates profile + assistant message placeholder includes stage4/critic/loading.stage4 slots; new SSE event cases critic_complete + stage4_start + stage4_complete; Stage1 mounts ReasoningDisclosure per active tab), `a9c043c` (feat: Stage4 component renders sub-section INSIDE the Stage 3 panel as child of <Stage3> per D-15, with header "Stage 4: Refinement", critic-meta box with amber-highlighted score, primary concern citation, refined markdown, optional ReasoningDisclosure when reasoning_details present; Stage3 accepts stage4 prop and prefers stage4.response in download; ChatInterface adds Stage 4 spinner between Stage 3 spinner and panel render + drills stage4 prop + passes stage4/critic/messageMetadata to buildFullDeliberationMarkdown; download.js buildFinalAnswerMarkdown prefers stage4.response when refined and tags title with "(refined)" + critic footnote, buildFullDeliberationMarkdown appends ## Critic + ## Stage 4 — Refinement sections plus optional profile footer). All grep acceptance criteria passed; `npm --prefix frontend run build` completed in 3.6s with no warnings. QUAL-03 + RSCH-03 + RSCH-05 marked satisfied → 21/21 requirements coverage. Phase 03 closed.
+**Last session (2026-05-10):** Executed Plan 04-01 (Phase 4 Foundations — token system + self-hosted variable fonts + FOUC blocker). Three atomic commits: `64e1328` (feat: 4 self-hosted woff2 staged — Source Serif 4 Roman+Italic from Adobe canonical, Inter Variable v4.1 from rsms canonical, JetBrains Mono Variable v2.304 converted from canonical TTF via fontTools+Brotli; total ~1.2MB; provenance documented in SUMMARY.md), `113da15` (feat: index.css expanded with Direction A token taxonomy — 60 unique custom properties; 4 @font-face blocks with font-display: swap and variable axes; [data-theme="dark"] override re-declares 13 dark colors + 2 reinforced shadows; @media prefers-reduced-motion: reduce with :focus-visible outline preservation per RESEARCH Pitfall 4; body now consumes var(--color-bg-primary), var(--color-fg-primary), var(--font-serif); .markdown-content block preserved verbatim — Wave 3 will migrate its hex placeholders), `170592b` (feat: index.html FOUC blocker inline sync script reads localStorage.theme with prefers-color-scheme fallback and try/catch on private-browsing, sets <html data-theme=...> before first paint; <title> "frontend" → "LLM Council"; favicon slot reserved at /favicon-ampersand.svg with type="image/svg+xml" — asset arrives in Plan 04-04; <link rel="preload"> for Source Serif 4 Roman + Inter Variable). All grep acceptance criteria passed; `npm --prefix frontend run build` completed without errors. CSS bundle grew ~5KB (19.46 kB → still well under threshold). VIS-01..04 NOT yet closed — foundations ready, components migration deferred to Waves 2-4 per CONTEXT D-08.
 
 **Next session should start by:**
 
 1. Reading this STATE.md.
-2. Running `/gsd-transition` to formally close Phase 03 and open Phase 04 planning.
-3. Phase 04 entry contract: Direction A token migration. The hex placeholders in `QualityToggle.css`, `ReasoningDisclosure.css`, `Stage4.css`, and `MessageHeader.css` are intentional transition tokens. The component shapes (JSX, class names) are final — Phase 4 only swaps colors/typography/spacing for design tokens.
+2. Continuing Phase 04 — Plan 04-02 (Wave 2 Branded shell): Header component + useTheme hook + App.css grid layout consuming `var(--layout-header-h)` and `var(--layout-sidebar-w)` + MessageHeader migration (its hex placeholders #666 / #333 / #999 / #4a90e2 swap for var(--color-fg-secondary) / var(--color-fg-primary) / var(--color-fg-muted) / var(--color-accent)).
+3. Phase 04 entry contract delivered: token system available via `var(--*)` from any component. Hex placeholders in QualityToggle.css, ReasoningDisclosure.css, Stage4.css, MessageHeader.css, and the .markdown-content block remain intentional transition tokens until their respective waves migrate them.
 
 **Files most recently touched by GSD tooling:**
 
-- `frontend/src/components/QualityToggle.jsx` + `.css` (Plan 03-05 — NEW, segmented control)
-- `frontend/src/components/ReasoningDisclosure.jsx` + `.css` (Plan 03-05 — NEW, colapsable disclosure)
-- `frontend/src/components/Stage4.jsx` + `.css` (Plan 03-05 — NEW, sub-section component)
-- `frontend/src/components/Stage1.jsx` (Plan 03-05 — mounts ReasoningDisclosure)
-- `frontend/src/components/Stage3.jsx` (Plan 03-05 — accepts stage4 prop, mounts <Stage4>)
-- `frontend/src/components/ChatInterface.jsx` + `.css` (Plan 03-05 — QualityToggle integration, Stage 4 spinner, prop drilling)
-- `frontend/src/api.js` (Plan 03-05 — sendMessageStream + sendMessage profile arg)
-- `frontend/src/App.jsx` (Plan 03-05 — handleSendMessage profile arg + critic_complete + stage4_start + stage4_complete handlers)
-- `frontend/src/utils/download.js` (Plan 03-05 — extended buildFinalAnswerMarkdown + buildFullDeliberationMarkdown)
-- `.planning/phases/03-quality-dial-pragmatic-deep-research/03-05-SUMMARY.md` (Plan 03-05 summary)
+- `frontend/public/fonts/SourceSerif4-Variable-Roman.woff2` (Plan 04-01 — NEW, 426KB)
+- `frontend/public/fonts/SourceSerif4-Variable-Italic.woff2` (Plan 04-01 — NEW, 328KB)
+- `frontend/public/fonts/Inter-Variable.woff2` (Plan 04-01 — NEW, 352KB)
+- `frontend/public/fonts/JetBrainsMono-Variable.woff2` (Plan 04-01 — NEW, 113KB; converted from TTF)
+- `frontend/src/index.css` (Plan 04-01 — expanded with token system + @font-face × 4 + dark overrides + reduced-motion override; .markdown-content preserved)
+- `frontend/index.html` (Plan 04-01 — FOUC blocker inline sync + font preloads + LLM Council title + favicon SVG slot)
+- `.planning/phases/04-visual-identity-implementation/04-01-SUMMARY.md` (Plan 04-01 summary)
 - `.planning/STATE.md` (this file)
-- `.planning/ROADMAP.md` (Phase 3 closed)
-- `.planning/REQUIREMENTS.md` (QUAL-03 + RSCH-05 marked complete)
+- `.planning/ROADMAP.md` (Plan 04-01 marked complete; Phase 4 progress 1/4)
 
 ---
 *State initialized: 2026-05-09*
+*Last updated: 2026-05-10 after Plan 04-01 (Phase 4 Foundations: token system + self-hosted variable fonts + FOUC blocker landed; VIS-01..04 still open — components migration in Waves 2-4).*
 *Last updated: 2026-05-10 after Plan 03-05 (frontend QR wiring: QUAL-03 + RSCH-03 + RSCH-05 closed; Phase 03 complete with 21/21 requirements coverage).*
