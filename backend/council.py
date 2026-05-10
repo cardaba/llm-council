@@ -1,14 +1,18 @@
 """3-stage LLM Council orchestration.
 
 Profile routing: `fast` and `quality` use this module's stages directly.
-`quality_research` delegates to `research_strategy.run()` (Plan 03-04). This
-module MUST NOT import research-specific config (no `critic_model`, no
-`stage4_threshold`, no `:online` model lists) — RSCH-04 isolation.
+`quality_research` delegates to `research_strategy.run()` (Plan 03-04).
+
+RSCH-04 isolation: this module MUST NOT import research-specific
+configuration. Only the strategy module owns the critic model id, the
+Stage 4 threshold, and the `:online` reasoning model lists. Council
+accesses `PROFILES[profile]` with a variable, never with a literal.
 """
 
 from typing import List, Dict, Any, Tuple
 from .openrouter import query_models_parallel, query_model
 from .config import PROFILES
+from . import research_strategy
 
 
 async def stage1_collect_responses(
@@ -326,13 +330,31 @@ async def run_full_council(
     config = PROFILES[profile]
 
     if profile == "quality_research":
-        # Placeholder — Plan 03-04 reemplazará con un único delegate al strategy module:
-        #   from . import research_strategy
-        #   return await research_strategy.run(user_query, config)
-        # Hasta entonces, falla explícitamente para que ningún caller crea que QR ya funciona.
-        raise NotImplementedError(
-            "quality_research will be implemented in Plan 03-04 (research_strategy module)"
-        )
+        # Single-line delegate to the research_strategy module (RSCH-04 isolation).
+        # The streaming endpoint in main.py consumes research_strategy.run()
+        # directly and forwards per-stage events as SSE; this branch supports
+        # the non-streaming endpoint by collecting events and returning the
+        # legacy 4-tuple shape. The combined_metadata dict packs both the
+        # message_metadata (profile/models/chairman/critic/stage4_triggered)
+        # and the optional stage4 payload so main.py.send_message can persist
+        # them without owning QR-specific knowledge.
+        stage1_results: List[Dict[str, Any]] = []
+        stage2_results: List[Dict[str, Any]] = []
+        stage3_result: Dict[str, Any] = {}
+        stage4_result: Any = None
+        message_metadata: Dict[str, Any] = {}
+        async for event in research_strategy.run(user_query, config):
+            if event["type"] == "_final":
+                stage1_results = event["stage1"]
+                stage2_results = event["stage2"]
+                stage3_result = event["stage3"]
+                stage4_result = event.get("stage4")
+                message_metadata = event["message_metadata"]
+        combined_metadata = {
+            "message_metadata": message_metadata,
+            "stage4": stage4_result,
+        }
+        return stage1_results, stage2_results, stage3_result, combined_metadata
 
     council_models = config["council_models"]
     chairman_model = config["chairman_model"]

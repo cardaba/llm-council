@@ -163,6 +163,7 @@ def add_assistant_message(
     stage2: List[Dict[str, Any]],
     stage3: Dict[str, Any],
     metadata: Optional[Dict[str, Any]] = None,
+    stage4: Optional[Dict[str, Any]] = None,
 ):
     """
     Add an assistant message with all stages + optional profile metadata.
@@ -182,6 +183,17 @@ def add_assistant_message(
                     "critic": str,
                     "stage4_triggered": bool,
                 }
+        stage4: Optional refined response payload (Plan 03-04). Only persisted
+            when the critic gated Stage 4 for `quality_research` and the
+            refinement query succeeded. Shape:
+                {
+                    "model": str,
+                    "response": str,
+                    "reasoning_details": Any | None,
+                    "critic_score": int,
+                    "primary_concern": str | None,
+                }
+            Fast / Quality NEVER pass this — backwards compat preserved.
 
     Backwards compat (D-27): messages persisted before Phase 3 have no
     `metadata` field. The frontend renders 'Quality (legacy)' for those —
@@ -199,9 +211,8 @@ def add_assistant_message(
     }
     if metadata is not None:
         message["metadata"] = metadata
-    # Plan 03-04 will pass critic + stage4_triggered keys through this same
-    # `metadata` dict for the quality_research path; no further schema change
-    # required here.
+    if stage4 is not None:
+        message["stage4"] = stage4
     conversation["messages"].append(message)
     save_conversation(conversation)
 
