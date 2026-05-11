@@ -88,8 +88,11 @@ test('error-banner', async ({ page }) => {
   );
 
   await page.goto('/');
-  // Select the fixture conversation so ChatInterface mounts the input form.
-  await page.locator('.conversation-item').first().click();
+  // Select the fixture conversation. App.jsx renders BOTH the mobile
+  // SidebarDrawer's <Sidebar> instance (display:none at desktop widths) AND
+  // the desktop <Sidebar>. The first .conversation-item in document order
+  // lives inside the hidden drawer, so we filter for visible items.
+  await page.locator('.conversation-item:visible').first().click();
   // Submit a tiny message to trigger the stream → which immediately errors.
   await page.locator('textarea.message-input').fill('vrt');
   await page.locator('button.send-button').click();

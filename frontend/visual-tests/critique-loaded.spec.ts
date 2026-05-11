@@ -66,14 +66,18 @@ test('critique-loaded', async ({ page }) => {
   );
 
   await page.goto('/');
-  await page.locator('.conversation-item').first().click();
+  // App.jsx renders the mobile SidebarDrawer's <Sidebar> (display:none at
+  // desktop widths) BEFORE the desktop <Sidebar>; the first matching node
+  // in document order is hidden. Filter for visibility.
+  await page.locator('.conversation-item:visible').first().click();
   // Wait for the critique welcome form to mount.
   await page.locator('.critique-welcome').waitFor({ state: 'visible' });
 
   // Inject 3 deterministic files into the 3 dropzone slots. Each DropZoneSlot
-  // renders its own <input type="file">; the .file-inputs are addressable in
-  // document order via .dropzone-slot input[type="file"].
-  const fileInputs = page.locator('.dropzone-slot input[type="file"]');
+  // renders its own <input type="file"> (display:none — setInputFiles works
+  // on hidden inputs by design); they are addressable in document order via
+  // .drop-zone-slot input[type="file"].
+  const fileInputs = page.locator('.drop-zone-slot input[type="file"]');
   await fileInputs.nth(0).setInputFiles({
     name: 'model-a-notes.md',
     mimeType: 'text/markdown',

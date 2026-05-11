@@ -52,6 +52,7 @@
         }
       ],
       "stage3": {
+        "model": "anthropic/claude-opus-4.7",
         "response": "## Recommended schema\n\nKeep **dim_product country-agnostic** and put country on the fact via **country_sk**. Add a dedicated **dim_market** (country × therapeutic area / commercial division) to capture launch-window edge cases without exploding the product dimension. Use **dim_calendar** with fiscal-period alignment per affiliate.\n\n## Currency\n\nCarry both `transaction_currency_value` and `reporting_currency_value` on the fact, plus the **rate snapshot per period** — auditors will ask, and a live join to a rates table desyncs when rates revise.\n\n## Regulatory clustering\n\nIf a country belongs to multiple clusters across therapeutic areas (Switzerland in EU-equivalent for some products, standalone for others), promote cluster to its own dimension rather than folding it into dim_country.\n\n## PEQ\n\nModel PEQ as a categorical column on the fact, not a separate dimension — it is a bucketing of an existing axis, not a new one.\n\n## Edge cases\n\n- Mid-period launches: the date_sk → market_sk join must not silently drop rows when launch_date > period_start.\n- SCD: dim_country Type 1; dim_product Type 2 if country-specific regulatory status creates distinct billable SKUs."
       },
       "metadata": {

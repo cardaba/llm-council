@@ -19,3 +19,8 @@ data/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+
+# Playwright (Phase 7 / 07-03) — generated runtime output only.
+# Committed baselines live under frontend/visual-tests/*-snapshots/ and are NOT ignored.
+frontend/playwright-report/
+frontend/test-results/

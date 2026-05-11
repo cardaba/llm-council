@@ -9,7 +9,11 @@
 import { test, expect, settle } from './_fixtures';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+// frontend/package.json declares "type": "module" so __dirname is undefined.
+// Resolve the fixture path relative to this spec via import.meta.url.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PATH = path.join(__dirname, 'fixtures', 'stage2-mock-sse.json');
 const FIXTURE = JSON.parse(fs.readFileSync(FIXTURE_PATH, 'utf-8'));
 const CONVERSATION_ID = FIXTURE.id;
@@ -48,7 +52,10 @@ test('stage2-rankings', async ({ page }) => {
   );
 
   await page.goto('/');
-  await page.locator('.conversation-item').first().click();
+  // App.jsx renders the mobile SidebarDrawer's <Sidebar> (display:none at
+  // desktop widths) BEFORE the desktop <Sidebar>; the first matching node
+  // in document order is hidden. Filter for visibility.
+  await page.locator('.conversation-item:visible').first().click();
   // Wait for the Stage 2 section to render — it gates on
   // msg.stage2 && msg.stage2.length > 0 in ChatInterface.jsx.
   await page.locator('section[data-stage="stage2"]').waitFor({ state: 'visible' });

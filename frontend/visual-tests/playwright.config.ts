@@ -13,12 +13,14 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: '.',
-  // {testDir}/{testFilePath}-snapshots/{arg}{ext} — Playwright also appends
-  // -<projectName>-<platform> automatically when `{arg}` is the screenshot
-  // name passed to toHaveScreenshot(). On Windows this yields
-  // *-chromium-light-win32.png and *-chromium-dark-win32.png; Linux would
-  // produce *-linux suffixes that coexist without collision.
-  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
+  // Force OS + project name into the snapshot filename so:
+  //   1) chromium-light and chromium-dark do not overwrite each other (the
+  //      default Playwright suffix is only auto-appended when {arg} is
+  //      omitted; we must include {projectName} explicitly).
+  //   2) An accidental cross-OS run produces a different filename (e.g.
+  //      `-win32` vs `-linux`) instead of silently overwriting.
+  snapshotPathTemplate:
+    '{testDir}/{testFilePath}-snapshots/{arg}-{projectName}-{platform}{ext}',
   use: {
     baseURL: 'http://localhost:4173', // vite preview default
     viewport: { width: 1280, height: 800 }, // single desktop viewport per ROADMAP scope
