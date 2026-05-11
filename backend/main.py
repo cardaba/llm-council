@@ -76,11 +76,19 @@ class SendMessageRequest(BaseModel):
 
 
 class ConversationMetadata(BaseModel):
-    """Conversation metadata for list view."""
+    """Conversation metadata for list view.
+
+    `mode` MUST be declared explicitly here. FastAPI's `response_model` filters
+    unknown fields out of the serialized response, so even though
+    `storage.list_conversations()` returns `mode` (per 05-01-SUMMARY.md line 101),
+    it was silently dropped on the wire and the Sidebar "Critique" pill
+    disappeared on reload (Bug B, quick-task 260511-lcu).
+    """
     id: str
     created_at: str
     title: str
     message_count: int
+    mode: Literal["fresh", "critique"] = "fresh"
 
 
 class Conversation(BaseModel):
