@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import Header from './components/Header';
 import ErrorBanner from './components/ErrorBanner';
+import SettingsPanel from './components/SettingsPanel';
 import { api } from './api';
 import './App.css';
 
@@ -15,6 +16,7 @@ function App() {
   // streamError shape: { stageNumber, originalContent, originalProfile } | null.
   const [streamError, setStreamError] = useState(null);
   const [retryAttempted, setRetryAttempted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Load conversations on mount
   useEffect(() => {
@@ -438,7 +440,8 @@ function App() {
 
   return (
     <div className="app">
-      <Header />
+      <Header onSettingsOpen={() => setSettingsOpen(true)} />
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <Sidebar
         conversations={conversations}
         currentConversationId={currentConversationId}
