@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import Header from './components/Header';
 import ErrorBanner from './components/ErrorBanner';
+import SettingsPanel from './components/SettingsPanel';
 import { api } from './api';
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
   // footer's cost block refetches /api/stats/cost. Cheapest cross-component
   // trigger: a single integer prop, no context, no event bus.
   const [costStatsRefreshTrigger, setCostStatsRefreshTrigger] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Load conversations on mount
   useEffect(() => {
@@ -444,7 +446,8 @@ function App() {
 
   return (
     <div className="app">
-      <Header />
+      <Header onSettingsOpen={() => setSettingsOpen(true)} />
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <Sidebar
         conversations={conversations}
         currentConversationId={currentConversationId}

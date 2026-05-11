@@ -73,7 +73,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
 - [x] 06-03-PLAN.md — COST-01 query_model cost capture + council/research_strategy per-stage accumulation + metadata.cost pack (Wave 3)
 - [x] 06-04-PLAN.md — COST-02 + COST-03 + COST-04 MessageHeader cost line + backend/stats.py + /api/stats/cost + Sidebar footer (Wave 4)
 - [x] 06-05-PLAN.md — SET-04 FOUC blocker extension (density + fontSize sync) + index.css overrides (Wave 1)
-- [ ] 06-06-PLAN.md — SET-01 + SET-02 useSettings hook + SettingsPanel <dialog> + Header gear icon (Wave 4)
+- [x] 06-06-PLAN.md — SET-01 + SET-02 useSettings hook + SettingsPanel <dialog> + Header gear icon (Wave 4)
 - [ ] 06-07-PLAN.md — SET-03 SendMessageRequest.stage4_threshold + research_strategy.run threshold_override + api.js body wiring (Wave 5)
 **UI hint**: yes
 
