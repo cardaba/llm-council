@@ -17,6 +17,19 @@ export const api = {
   },
 
   /**
+   * Fetch aggregated current-month cost stats (Phase 6 COST-03).
+   * Backend walks data/conversations/*.json read-only and returns the
+   * locked shape consumed by the sidebar footer (COST-04).
+   */
+  async getCostStats() {
+    const response = await fetch(`${API_BASE}/api/stats/cost`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch cost stats');
+    }
+    return response.json();
+  },
+
+  /**
    * Create a new conversation.
    * @param {'fresh'|'critique'} [mode='fresh'] — conversation mode (Phase 5 D-02).
    *   Default keeps v1 callers green; pass `'critique'` to open in critique mode.

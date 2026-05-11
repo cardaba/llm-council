@@ -15,6 +15,10 @@ function App() {
   // streamError shape: { stageNumber, originalContent, originalProfile } | null.
   const [streamError, setStreamError] = useState(null);
   const [retryAttempted, setRetryAttempted] = useState(false);
+  // Phase 6 / COST-04 — bumped on every `complete` SSE event so the Sidebar
+  // footer's cost block refetches /api/stats/cost. Cheapest cross-component
+  // trigger: a single integer prop, no context, no event bus.
+  const [costStatsRefreshTrigger, setCostStatsRefreshTrigger] = useState(0);
 
   // Load conversations on mount
   useEffect(() => {
@@ -254,8 +258,10 @@ function App() {
         break;
 
       case 'complete':
-        // Stream complete, reload conversations list
+        // Stream complete, reload conversations list + nudge the sidebar
+        // footer cost block to refetch (Phase 6 / COST-04).
         loadConversations();
+        setCostStatsRefreshTrigger((n) => n + 1);
         setIsLoading(false);
         break;
 
@@ -447,6 +453,7 @@ function App() {
         onNewCritiqueConversation={handleNewCritiqueConversation}
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
+        refreshTrigger={costStatsRefreshTrigger}
       />
       <div className="app__main-with-banner">
         {streamError && (

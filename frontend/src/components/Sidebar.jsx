@@ -147,6 +147,7 @@ export default function Sidebar({
   onNewCritiqueConversation,
   onDeleteConversation,
   onRenameConversation,
+  refreshTrigger = 0,
 }) {
   // openMenuFor: { id, x, y } | null — coords are viewport-fixed.
   const [openMenuFor, setOpenMenuFor] = useState(null);
@@ -156,6 +157,29 @@ export default function Sidebar({
   const [pendingDelete, setPendingDelete] = useState(null);
   // editingId: id of the conversation currently in inline rename mode, or null.
   const [editingId, setEditingId] = useState(null);
+
+  // Phase 6 / COST-04 — current-month cost stats for the sidebar footer.
+  // Fetched on mount + every time `refreshTrigger` bumps (App.jsx bumps it
+  // on each SSE `complete` event so the footer reflects the freshest query).
+  // `null` means "not loaded yet OR fetch failed" — render branches collapse
+  // both into the same empty-microcopy state per PATTERNS.md analog.
+  const [costStats, setCostStats] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const stats = await api.getCostStats();
+        if (!cancelled) setCostStats(stats);
+      } catch (e) {
+        console.error('Failed to fetch cost stats:', e);
+        if (!cancelled) setCostStats(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshTrigger]);
 
   // CONV-03 progressive search state.
   // searchQuery       — controlled input value (every keystroke).
@@ -368,6 +392,59 @@ export default function Sidebar({
           ))
         )}
       </div>
+
+      {/* Phase 6 / COST-04 — dual-cap sidebar footer.
+          Left = OpenRouter cap ($100). Right = Upstream BYOK (no cap).
+          Progress bar gates on usageRatio ≥ 0.8 per D-02. */}
+      {(() => {
+        if (!costStats || (costStats.current_month?.queries ?? 0) === 0) {
+          return (
+            <div className="sidebar-footer__cost">
+              <p className="sidebar-footer__empty">
+                No queries this month yet.
+              </p>
+            </div>
+          );
+        }
+        const totalUsd = costStats.current_month.total_usd ?? 0;
+        const upstreamUsd = costStats.current_month.upstream_total_usd ?? 0;
+        const queries = costStats.current_month.queries ?? 0;
+        const usageRatio = totalUsd / 100;
+        const showProgress = usageRatio >= 0.8;
+        return (
+          <div className="sidebar-footer__cost">
+            <div className="sidebar-footer__cols">
+              <div className="sidebar-footer__col">
+                <span className="sidebar-footer__label">OpenRouter</span>
+                <span className="sidebar-footer__value">
+                  ${totalUsd.toFixed(2)} / $100
+                </span>
+                {showProgress && (
+                  <div
+                    className="sidebar-footer__progress"
+                    aria-hidden="true"
+                  >
+                    <div
+                      className="sidebar-footer__progress-fill"
+                      style={{ width: `${Math.min(100, usageRatio * 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="sidebar-footer__col">
+                <span className="sidebar-footer__label">Upstream</span>
+                <span className="sidebar-footer__value">
+                  ${upstreamUsd.toFixed(2)} BYOK
+                </span>
+                <span className="sidebar-footer__subtext">no cap</span>
+              </div>
+            </div>
+            <p className="sidebar-footer__microcopy">
+              {(usageRatio * 100).toFixed(1)}% of cap · {queries} queries this month
+            </p>
+          </div>
+        );
+      })()}
 
       {openMenuFor && (
         <Menu
