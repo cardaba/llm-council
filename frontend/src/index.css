@@ -98,6 +98,9 @@
   --layout-content-max-w: 65ch;
   --layout-content-padding: clamp(24px, 5vw, 64px);
 
+  /* Touch target floor — WCAG 2.5.5 (target size minimum) + iOS HIG 44pt. */
+  --touch-target-min: 44px;
+
   /* Radius (2 tokens) */
   --radius-sm: 6px;
   --radius-md: 8px;
