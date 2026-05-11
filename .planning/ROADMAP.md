@@ -95,7 +95,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
 
 **Plans:** 5 plans
 - [x] 07-01-PLAN.md — Responsive substrate: --touch-target-min token, viewport-fit=cover, safe-area-inset threading (MOBL-01 + MOBL-03), Wave 1
-- [ ] 07-02-PLAN.md — Mobile drawer: SidebarDrawer (<dialog>+showModal) + useTouchSwipe hook + hamburger button + inert main (MOBL-02 + MOBL-04), Wave 1, depends on 07-01
+- [x] 07-02-PLAN.md — Mobile drawer: SidebarDrawer (<dialog>+showModal) + useTouchSwipe hook + hamburger button + inert main (MOBL-02 + MOBL-04), Wave 1, depends on 07-01
 - [ ] 07-03-PLAN.md — Playwright VRT: 8 specs × 2 themes = 16 baselines, Docker-only, 5 anti-flake measures (VRT-01 + VRT-02 + VRT-03), Wave 2
 - [ ] 07-04-PLAN.md — Backend pytest suite: conftest isolation + storage / parser / profile-routing / v1→v2 migration tests (TEST-01), Wave 2
 - [ ] 07-05-PLAN.md — Frontend vitest suite + README ## Testing section (TEST-02 + TEST-03), Wave 2
