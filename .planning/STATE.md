@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
 status: verifying
-last_updated: "2026-05-11T07:54:00Z"
-last_activity: 2026-05-11 -- Phase 06 plan 08 (gap closure) complete
+last_updated: "2026-05-11T09:15:00.000Z"
+last_activity: 2026-05-11 -- Phase 06 plan 09 (detached SSE deliberations — gap closure follow-up) complete
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 15
+  completed_plans: 15
   percent: 100
 ---
 
@@ -37,9 +37,9 @@ progress:
 ## Current Position
 
 Phase: 06 (persistence-completeness-cost-analytics-settings-panel) — EXECUTING
-Plan: 8 of 8
-Status: Phase complete — ready for verification (06-UAT BLOCKER closed by 06-08; manual smoke test pending user)
-Last activity: 2026-05-11 -- Phase 06 plan 08 (handleStreamEvent stale-event guard) complete
+Plan: 9 of 9
+Status: Phase complete — 06-UAT BLOCKER closed by 06-08 (frontend guard) + 06-09 (detached backend deliberation). Browser smoke test pending user.
+Last activity: 2026-05-11 -- Phase 06 plan 09 (detached SSE deliberations — gap closure follow-up) complete
 
 ## Phase Progression
 
