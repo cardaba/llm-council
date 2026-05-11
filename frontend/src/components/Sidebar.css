@@ -284,3 +284,63 @@
   color: var(--color-fg-secondary);
   padding: 0 var(--space-1);
 }
+
+/* ---- Phase 6 / COST-04 — sidebar footer cost block.
+   Two-column dual-cap geometry per D-02. Tokens-only; no hex.
+   Progress bar only mounts when usageRatio ≥ 0.8 (gated in JSX). */
+.sidebar-footer__cost {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-secondary);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.sidebar-footer__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.sidebar-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar-footer__label {
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  color: var(--color-fg-secondary);
+}
+
+.sidebar-footer__value {
+  font-size: var(--font-size-body-small);
+  color: var(--color-fg-primary);
+}
+
+.sidebar-footer__subtext,
+.sidebar-footer__microcopy,
+.sidebar-footer__empty {
+  font-size: var(--font-size-microcopy);
+  color: var(--color-fg-muted);
+}
+
+.sidebar-footer__microcopy {
+  margin-top: var(--space-2);
+}
+
+.sidebar-footer__progress {
+  height: 4px;
+  background: var(--color-bg-elevated);
+  border-radius: 2px;
+  margin-top: var(--space-1);
+  overflow: hidden;
+}
+
+.sidebar-footer__progress-fill {
+  height: 100%;
+  background: var(--color-warn);
+  transition: width var(--motion-duration-base) var(--motion-easing-out);
+}
