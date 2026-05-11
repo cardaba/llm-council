@@ -147,6 +147,25 @@ function App() {
    * Callers pass `errorContext` so the 'error' branch can populate
    * setStreamError with the right retry payload. Critique callers pass null
    * (no retry support yet — Phase 6+ may extend).
+   *
+   * Stale-event guard (06-08, closes 06-UAT BLOCKER from Test 2):
+   * Every setter that writes to `lastMsg.loading.*` or to in-flight assistant
+   * slots starts with `if (!lastMsg?.loading) return prev;`. Persisted assistant
+   * messages (hydrated via api.getConversation) NEVER carry a `loading` key —
+   * it's UI-ephemeral state. In-flight assistant placeholders created in
+   * handleSendMessage / handleSubmitCritique ALWAYS carry it. So when the user
+   * switches conversations mid-stream, late SSE events targeting the previous
+   * conversation hit a `prev.messages` belonging to the NEW conversation; the
+   * guard short-circuits before we crash on `lastMsg.loading.stage1 = false`.
+   * Race is pre-existing (not a Phase 6 regression).
+   *
+   * Deferred v2.1+ hardening (better fixes, more blast radius):
+   *   Option 2 — AbortController in handleSelectConversation: kills the original
+   *     stream on switch. UX trade-off: original deliberation lost on tab change.
+   *   Option 3 — backend SSE payload includes conversation_id, frontend filters
+   *     events whose id !== currentConversationId. Most robust; requires backend
+   *     SSE shape change in backend/main.py.
+   * Re-open as a v2.1 plan when multi-tab / multi-stream UX matters.
    */
   const handleStreamEvent = useCallback((eventType, event, errorContext) => {
     switch (eventType) {
@@ -154,6 +173,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.loading.stage1 = true;
           return { ...prev, messages };
         });
@@ -163,6 +183,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.stage1 = event.data;
           lastMsg.loading.stage1 = false;
           return { ...prev, messages };
@@ -173,6 +194,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.loading.stage2 = true;
           return { ...prev, messages };
         });
@@ -185,6 +207,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.stage2 = event.data;
           lastMsg.metadata = event.metadata;
           lastMsg.loading.stage2 = false;
@@ -196,6 +219,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.loading.stage3 = true;
           return { ...prev, messages };
         });
@@ -205,6 +229,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.stage3 = event.data;
           lastMsg.loading.stage3 = false;
           return { ...prev, messages };
@@ -219,6 +244,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.metadata = {
             ...(lastMsg.metadata || {}),
             ...event.data,
@@ -233,6 +259,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.critic = event.data;
           return { ...prev, messages };
         });
@@ -243,6 +270,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.loading = { ...(lastMsg.loading || {}), stage4: true };
           return { ...prev, messages };
         });
@@ -253,6 +281,7 @@ function App() {
         setCurrentConversation((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
+          if (!lastMsg?.loading) return prev;
           lastMsg.stage4 = event.data;
           lastMsg.loading = { ...(lastMsg.loading || {}), stage4: false };
           return { ...prev, messages };
