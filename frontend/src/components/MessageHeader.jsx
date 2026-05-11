@@ -30,14 +30,34 @@ export default function MessageHeader({ metadata }) {
   const count = metadata.models?.length ?? 0;
   const chairman = shortName(metadata.chairman);
   const stage4Suffix = metadata.stage4_triggered ? ' + Stage 4 refinement' : '';
+
+  // Phase 6 / COST-02 — render the per-message cost line beneath the
+  // profile/models/chairman row. D-01 hide-zero gate: skip the line entirely
+  // when `metadata.cost.total` is missing or below the $0.001 threshold so
+  // Fast queries (~$0 cost) and legacy v2 messages stay clean.
+  const cost = metadata.cost;
+  const showCostLine =
+    cost && typeof cost.total === 'number' && cost.total >= 0.001;
+  const upstream = cost?.upstream_total ?? 0;
+  const fee = cost?.total ?? 0;
+
   return (
     <div className="message-header">
-      <span className="profile-label">{label}</span>
-      <span className="header-sep">•</span>
-      <span>{count} model{count === 1 ? '' : 's'}</span>
-      <span className="header-sep">•</span>
-      <span>Chairman: {chairman}</span>
-      {stage4Suffix && <span className="stage4-suffix">{stage4Suffix}</span>}
+      <div className="message-header__row">
+        <span className="profile-label">{label}</span>
+        <span className="header-sep">•</span>
+        <span>{count} model{count === 1 ? '' : 's'}</span>
+        <span className="header-sep">•</span>
+        <span>Chairman: {chairman}</span>
+        {stage4Suffix && <span className="stage4-suffix">{stage4Suffix}</span>}
+      </div>
+      {showCostLine && (
+        <div className="message-header__cost-line">
+          <span className="cost-line__upstream">${upstream.toFixed(3)} upstream</span>
+          <span className="header-sep">·</span>
+          <span className="cost-line__fee">${fee.toFixed(3)} fee</span>
+        </div>
+      )}
     </div>
   );
 }

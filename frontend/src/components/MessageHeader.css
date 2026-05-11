@@ -2,24 +2,47 @@
  * Phase 4 Wave 2 migration: Phase-3 hex placeholders (#666 #333 #999 #4a90e2)
  * are now consumed via design tokens. JSX shape and class names persist —
  * Plan 03-03 locked the markup; only this CSS file changes.
+ * Phase 6 / COST-02: stack a sibling cost line beneath the original row.
  */
 
 .message-header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: var(--space-1);
   font-family: var(--font-sans);
   font-size: var(--font-size-body-small);
   color: var(--color-fg-secondary);
   margin-bottom: var(--space-3);
   /* Tabular nums so "{N} models" digits align across messages
    * (UI-SPEC §Typography "Tabular numerals required on" line 128).
-   * Applied at the .message-header root because Plan 03-03 did not
-   * introduce a .message-header__meta wrapper in MessageHeader.jsx, and
-   * Plan 04-02 task 3 forbids touching the JSX (deviation Rule 1 fix). */
+   * Cascades from .message-header down to the cost-line so dollar amounts
+   * stay vertically aligned across stacked messages without re-declaring. */
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
+}
+
+.message-header__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.message-header__cost-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.cost-line__upstream {
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--color-fg-primary);
+}
+
+.cost-line__fee {
+  font-size: var(--font-size-microcopy);
+  color: var(--color-fg-muted);
 }
 
 .message-header .profile-label {
