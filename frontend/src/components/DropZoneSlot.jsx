@@ -101,7 +101,11 @@ export default function DropZoneSlot({ modelId, slot, onFile, onRemove, error })
         <input
           ref={inputRef}
           type="file"
-          accept=".md,.txt"
+          // Bug A (quick-task 260511-lcu): expanded to cover Windows + Chrome/Edge,
+          // where the native file dialog hides `.md` if `text/markdown` isn't in the
+          // OS MIME registry. CritiqueWelcome.handleFile still enforces .md/.txt
+          // post-pick, so widening here is safe.
+          accept=".md,.markdown,.txt,text/markdown,text/plain"
           style={{ display: 'none' }}
           onChange={handlePicked}
         />
