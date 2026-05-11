@@ -10,35 +10,54 @@ A personal multi-LLM deliberation app forked from `karpathy/llm-council`, extend
 
 ## Current State
 
-**v1.0 MVP shipped 2026-05-10.** 4 phases, 20 plans, 21 requirements satisfied. Audit PASSED. Codebase: ~140 files modified, +33,406 LOC across backend (FastAPI + httpx + uv) and frontend (React 19 + Vite 7 + react-markdown + 3 self-hosted variable woff2 fonts).
+**v2.0 shipped 2026-05-11.** v1.0 MVP closed 2026-05-10 (21 reqs, audit PASSED); v2.0 added external-critique mode + persistence completeness + cost analytics + settings panel + mobile responsive + visual regression + local test suite (33 reqs, 19 plans, 98 commits since v1.0). Combined codebase: backend (FastAPI + httpx + uv) + frontend (React 19 + Vite 7 + react-markdown + 3 self-hosted variable woff2 fonts) + Playwright VRT (16 baselines) + pytest 46 + vitest 55 = 101 local tests + 16 visual baselines.
 
-The Quality dial works at every level: Fast returns useful answers in seconds at near-zero cost; Quality+Research orchestrates 4 reasoning models with `:online` web search + critic-gated Stage 4 refinement. Direction A "Research notebook" applied uniformly — zero Bootstrap defaults, light + dark with UI toggle, branded shell with ampersand mark.
+The Quality dial works at every level (Fast / Quality / Quality+Research), and now there is a parallel **Critique research** entry point: upload 3 external deep researches (one per Quality-mode council model), the council critiques via the existing 3-stage flow with anonymised peer-review, and the result hydrates on reload as collapsible chips above the assistant message. v1→v2 schema migration is lazy and transparent — every v1.0 conversation loads without `TypeError`. Direction A "Research notebook" preserved end-to-end.
 
-## Current Milestone: v2.0 Council as External Critic + Hardening
+## Previous Milestone (archived): v2.0 Council as External Critic + Hardening
+
+See `milestones/v2.0-ROADMAP.md` and `milestones/v2.0-REQUIREMENTS.md` for full record (3 phases, 19 plans, 33 reqs).
+
+<details>
+<summary>Original v2.0 goal + target features (for historical reference)</summary>
 
 **Goal:** Convert the council from "fresh-deliberation only" into a tool that ALSO accepts externally-generated deep research as input and uses the council to critique it — closing simultaneously the v1.0 backlog (persistence completeness, observability, mobile, minimum testing).
 
-**Target features:**
+**Target features (all shipped):**
 
-A. **External Deep Research Critique (NEW core feature, PARALLEL entry point)** — A new entry point ALONGSIDE the existing fresh-prompt flow (does NOT replace Quality mode or any existing flow). When the user has already generated deep research externally (ChatGPT o3, Claude.ai Extended Thinking, Gemini AI Studio Pro Deep Research, etc.), they choose this alternative path: upload `.md`/`.txt` files (one per Quality-mode council model — the file is associated with the model that generated it externally). Stage 1: each council member sees ALL three deep researches as context (with model authorship labels visible) + the user's critique instruction, generates a critique. Stage 2: anonymized peer-review of the critiques. Stage 3: chairman (Opus) synthesizes the best critique + recommendations. Persistence: file content + model attribution + critique survive reload. The existing fresh-prompt flow (textarea-only with Fast/Quality/Quality+Research) is preserved unchanged — both flows coexist as user-chosen alternatives.
+A. **External Deep Research Critique (NEW core feature, PARALLEL entry point)** — shipped in Phase 5 (Plans 02 backend pipeline + 03 frontend entry + 04 reload hydration). 3-file upload, `multipart/form-data` to `/critique/stream`, council sees all 3 researches with authorship labels, Stage 2 anonymises model names before peer-review, ExternalResearchPanel hydrates collapsible chips on reload. Fresh-prompt flow preserved bit-for-bit.
 
-B. **Persistence completeness** — Persist `label_to_model` and `aggregate_rankings` to disk (PERS-V2-01); Stage 2 metadata hydrates correctly when reloading historical conversations.
+B. **Persistence completeness** — shipped in Phase 6 Plan 02. `label_to_model` + `aggregate_rankings` pack into `metadata` dict; no `add_assistant_message` signature change.
 
-C. **Cost analytics & observability** — Track OpenRouter spend per profile per session, surface real cost post-hoc beyond the "typical" preview in the toggle.
+C. **Cost analytics & observability** — shipped in Phase 6 Plans 03 + 04. `usage.cost` + `upstream_inference_cost` captured per `query_model` call, aggregated into `metadata.cost = {stage1..stage4, total, upstream_total, currency}`, surfaced in MessageHeader (static, no animated ticker) + sidebar footer (cap progress bar at ≥80%). Cost-footer placement flagged for v2.1 polish.
 
-D. **Settings/Preferences page** — Tuning of `stage4_threshold`, font-size override, density preference, plus the existing theme toggle moved (or duplicated) to settings.
+D. **Settings/Preferences page** — shipped in Phase 6 Plans 05-07. Gear icon → 380px slide-out panel; 4 controls (theme dup, font-size, density, stage4_threshold slider 1-10); `useSettings()` hook (~30 LOC mirror of `useTheme`); density via FOUC blocker, font-size via React state.
 
-E. **Mobile responsive (≤768px) completo** — Beyond v1's basic drawer (W23): tablet landscape, swipe gestures, focus trap, touch targets ≥44×44.
+E. **Mobile responsive ≤768px** — shipped in Phase 7 Plans 01 + 02. `--touch-target-min: 44px` token, native `<dialog>` + `showModal()` drawer (same pattern as SettingsPanel), `useTouchSwipe` (34 LOC, edge-zone + vertical-dominance gates), `viewport-fit=cover` + `env(safe-area-inset-*)`. MOBL-04 swipe shipped (resolved "scope-cut candidate" flag as NO CUT).
 
-F. **Visual regression testing (Playwright + screenshots)** — Lock the Direction A skin via snapshot tests on welcome state, Stage 3 highlight, ErrorBanner, sidebar empty state, theme toggle light/dark.
+F. **Visual regression** — shipped in Phase 7 Plan 03. 8 surfaces × 2 themes = 16 baselines (override of ROADMAP 5×2=10 default); 5 anti-flake measures structurally enforced via `_fixtures.ts`; native Windows execution (D-03 revised mid-Phase-7 — Docker tagged as v2.1+ contingency).
 
-G. **Automated test suite (minimum)** — Backend: pytest async client → CRUD endpoints + UUID validation + profile routing + research_strategy critic parser. Frontend: vitest + React Testing Library → useTheme, MessageHeader, QualityToggle, ReasoningDisclosure accordion. Target ~60% on critical paths, not 100% coverage.
+G. **Automated test suite (minimum)** — shipped in Phase 7 Plans 04 + 05. 46 pytest + 55 vitest = 101 tests local. `pytest-asyncio` mode `strict`; double-`DATA_DIR` monkeypatch in conftest; RTL v16 + jsdom 29 + `matchMedia` polyfill. README `## Testing` section documents 3 commands. NO CI (explicit D-04b lock).
 
-**Key context:**
-- v2.0 is a major bump justified by (1) the new core feature (critique mode) which changes the conversation schema and adds a UI entry point, (2) the volume of accumulated backlog (≥6 distinct areas).
-- BYOK allowlist unchanged — uploaded files are NOT processed via OpenRouter (they are local input passed as Stage 1 prompt context).
-- Critique mode reuses the existing council machinery (Stage 1/2/3, anonymization, chairman synthesis) — no new strategy module isolated like `research_strategy.py`. Conceptually it is a parallel entry point that pre-loads file context into Stage 1 prompts; the textarea-only Quality flow keeps its current behavior bit-for-bit.
-- Cadence: 1-2 sessions/week. Granularity: 6-8 phases (more than v1.0's 4) — phase numbering continues from Phase 5.
+**Gap closures during execution:**
+- 06-08: frontend `handleStreamEvent` stale-event guard (defensive `if (!lastMsg?.loading) return prev;` at 10 setter sites). Closes 06-UAT BLOCKER race.
+- 06-09: backend detached SSE deliberations via `asyncio.create_task` + queue. Deliberation survives client disconnect; persistence always reached.
+
+**Mid-flight overrides:**
+- VRT scope expansion (D-02): 10 → 16 baselines (added Settings + Stage 2 + Critique).
+- VRT execution path (D-03 revised): Docker-only → native Windows. Cross-OS guarantee theoretical for single-user no-CI posture.
+
+</details>
+
+## Next Milestone Goals (v2.1 — not yet scoped)
+
+`/gsd-new-milestone` will define v2.1 formally. Inbound items captured from v2.0 manual-smoke findings (`.planning/v2.1-BACKLOG-FROM-MANUAL-SMOKE.md`) and v2.0 deferred decisions:
+
+- **P0 regression-class:** sticky stage header positioning fix (NAV-V2.1-01). NAV-01 letter satisfied in v2.0; spirit violated (ghost strip of scrolling code above sticky bar).
+- **P1 IA gaps:** drop redundant H2 vs active tab; surface conversation context in sticky bar; sidebar item hierarchy (active-item left border, date grouping, demote N-messages metadata).
+- **P2 polish:** cost footer relocation (revisit Phase 6 D-02 dual-column lock); scroll-to-top button contrast + `aria-label`; tab active-state visually connected to panel.
+- **P3 enhancement:** scroll-spy in sticky.
+- **Carry-over from v2.0:** `App.test.jsx` for `handleStreamEvent` regression; Option 2 (AbortController) + Option 3 (per-event conversation_id SSE scoping) — downgraded to UX polish after 06-09; CI pipeline (GitHub Actions) tagged as TEST-V2.1-XX; PDF/DOCX critique upload + auto-detect model attribution.
 
 ## Requirements
 
@@ -63,17 +82,21 @@ G. **Automated test suite (minimum)** — Backend: pytest async client → CRUD 
 - ✓ **Pragmatic deep research** — `research_strategy.py` aislado, 4 reasoning models con `:online`, critic + conditional Stage 4 refinement, `reasoning_details` collapsable disclosure. Note: `:thinking` suffix does NOT exist on OpenRouter — reasoning enabled via payload param `{"reasoning": {"enabled": true}}`. v1.0 (RSCH-01..05, Phase 03)
 - ✓ **Visual redesign applied** — Direction A palette + Source Serif 4 + Inter + JetBrains Mono self-hosted, branded shell with ampersand mark + theme toggle, polished microinteractions (CSS-only, prefers-reduced-motion preserves focus rings), 23/23 wireframes implemented. v1.0 (VIS-01..04, Phase 04)
 
+<!-- All v2.0 active hypotheses validated and shipped 2026-05-11 — moved to Validated below. -->
+
+- ✓ **External Deep Research Critique** — v2.0 Phase 5 (CRIT-01..08, ExternalResearchPanel + `/critique/stream` + `stage1_collect_responses` with `external_context` parameter; no isolated module).
+- ✓ **Persistence completeness** — v2.0 Phase 6 (PERS-01..02; `label_to_model` + `aggregate_rankings` in opaque `metadata` dict; v1→v2 schema migration via lazy `_migrate_conversation_if_needed` in Phase 5).
+- ✓ **Cost analytics & observability** — v2.0 Phase 6 (COST-01..04; per-stage capture into `metadata.cost`, MessageHeader microcopy, `/api/stats/cost` endpoint, sidebar footer with cap progress bar).
+- ✓ **Settings/Preferences page** — v2.0 Phase 6 (SET-01..04; native `<dialog>` panel, `useSettings()` hook, `stage4_threshold` slider end-to-end through Pydantic).
+- ✓ **Mobile responsive completo (≤768px)** — v2.0 Phase 7 (MOBL-01..04; `--touch-target-min`, native `<dialog>` drawer, `useTouchSwipe` 34 LOC, viewport-fit + safe-area-inset).
+- ✓ **Visual regression testing** — v2.0 Phase 7 (VRT-01..03; 16 baselines, 5 structural anti-flake measures, native Windows Playwright per revised D-03).
+- ✓ **Automated test suite (minimum)** — v2.0 Phase 7 (TEST-01..03; 46 pytest + 55 vitest = 101 tests, no CI per D-04b).
+
 ### Active
 
-<!-- v2.0 milestone hypotheses — will be detailed in REQUIREMENTS.md after research. -->
+<!-- Reset for v2.1 — populate via /gsd-new-milestone. -->
 
-- [ ] **External Deep Research Critique** — Parallel entry point (NOT a replacement of Quality mode). User chooses this alternative path; uploads `.md`/`.txt` files (one per Quality-mode council model, file ↔ model association captures who generated each external deep research); council critiques via existing 3-stage flow (Stage 1 individual critique with all 3 files as context, Stage 2 anonymized peer review, Stage 3 chairman synthesis). Existing fresh-prompt Quality mode preserved unchanged.
-- [ ] **Persistence completeness** — `label_to_model` and `aggregate_rankings` persisted (PERS-V2-01) and hydrated on reload.
-- [ ] **Cost analytics & observability** — Track real OpenRouter spend per profile per session, surface in UI.
-- [ ] **Settings/Preferences page** — `stage4_threshold` tuning, font-size override, density preference.
-- [ ] **Mobile responsive completo (≤768px)** — Beyond drawer-only: tablet, swipe gestures, focus trap, touch targets ≥44×44.
-- [ ] **Visual regression testing** — Playwright + screenshots locking Direction A skin.
-- [ ] **Automated test suite (minimum)** — Backend pytest + frontend vitest on critical paths (~60% coverage target).
+(Empty — v2.0 closed, v2.1 not yet scoped. See "Next Milestone Goals" section above for inbound backlog.)
 
 ### Out of Scope
 
@@ -142,4 +165,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-10 after v2.0 milestone start*
+*Last updated: 2026-05-11 after v2.0 milestone close. v2.1 not yet scoped — run `/gsd-new-milestone` when ready.*

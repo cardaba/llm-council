@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
-status: executing
-last_updated: "2026-05-11T12:45:33.596Z"
-last_activity: 2026-05-11
+status: shipped
+last_updated: "2026-05-11T13:00:00.000Z"
+last_activity: 2026-05-11 -- v2.0 milestone shipped and archived (3 phases, 19 plans, 33 reqs satisfied, 101 tests + 16 VRT baselines)
 progress:
   total_phases: 3
   completed_phases: 3
