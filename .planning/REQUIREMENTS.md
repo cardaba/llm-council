@@ -69,9 +69,9 @@
 
 **Goal:** Lock the Direction A skin via Playwright snapshot tests, catching unintended visual changes during future development.
 
-- [ ] **VRT-01**: A `frontend/visual-tests/` directory contains Playwright snapshot specs for 5 surfaces × 2 themes (= 10 baselines): welcome state, Stage 3 highlight, ErrorBanner, sidebar empty state, theme toggle. Each spec mocks backend SSE via `page.route()` with fixture data. Source: ARCHITECTURE.md §6.3 + FEATURES.md §F.
-- [ ] **VRT-02**: Snapshot tests apply mandatory anti-flake measures: `await page.evaluate(() => document.fonts.ready)`, `threshold: 0.2`, `maxDiffPixelRatio: 0.02`, `reducedMotion: 'reduce'`, and a CSS override `*, *::before, *::after { animation: none !important; transition: none !important }` injected via `page.addStyleTag`. Source: PITFALLS.md §MOD-8 (5 prevention steps).
-- [ ] **VRT-03**: Snapshots are baselined exclusively on Linux (Docker `mcr.microsoft.com/playwright:v1.X.X` image); Windows local development uses `--update-snapshots` only as a last resort, and PR review validates updated snapshots in CI-equivalent Linux. Source: PITFALLS.md §MOD-8.
+- [x] **VRT-01**: A `frontend/visual-tests/` directory contains Playwright snapshot specs for 5 surfaces × 2 themes (= 10 baselines): welcome state, Stage 3 highlight, ErrorBanner, sidebar empty state, theme toggle. Each spec mocks backend SSE via `page.route()` with fixture data. Source: ARCHITECTURE.md §6.3 + FEATURES.md §F.
+- [x] **VRT-02**: Snapshot tests apply mandatory anti-flake measures: `await page.evaluate(() => document.fonts.ready)`, `threshold: 0.2`, `maxDiffPixelRatio: 0.02`, `reducedMotion: 'reduce'`, and a CSS override `*, *::before, *::after { animation: none !important; transition: none !important }` injected via `page.addStyleTag`. Source: PITFALLS.md §MOD-8 (5 prevention steps).
+- [x] **VRT-03**: Snapshots are baselined exclusively on Linux (Docker `mcr.microsoft.com/playwright:v1.X.X` image); Windows local development uses `--update-snapshots` only as a last resort, and PR review validates updated snapshots in CI-equivalent Linux. Source: PITFALLS.md §MOD-8.
 
 ### Automated test suite (TEST) — feature G
 
@@ -140,9 +140,9 @@
 | MOBL-02 | Phase 7 | Complete |
 | MOBL-03 | Phase 7 | Complete |
 | MOBL-04 | Phase 7 | Complete |
-| VRT-01 | Phase 7 | Pending |
-| VRT-02 | Phase 7 | Pending |
-| VRT-03 | Phase 7 | Pending |
+| VRT-01 | Phase 7 | Complete |
+| VRT-02 | Phase 7 | Complete |
+| VRT-03 | Phase 7 | Complete |
 | TEST-01 | Phase 7 | Complete |
 | TEST-02 | Phase 7 | Pending |
 | TEST-03 | Phase 7 | Pending |
