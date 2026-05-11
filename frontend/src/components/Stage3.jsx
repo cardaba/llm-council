@@ -7,15 +7,17 @@ import {
 } from '../utils/download';
 import './Stage3.css';
 
-export default function Stage3({ finalResponse, question, stage4 }) {
+export default function Stage3({ finalResponse, question, stage4, mode }) {
   if (!finalResponse) {
     return null;
   }
 
   // D-18: when Stage 4 fired, the "final answer" download MUST contain the
   // refined response, not the original chairman synthesis.
+  // Bug D (260511-mqt): `mode` toggles the input label between
+  // "Question" (fresh) and "Critique instruction" (critique).
   const handleDownload = () => {
-    const md = buildFinalAnswerMarkdown({ question, finalResponse, stage4 });
+    const md = buildFinalAnswerMarkdown({ question, finalResponse, stage4, mode });
     triggerDownload(buildFinalAnswerFilename(question), md);
   };
 

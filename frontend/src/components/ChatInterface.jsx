@@ -135,6 +135,8 @@ export default function ChatInterface({
       metadata: msg.metadata,
       messageMetadata: msg.metadata,
       critic: msg.critic,
+      mode: conversation.mode,
+      externalResearch: msg.external_research,
     });
     triggerDownload(buildDeliberationFilename(question), md);
   };
@@ -303,6 +305,7 @@ export default function ChatInterface({
                         finalResponse={msg.stage3}
                         question={findQuestionFor(conversation.messages, index)}
                         stage4={msg.stage4}
+                        mode={conversation.mode}
                       />
                     </section>
                   )}

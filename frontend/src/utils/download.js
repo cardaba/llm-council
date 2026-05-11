@@ -48,9 +48,14 @@ function timestamp() {
  * MUST contain the refined response, not the original chairman synthesis.
  * The title is suffixed with "(refined)" and a footnote captures the critic
  * score + concern that motivated the refinement.
+ *
+ * @param {string} [mode] - 'critique' switches the input label to
+ *   "Critique instruction"; otherwise fresh-prompt label "Question" is used.
  */
-export function buildFinalAnswerMarkdown({ question, finalResponse, stage4 }) {
+export function buildFinalAnswerMarkdown({ question, finalResponse, stage4, mode }) {
   const isRefined = !!stage4?.response;
+  const isCritique = mode === 'critique';
+  const inputLabel = isCritique ? 'Critique instruction' : 'Question';
   const responseText = isRefined
     ? stage4.response
     : finalResponse?.response || '_(no response)_';
@@ -60,7 +65,7 @@ export function buildFinalAnswerMarkdown({ question, finalResponse, stage4 }) {
       ? '# LLM Council — Final Answer (refined)'
       : '# LLM Council — Final Answer',
     '',
-    `**Question**: ${question || '_(unknown)_'}`,
+    `**${inputLabel}**: ${question || '_(unknown)_'}`,
     '',
     `**Chairman**: \`${finalResponse?.model || 'unknown'}\`${
       isRefined ? ' (with Stage 4 refinement)' : ''
@@ -96,6 +101,12 @@ export function buildFinalAnswerMarkdown({ question, finalResponse, stage4 }) {
  * `messageMetadata` is the persisted metadata dict from the backend's
  * `message_metadata` SSE event (profile + models + chairman + stage4_triggered);
  * when present a footer is appended documenting the run profile.
+ *
+ * @param {string} [mode] - 'critique' switches labels (input label and
+ *   Stage 1 header); otherwise fresh-prompt labels are used.
+ * @param {Object} [externalResearch] - {modelId: {filename, content,
+ *   size_bytes}}; appended as a '## Source materials' section when present
+ *   AND mode is critique (or dual-signal fallback: any entries imply critique).
  */
 export function buildFullDeliberationMarkdown({
   question,
@@ -106,19 +117,49 @@ export function buildFullDeliberationMarkdown({
   metadata,
   critic,
   messageMetadata,
+  mode,
+  externalResearch,
 }) {
+  // Dual-signal: prefer explicit `mode`, fall back to presence of research
+  // entries. Defends against future callers that forget to pass `mode`.
+  const isCritique =
+    mode === 'critique' ||
+    (externalResearch && Object.keys(externalResearch).length > 0);
+  const inputLabel = isCritique ? 'Critique instruction' : 'Question';
+  const stage1Header = isCritique
+    ? '## Stage 1 — Individual Critiques'
+    : '## Stage 1 — Individual Responses';
+
   const lines = [
     '# LLM Council Deliberation',
     '',
-    `**Question**: ${question || '_(unknown)_'}`,
+    `**${inputLabel}**: ${question || '_(unknown)_'}`,
     '',
     `**Exported**: ${new Date().toISOString()}`,
     '',
     '---',
     '',
-    '## Stage 1 — Individual Responses',
-    '',
   ];
+
+  // Source materials — only when this is a critique conversation with
+  // at least one uploaded research file. Full content (no truncation): files
+  // were capped at 750KB server-side per CRIT-08 / D-04, and the export is
+  // an audit artifact (full inclusion is the point).
+  if (isCritique && externalResearch && Object.keys(externalResearch).length > 0) {
+    lines.push('## Source materials', '');
+    Object.entries(externalResearch).forEach(([modelId, entry]) => {
+      const sizeKb = entry?.size_bytes != null ? (entry.size_bytes / 1024).toFixed(1) : '?';
+      lines.push(
+        `### \`${modelId}\` — ${entry?.filename || '_(unknown)_'} (${sizeKb}KB)`,
+        '',
+        entry?.content || '_(no content)_',
+        ''
+      );
+    });
+    lines.push('---', '');
+  }
+
+  lines.push(stage1Header, '');
 
   (stage1 || []).forEach((r) => {
     lines.push(`### \`${r.model}\``, '', r.response || '_(no response)_', '');
