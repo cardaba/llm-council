@@ -70,7 +70,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
 **Plans:** 7 plans
 - [x] 06-01-PLAN.md — OpenRouter `usage.cost` shape spike + RESEARCH annotation (Wave 1, gate before any cost-aggregation code)
 - [x] 06-02-PLAN.md — PERS-01/02 fresh-streaming metadata pack (label_to_model + aggregate_rankings) (Wave 2)
-- [ ] 06-03-PLAN.md — COST-01 query_model cost capture + council/research_strategy per-stage accumulation + metadata.cost pack (Wave 3)
+- [x] 06-03-PLAN.md — COST-01 query_model cost capture + council/research_strategy per-stage accumulation + metadata.cost pack (Wave 3)
 - [ ] 06-04-PLAN.md — COST-02 + COST-03 + COST-04 MessageHeader cost line + backend/stats.py + /api/stats/cost + Sidebar footer (Wave 4)
 - [x] 06-05-PLAN.md — SET-04 FOUC blocker extension (density + fontSize sync) + index.css overrides (Wave 1)
 - [ ] 06-06-PLAN.md — SET-01 + SET-02 useSettings hook + SettingsPanel <dialog> + Header gear icon (Wave 4)
