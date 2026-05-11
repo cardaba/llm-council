@@ -173,6 +173,7 @@ Ninguno. 06-UAT BLOCKER closed structurally by 06-08; manual smoke test pending 
 | Quick ID | Date | Description | Files | Commit | Notes |
 |----------|------|-------------|-------|--------|-------|
 | 260511-l5w | 2026-05-11 | NAV-01 sticky stage header ghost-strip fix (drop `.messages-container` `padding-top`, add soft `box-shadow` to `.stage-nav-strip`) | `frontend/src/components/ChatInterface.css`, `frontend/src/components/StageNavigationStrip.css` | (see commit log) | Manual smoke flagged for user. VRT baseline regeneration deferred to v2.1 phase 1 (24 PNGs × 4 viewports will diff-fail — expected). |
+| 260511-lcu | 2026-05-11 | Critique source-MD picker + critique-pill reload — Bug B: add `mode: Literal[...]` to `ConversationMetadata` so FastAPI stops filtering it from `/api/conversations`. Bug A: expand DropZoneSlot `<input accept>` to include `text/markdown,text/plain` so Windows native file dialog stops hiding `.md` files (Branch A shipped proactively, no diagnostics). | `backend/main.py`, `frontend/src/components/DropZoneSlot.jsx` | 127134e, 862a536 | **Backend restart required** (uvicorn not `--reload`). Manual smoke flagged for user. If picker still rejects `.md` after restart, Branch A wasn't the cause — iterate to Branch B (`onInput` fallback) or C (`.trim()` ext check). Both bugs classified as Phase 5 carry-over, not v2.0 regressions. |
 
 ## Operator Next Steps
 
