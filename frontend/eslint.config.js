@@ -26,4 +26,23 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // Vitest globals: with `globals: true` in vite.config.js's test block,
+    // describe/it/expect/vi/beforeEach/afterEach are injected at runtime —
+    // declare them here so ESLint's no-undef rule does not flag them.
+    files: ['**/*.test.{js,jsx}', 'src/test-setup.js'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        vi: 'readonly',
+        beforeAll: 'readonly',
+        beforeEach: 'readonly',
+        afterAll: 'readonly',
+        afterEach: 'readonly',
+        test: 'readonly',
+      },
+    },
+  },
 ])
