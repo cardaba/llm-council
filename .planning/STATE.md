@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
 status: executing
-last_updated: "2026-05-11T12:26:17.709Z"
+last_updated: "2026-05-11T12:45:33.596Z"
 last_activity: 2026-05-11
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 19
-  completed_plans: 18
-  percent: 95
+  completed_plans: 19
+  percent: 100
 ---
 
 # State: LLM Council — Personal Edition
@@ -36,9 +36,9 @@ progress:
 
 ## Current Position
 
-Phase: 07 (mobile-responsive-visual-regression-tests) — IN PROGRESS
-Plan: 4 of 5 complete (07-01 responsive substrate, 07-02 patterns, 07-04 pytest TEST-01)
-Status: Ready to execute
+Phase: 07 (mobile-responsive-visual-regression-tests) — ALL 5 PLANS COMPLETE
+Plan: 5 of 5 complete (07-01 responsive substrate, 07-02 mobile patterns, 07-03 Playwright VRT, 07-04 pytest TEST-01, 07-05 vitest TEST-02 + README ## Testing TEST-03)
+Status: Ready for `/gsd-verify-phase 7`
 Last activity: 2026-05-11
 
 ## Phase Progression
@@ -51,7 +51,7 @@ Last activity: 2026-05-11
 | 4 | Visual Identity Implementation | v1.0 | All 4 plans complete (closed 2026-05-10) |
 | 5 | Critique mode + Schema migration + In-conversation navigation | v2.0 | Not started — 13 reqs (CRIT-01..08, PERS-03, NAV-01..04) |
 | 6 | Persistence completeness + Cost analytics + Settings panel | v2.0 | Not started — 10 reqs (PERS-01..02, COST-01..04, SET-01..04) |
-| 7 | Mobile responsive + Visual regression + Tests | v2.0 | 3/5 plans complete — 07-01 + 07-02 + 07-04 done (MOBL-01, MOBL-03, TEST-01 satisfied; 46-test pytest suite green) |
+| 7 | Mobile responsive + Visual regression + Tests | v2.0 | 5/5 plans complete — all 10 reqs satisfied (MOBL-01..04, VRT-01..03, TEST-01..03); pytest 46 + vitest 55 = 101 tests green; Playwright VRT 24 baselines × 4 viewports; ready for /gsd-verify-phase 7 |
 
 ## Performance Metrics
 
@@ -67,9 +67,9 @@ Last activity: 2026-05-11
 ### v2.0 (active)
 
 - Phases planned: 3
-- Phases complete: 0
-- Plans complete: 1 (07-01 responsive substrate)
-- Requirements coverage: 33/33 mapped (100%); MOBL-01 + MOBL-03 complete
+- Phases complete: 0 (Phase 7 ready for /gsd-verify-phase)
+- Plans complete: 19/19 in Phase 7 alone is 5/5 (07-01..05); Phases 5 + 6 also complete prior to Phase 7
+- Requirements coverage: 33/33 mapped (100%); Phase 7 closes the last 10 (MOBL-01..04, VRT-01..03, TEST-01..03)
 - Cadencia: 1-2 sesiones/semana
 
 ## Accumulated Context
@@ -93,6 +93,8 @@ Last activity: 2026-05-11
 - **`pytest-asyncio` mode `strict`** (NO `auto`) + `httpx.AsyncClient(transport=ASGITransport(app=app))` para FastAPI testing.
 - **`@testing-library/react` v16+** — wrappea `act()` internamente, soporta React 19.
 - **06-08 gap closure (handleStreamEvent stale-event guard)** — Shipped Option 1 (defensive `if (!lastMsg?.loading) return prev;` at every in-flight setter inside `handleStreamEvent`, 10 sites) to close 06-UAT BLOCKER race. Predicate exploits shape asymmetry: persisted assistant messages never carry `loading` (UI-ephemeral state, never written to JSON). Deferred Option 2 (AbortController in `handleSelectConversation`) and Option 3 (backend SSE payload includes `conversation_id`, frontend filters by `currentConversationId`) to v2.1+ when multi-tab / multi-stream UX matters. Classification: race is pre-existing (since SSE streaming landed), NOT a Phase 6 regression; Phase 6 SC remain 5/5.
+- **07-05 vitest + RTL v16 + jsdom 29 frontend harness** — 55 tests / 6 co-located files covering useTheme, useSettings, MessageHeader legacy fallback + cost gating, QualityToggle onChange wiring, Stage2 de-anonymization, download.js helpers. Three structural choices: (a) `matchMedia` polyfill via `Object.defineProperty(window, 'matchMedia', ...)` in setupFiles — jsdom 29 resists direct assignment. (b) vitest discovery scoped to `src/**/*.{test,spec}.{js,jsx}` so `visual-tests/*.spec.ts` (07-03 Playwright) is not crawled and crashed by vitest. (c) `deAnonymizeText` extracted from Stage2.jsx to `frontend/src/utils/deAnonymizeText.js` so the test imports a pure helper AND Stage2.jsx stays eslint-clean against `react-refresh/only-export-components`. App.test.jsx for the handleStreamEvent stale-event guard regression is **deferred to v2.1** — App.jsx's `handleStreamEvent` is a useCallback (not exported) and behavioural testing would require either extracting it to a pure reducer module or mounting full <App /> with a mocked SSE stream (brittle). 06-08 already documented the guard structurally; manual smoke test remains the user-side validation gate.
+- **07-05 README ## Testing section (TEST-03)** — three locally-runnable test commands documented in a single section between "Running the Application" and "Tech Stack" (README.md:82). Direction A "calmo" tone preserved: one framing paragraph + three fenced blocks + one note on Playwright first-run binary cache and `--update-snapshots` regeneration. No CI mention beyond explicit "v2.1 backlog" framing per D-04b — no `.github/workflows/`, no CI badge, no separate `TESTING.md`.
 
 ### Carryover de v1.0 (Decisions still relevant)
 
@@ -130,7 +132,8 @@ Ninguno. 06-UAT BLOCKER closed structurally by 06-08; manual smoke test pending 
 - [ ] **User-side manual smoke test for 06-08** — 7-step browser DevTools verification (start servers → QR prompt → mid-stream conversation switch → assert no TypeError / no white screen). Required before declaring 06-UAT BLOCKER functionally resolved.
 - [ ] `/gsd-verify-phase 6` to formally close Phase 6 (now 8/8 plans complete including 06-08 gap closure).
 - [ ] Calibration de `stage4_threshold` (carryover v1.0) — Phase 6 SET-02 expone slider; el usuario decide tras 5-10 QR queries reales.
-- [ ] Phase 7 planning (`/gsd-plan-phase 7`): include vitest spec for `handleStreamEvent` stale-event guard as part of TEST-01..03 to lock 06-08 against regression.
+- [ ] `/gsd-verify-phase 7` to formally close Phase 7 (5/5 plans complete; all 10 requirements satisfied; pytest 46 + vitest 55 = 101 tests green).
+- [ ] App.test.jsx for `handleStreamEvent` stale-event guard regression — deferred from 07-05 to v2.1 (App.jsx coupling makes a clean behavioural test infeasible without refactor). 06-08 manual smoke test by user remains the validation gate in the meantime.
 
 ### Notes from Codebase Concerns to Factor In
 
