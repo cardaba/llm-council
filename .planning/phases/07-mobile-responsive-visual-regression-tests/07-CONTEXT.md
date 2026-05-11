@@ -9,7 +9,7 @@
 This phase is the **quality lock** of v2.0 — three bundled "freeze the surface" capabilities applied after Phases 5 + 6 have stabilized the deliberation engine and UI:
 
 1. **Mobile responsive (MOBL-01..04)** — Make the app fully usable on ≤768px. Touch targets ≥44×44px (CSS var `--touch-target-min`), native `<dialog>` + `showModal()` sidebar drawer (no library), `viewport-fit=cover` + `env(safe-area-inset-*)` for notch / iOS home indicator, and a `useTouchSwipe` hook (~30 LOC) for edge-swipe drawer open/close.
-2. **Visual regression (VRT-01..03)** — Playwright snapshot specs in `frontend/visual-tests/`, baselines exclusively on Linux Docker (`mcr.microsoft.com/playwright:v1.X.X`), with the 5 mandatory anti-flake measures (`document.fonts.ready`, `threshold: 0.2`, `maxDiffPixelRatio: 0.02`, `reducedMotion: 'reduce'`, animation/transition CSS override).
+2. **Visual regression (VRT-01..03)** — Playwright snapshot specs in `frontend/visual-tests/`, baselines generated and committed from the user's Windows machine (no Docker), with the 5 mandatory anti-flake measures (`document.fonts.ready`, `threshold: 0.2`, `maxDiffPixelRatio: 0.02`, `reducedMotion: 'reduce'`, animation/transition CSS override). D-03 revision 2026-05-11: cross-OS Docker baseline is theoretical for a single-user no-CI project; native Windows Playwright detects regressions on the user's actual machine, which is the only place that matters.
 3. **Tests (TEST-01..03)** — pytest backend suite (storage UUID + path-traversal, `add_assistant_message` round-trip, council profile routing, research_strategy critic parser, v1→v2 migration), vitest + RTL v16 frontend co-located tests (`useTheme`, `useSettings`, `MessageHeader` legacy fallback, `QualityToggle` onChange, `Stage2` de-anon, `download.js` pure helpers), and README documenting the 3 commands. No CI in v2.0 — tagged as v2.1 backlog.
 
 Scope anchor: this phase does not add user-visible product capability; it freezes what Phases 1–6 shipped so future changes are detectable and the existing skin is preserved across regressions.
@@ -33,21 +33,21 @@ Scope anchor: this phase does not add user-visible product capability; it freeze
   - One baseline per surface × 2 themes = 6 new baselines on top of the 10 lockeadas = **16 total**.
 - **D-02c — All 5 anti-flake measures from REQUIREMENTS.md VRT-02 apply to every spec without exception.** No spec is allowed to be exempted from any of them — `document.fonts.ready`, `threshold: 0.2`, `maxDiffPixelRatio: 0.02`, `reducedMotion: 'reduce'`, and the global animation/transition CSS override. If a spec needs to escape one of them, that's evidence the surface is too flaky to baseline and gets pulled from VRT scope, not exempted from anti-flake.
 
-### VRT iteration workflow (Windows ↔ Docker)
+### VRT iteration workflow (Windows-native, revised 2026-05-11)
 
-- **D-03 — Docker-only. No Windows-local Playwright iteration.** The user's stated workflow is "yo no quiero desarrollar, solo documentar el código" — implementation lives inside `gsd-executor` subagents, and review happens via the committed `.png` snapshots. Concretely:
-  - Every baseline generation, every snapshot regeneration, every test run during dev happens inside `docker run --rm -v $(pwd):/work mcr.microsoft.com/playwright:v1.X.X` (the spec version is pinned in `frontend/visual-tests/playwright.config.ts`).
-  - Windows-side `npx playwright` is NEVER invoked. There is no `.gitignore` entry for "Windows snapshots" because they don't exist.
-  - The executor agent (Phase 7 Plan executor) MUST set up Docker once during the first VRT plan and use it for every subsequent VRT-related task. If Docker isn't available in the executor's env, the plan halts with a clear error — there is no Windows fallback.
-  - README (TEST-03) documents the Docker command for completeness, but the framing is "this is how the AI agent regenerates baselines", not "this is how the user develops tests". Tone: documentation, not instruction.
-- **D-03b — Spec edits happen in Windows (the user's repo); execution happens in Docker.** Standard split: write the `.spec.ts` file on Windows with any editor, the executor mounts the workspace into the container and runs there. No symlinks, no WSL bridge — just `-v $(pwd):/work`. Filesystem path differences (CRLF / Windows path separators) are handled by Playwright + git's existing autocrlf config.
+- **D-03 (revised) — Playwright runs natively on Windows. No Docker.** Original D-03 mandated Docker-only for cross-OS reproducibility of baseline PNGs. On reflection that constraint solves a problem this project doesn't have: there is no CI (D-04b), no external contributors, and no plan for the user to switch machines. The cross-OS pixel-perfect guarantee is theoretical; visual regression is meaningful only against the same machine that generated the baselines, which is the user's Windows box. Trade-off accepted: if v2.1 introduces CI or multi-OS contributors, baselines must be regenerated once on the target OS — a one-time cost paid only if/when those scenarios materialise.
+  - Every baseline generation and regeneration runs via `npx playwright test --config visual-tests/playwright.config.ts --update-snapshots` from `frontend/`. Local install of `@playwright/test@1.59.1` provides the Chromium binary.
+  - Subsequent CI-style runs (without `--update-snapshots`) use the same command minus the flag.
+  - The executor agent runs Playwright directly via `npx`. No Docker daemon required, no container mount, no platform tag.
+  - README (TEST-03) documents the bare `npx playwright test` command.
+- **D-03b — Docker deferred to v2.1+.** If the project later acquires CI or external contributors, regenerate baselines once inside `mcr.microsoft.com/playwright:v1.59.1-noble` and commit the Linux-rendered PNGs as the new canonical set. Until then, Windows-native is sufficient.
 
 ### Plan grouping / wave structure
 
 - **D-04 — Wave 1 (MOBL) → Wave 2 (VRT ∥ TEST).** Two waves:
   - **Wave 1 (sequential plan(s)) — Mobile responsive.** All four MOBL reqs land first because VRT cannot baseline a moving target. The plan(s) may be split or bundled at plan-time (planner's discretion: 1 plan vs 2 plans depending on LOC count and blast-radius), but they are wave 1 and they finish before wave 2 starts.
   - **Wave 2 (parallel plans) — VRT and TEST in parallel.** VRT (one plan) and TEST (one plan, or split into pytest plan + vitest plan if the planner sees value) execute in parallel because TEST is pure-logic coverage (storage, hooks, helpers) that doesn't depend on the mobile UI surface, and VRT consumes the now-stable mobile surface for baselines. README documentation (TEST-03) belongs in whichever TEST plan lands last.
-- **D-04b — No CI in this phase.** TEST-03 explicitly forbids CI configuration in v2.0. The three commands (`uv run pytest backend/tests/ -v`, `npm test --prefix frontend`, `npx playwright test --config frontend/visual-tests/playwright.config.ts` — the last one via Docker per D-03) are documented in README only. CI is tagged as v2.1 backlog. Plans MUST NOT add `.github/workflows/`, `.gitlab-ci.yml`, or equivalent.
+- **D-04b — No CI in this phase.** TEST-03 explicitly forbids CI configuration in v2.0. The three commands (`uv run pytest backend/tests/ -v`, `npm test --prefix frontend`, `npx playwright test --config visual-tests/playwright.config.ts`) are documented in README only — all three run natively on Windows per D-03 (revised). CI is tagged as v2.1 backlog. Plans MUST NOT add `.github/workflows/`, `.gitlab-ci.yml`, or equivalent.
 
 ### Carry-forward from prior phases (locked, not re-asked)
 
@@ -104,7 +104,7 @@ Scope anchor: this phase does not add user-visible product capability; it freeze
 
 ### External documentation (for VRT)
 
-- Playwright Docker image registry: `mcr.microsoft.com/playwright:v1.X.X` — pin the Playwright version in `playwright.config.ts` and use the matching Docker tag. The "X" placeholder gets resolved at plan-time to whatever version `npm install @playwright/test` lands.
+- Playwright npm package: `@playwright/test@1.59.1` (exact pin in `frontend/package.json`, no `^`/`~`). The `@playwright/test` install on Windows downloads the matching Chromium binary into `frontend/node_modules`. Docker image `mcr.microsoft.com/playwright:v1.59.1-noble` exists as the v2.1+ contingency if CI is ever added; not used in v2.0.
 
 </canonical_refs>
 
