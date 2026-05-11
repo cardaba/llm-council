@@ -92,10 +92,19 @@ class ConversationMetadata(BaseModel):
 
 
 class Conversation(BaseModel):
-    """Full conversation with all messages."""
+    """Full conversation with all messages.
+
+    `mode` MUST be declared explicitly — same Pydantic-filter trap as
+    `ConversationMetadata` (quick-task 260511-lcu Bug B). Without it,
+    `api.getConversation` strips `mode` from the response and the
+    ChatInterface conditional `conversation.mode === 'critique'` always
+    fails, so critique conversations render the fresh-prompt UI instead
+    of `CritiqueWelcome`.
+    """
     id: str
     created_at: str
     title: str
+    mode: Literal["fresh", "critique"] = "fresh"
     messages: List[Dict[str, Any]]
 
 
