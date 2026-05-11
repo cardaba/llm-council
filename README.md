@@ -79,6 +79,27 @@ npm run dev
 
 Then open http://localhost:5173 in your browser.
 
+## Testing
+
+Three local test commands. No CI — that's intentional (single-user, local-only posture; v2.1 backlog).
+
+### Backend (pytest)
+```
+uv run pytest backend/tests/ -v
+```
+
+### Frontend (vitest)
+```
+npm test --prefix frontend
+```
+
+### Visual regression (Playwright, native Windows)
+```
+cd frontend && npx playwright test --config visual-tests/playwright.config.ts
+```
+
+Playwright runs natively on Windows; baselines are committed as Windows PNGs. First run downloads the Chromium binary (`npx playwright install chromium`, ~290 MiB cached at `%LOCALAPPDATA%\ms-playwright`). Add `--update-snapshots` to regenerate baselines after intended visual changes. A Docker variant (`mcr.microsoft.com/playwright:v1.59.1-noble`) is a v2.1+ contingency if CI or multi-OS contributors are introduced.
+
 ## Tech Stack
 
 - **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API
