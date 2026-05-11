@@ -49,8 +49,8 @@ Last activity: 2026-05-11
 | 2 | UX Research & Design Brief | v1.0 | All 6 plans complete + verified (closed 2026-05-10) |
 | 3 | Quality Dial & Pragmatic Deep Research | v1.0 | All 5 plans complete (closed 2026-05-10) |
 | 4 | Visual Identity Implementation | v1.0 | All 4 plans complete (closed 2026-05-10) |
-| 5 | Critique mode + Schema migration + In-conversation navigation | v2.0 | Not started — 13 reqs (CRIT-01..08, PERS-03, NAV-01..04) |
-| 6 | Persistence completeness + Cost analytics + Settings panel | v2.0 | Not started — 10 reqs (PERS-01..02, COST-01..04, SET-01..04) |
+| 5 | Critique mode + Schema migration + In-conversation navigation | v2.0 | All 5 plans complete — 13 reqs satisfied (CRIT-01..08 critique pipeline + ExternalResearchPanel, PERS-03 schema_version migration, NAV-01..04 sticky headers + nav strip + show-more + back-to-top) |
+| 6 | Persistence completeness + Cost analytics + Settings panel | v2.0 | All 9 plans complete — 10 reqs satisfied + 2 gap closures (06-08 frontend stale-event guard, 06-09 detached SSE deliberations) |
 | 7 | Mobile responsive + Visual regression + Tests | v2.0 | 5/5 plans complete — all 10 reqs satisfied (MOBL-01..04, VRT-01..03, TEST-01..03); pytest 46 + vitest 55 = 101 tests green; Playwright VRT 24 baselines × 4 viewports; ready for /gsd-verify-phase 7 |
 
 ## Performance Metrics
