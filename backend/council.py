@@ -173,7 +173,8 @@ async def stage1_collect_responses(
         if response is not None:  # Only include successful responses
             stage1_results.append({
                 "model": model,
-                "response": response.get('content', '')
+                "response": response.get('content', ''),
+                "cost": response.get('cost') or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
             })
 
     return stage1_results
@@ -279,7 +280,8 @@ Now provide your evaluation and ranking:"""
             stage2_results.append({
                 "model": model,
                 "ranking": full_text,
-                "parsed_ranking": parsed
+                "parsed_ranking": parsed,
+                "cost": response.get('cost') or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
             })
 
     return stage2_results, label_to_model
@@ -340,12 +342,14 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         # Fallback if chairman fails
         return {
             "model": chairman_model,
-            "response": "Error: Unable to generate final synthesis."
+            "response": "Error: Unable to generate final synthesis.",
+            "cost": {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
         }
 
     return {
         "model": chairman_model,
-        "response": response.get('content', '')
+        "response": response.get('content', ''),
+        "cost": response.get('cost') or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
     }
 
 
@@ -542,10 +546,29 @@ async def run_full_council(
         chairman_model,
     )
 
+    # Per-stage cost accumulation (Phase 6 COST-01) — sum the per-call `cost`
+    # subdict embedded by the stage helpers. Skip None-cost defensively even
+    # though helpers always set it; sum() with start=0.0 yields 0.0 if empty.
+    stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
+    stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
+    stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
+    stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
+    stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
+    stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
+
     # Prepare metadata
     metadata = {
         "label_to_model": label_to_model,
-        "aggregate_rankings": aggregate_rankings
+        "aggregate_rankings": aggregate_rankings,
+        "cost": {
+            "stage1": stage1_fee,
+            "stage2": stage2_fee,
+            "stage3": stage3_fee,
+            "stage4": None,
+            "total": stage1_fee + stage2_fee + stage3_fee,
+            "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
+            "currency": "USD",
+        },
     }
 
     return stage1_results, stage2_results, stage3_result, metadata

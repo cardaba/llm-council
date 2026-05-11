@@ -5,6 +5,26 @@ from typing import List, Dict, Any, Optional
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL, get_provider_for_model
 
 
+def _extract_cost(data: Dict[str, Any]) -> Dict[str, float]:
+    """Extract cost from a possibly-malformed OpenRouter response.
+
+    Field paths verified against the live API in
+    `.planning/phases/06-persistence-completeness-cost-analytics-settings-panel/06-SPIKE-USAGE-COST.md`:
+      - `usage.cost`                            → OpenRouter fee (USD)
+      - `usage.cost_details.upstream_inference_cost` → Upstream provider fee (USD)
+
+    Defensive `.get() or 0.0` chain tolerates missing `usage` block (rare on
+    streaming chunks) and any shape drift. Per Plan 01 spike capture, BYOK
+    routing does NOT zero `usage.cost` on this account — read it verbatim.
+    """
+    usage = data.get("usage") or {}
+    cost_details = usage.get("cost_details") or {}
+    return {
+        "openrouter_fee_usd": float(usage.get("cost") or 0.0),
+        "upstream_usd": float(cost_details.get("upstream_inference_cost") or 0.0),
+    }
+
+
 async def query_model(
     model: str,
     messages: List[Dict[str, str]],
@@ -64,7 +84,8 @@ async def query_model(
 
             return {
                 'content': message.get('content'),
-                'reasoning_details': message.get('reasoning_details')
+                'reasoning_details': message.get('reasoning_details'),
+                'cost': _extract_cost(data),
             }
 
     except Exception as e:

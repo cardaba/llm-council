@@ -198,6 +198,7 @@ async def run(
                 "model": model,
                 "response": response.get("content", ""),
                 "reasoning_details": response.get("reasoning_details"),
+                "cost": response.get("cost") or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
             })
     yield {"type": "stage1_complete", "data": stage1_results}
 
@@ -216,6 +217,15 @@ async def run(
                 "chairman": chairman_model,
                 "critic": critic_model,
                 "stage4_triggered": False,
+                "cost": {
+                    "stage1": 0.0,
+                    "stage2": 0.0,
+                    "stage3": 0.0,
+                    "stage4": None,
+                    "total": 0.0,
+                    "upstream_total": 0.0,
+                    "currency": "USD",
+                },
             },
         }
         return
@@ -259,6 +269,7 @@ async def run(
                 "model": model,
                 "ranking": full_text,
                 "parsed_ranking": parse_ranking_from_text(full_text),
+                "cost": response.get("cost") or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
             })
     aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
     yield {
@@ -302,12 +313,14 @@ async def run(
         stage3_result = {
             "model": chairman_model,
             "response": "Error: Unable to generate final synthesis.",
+            "cost": {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
         }
     else:
         stage3_result = {
             "model": chairman_model,
             "response": chairman_response.get("content", ""),
             "reasoning_details": chairman_response.get("reasoning_details"),
+            "cost": chairman_response.get("cost") or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
         }
     yield {"type": "stage3_complete", "data": stage3_result}
 
@@ -333,10 +346,12 @@ async def run(
     )
     critic_score: Optional[int] = None
     primary_concern: Optional[str] = None
+    critic_cost = {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0}
     if critic_response is not None:
         critic_score, primary_concern = parse_critic_score(
             critic_response.get("content", "") or ""
         )
+        critic_cost = critic_response.get("cost") or critic_cost
     yield {
         "type": "critic_complete",
         "data": {"score": critic_score, "concern": primary_concern},
@@ -369,6 +384,7 @@ async def run(
                 "reasoning_details": stage4_raw.get("reasoning_details"),
                 "critic_score": critic_score,
                 "primary_concern": primary_concern,
+                "cost": stage4_raw.get("cost") or {"openrouter_fee_usd": 0.0, "upstream_usd": 0.0},
             }
             stage4_triggered = True
             yield {"type": "stage4_complete", "data": stage4_result}
@@ -377,6 +393,36 @@ async def run(
             # "Si Stage 4 falla → fallback to chairman synthesis". Do NOT
             # emit stage4_complete; frontend will not render the section.
             stage4_triggered = False
+
+    # ------------------------------------------------------------------
+    # Per-stage cost accumulation (Phase 6 COST-01)
+    # ------------------------------------------------------------------
+    # Critic is a QR-specific call that always runs, but the locked schema
+    # exposes only stage1-4. Folding its cost into stage3 preserves the
+    # invariant `total == stage1+stage2+stage3+(stage4 or 0)` while keeping
+    # the user's spend faithful. `stage4` stays None when refinement was
+    # blocked (per plan contract) — critic cost is in stage3 either way.
+    stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
+    stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
+    stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
+    stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
+    stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0) + critic_cost["openrouter_fee_usd"]
+    stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0) + critic_cost["upstream_usd"]
+    stage4_fee: Optional[float] = None
+    stage4_upstream_val: float = 0.0
+    if stage4_result is not None:
+        stage4_fee = stage4_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
+        stage4_upstream_val = stage4_result.get("cost", {}).get("upstream_usd", 0.0)
+
+    cost_block = {
+        "stage1": stage1_fee,
+        "stage2": stage2_fee,
+        "stage3": stage3_fee,
+        "stage4": stage4_fee,
+        "total": stage1_fee + stage2_fee + stage3_fee + (stage4_fee or 0.0),
+        "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream + stage4_upstream_val,
+        "currency": "USD",
+    }
 
     # ------------------------------------------------------------------
     # Final consolidation event for storage (internal — not SSE)
@@ -393,5 +439,6 @@ async def run(
             "chairman": chairman_model,
             "critic": critic_model,
             "stage4_triggered": stage4_triggered,
+            "cost": cost_block,
         },
     }

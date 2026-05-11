@@ -161,6 +161,9 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
             "profile": request.profile,
             "models": profile_config["council_models"],
             "chairman": profile_config["chairman_model"],
+            # Phase 6 COST-01: forward the cost block produced by
+            # run_full_council so non-streaming persistence matches SSE.
+            "cost": metadata.get("cost"),
         }
         stage4_data = None
         legacy_metadata = metadata
@@ -304,12 +307,31 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # here too (analog of the critique branch at the bottom of this
             # file) so reload hydrates de-anonymized Stage 2 tabs instead of
             # falling back to the "Quality (legacy)" header.
+            # Phase 6 COST-01: accumulate per-stage cost from the per-item
+            # 'cost' dicts embedded by the council helpers. stage4=None here
+            # (Fast / Quality never run refinement). Failed sub-queries
+            # contribute 0.0 via the helpers' safe-default cost sub-dict.
+            stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
+            stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
+            stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
+            stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
+            stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
+            stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
             message_metadata = {
                 "profile": request.profile,
                 "models": council_models,
                 "chairman": chairman_model,
                 "label_to_model": label_to_model,
                 "aggregate_rankings": aggregate_rankings,
+                "cost": {
+                    "stage1": stage1_fee,
+                    "stage2": stage2_fee,
+                    "stage3": stage3_fee,
+                    "stage4": None,
+                    "total": stage1_fee + stage2_fee + stage3_fee,
+                    "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
+                    "currency": "USD",
+                },
             }
 
             # Save complete assistant message with profile metadata
@@ -514,10 +536,27 @@ async def critique_stream(
                 pass  # fresh-prompt path also tolerates title failure
 
             # Persist with external_research so reload hydration finds the files.
+            # Phase 6 COST-01: same per-stage accumulation as the fresh path.
+            # Critique never runs Stage 4 refine in Phase 5 → stage4: None.
+            stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
+            stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
+            stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
+            stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
+            stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
+            stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
             metadata = {
                 "label_to_model": label_to_model,
                 "aggregate_rankings": aggregate_rankings,
                 "mode": "critique",
+                "cost": {
+                    "stage1": stage1_fee,
+                    "stage2": stage2_fee,
+                    "stage3": stage3_fee,
+                    "stage4": None,
+                    "total": stage1_fee + stage2_fee + stage3_fee,
+                    "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
+                    "currency": "USD",
+                },
             }
             storage.add_assistant_message(
                 conversation_id,
