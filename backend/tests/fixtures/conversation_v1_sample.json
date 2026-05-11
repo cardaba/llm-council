@@ -1,0 +1,35 @@
+{
+  "id": "00000000-0000-0000-0000-000000000001",
+  "created_at": "2026-05-01T00:00:00Z",
+  "title": "v1 sample for migration test",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is the capital of France?"
+    },
+    {
+      "role": "assistant",
+      "stage1": [
+        {
+          "model": "openai/gpt-4.1-nano",
+          "response": "The capital of France is Paris."
+        },
+        {
+          "model": "anthropic/claude-haiku-4.5",
+          "response": "Paris is the capital of France."
+        }
+      ],
+      "stage2": [
+        {
+          "model": "openai/gpt-4.1-nano",
+          "ranking": "FINAL RANKING:\n1. Response A\n2. Response B",
+          "parsed_ranking": ["Response A", "Response B"]
+        }
+      ],
+      "stage3": {
+        "model": "anthropic/claude-haiku-4.5",
+        "response": "The capital of France is Paris."
+      }
+    }
+  ]
+}
