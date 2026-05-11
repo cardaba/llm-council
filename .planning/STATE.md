@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
-status: executing
-last_updated: "2026-05-11T06:21:02.643Z"
-last_activity: 2026-05-11 -- Phase 06 planning complete
+status: verifying
+last_updated: "2026-05-11T07:54:00Z"
+last_activity: 2026-05-11 -- Phase 06 plan 08 (gap closure) complete
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 13
-  completed_plans: 12
-  percent: 92
+  completed_phases: 2
+  total_plans: 14
+  completed_plans: 14
+  percent: 100
 ---
 
 # State: LLM Council — Personal Edition
@@ -37,9 +37,9 @@ progress:
 ## Current Position
 
 Phase: 06 (persistence-completeness-cost-analytics-settings-panel) — EXECUTING
-Plan: 7 of 7
-Status: Ready to execute
-Last activity: 2026-05-11 -- Phase 06 planning complete
+Plan: 8 of 8
+Status: Phase complete — ready for verification (06-UAT BLOCKER closed by 06-08; manual smoke test pending user)
+Last activity: 2026-05-11 -- Phase 06 plan 08 (handleStreamEvent stale-event guard) complete
 
 ## Phase Progression
 
@@ -92,6 +92,7 @@ Last activity: 2026-05-11 -- Phase 06 planning complete
 - **Visual regression Linux-Docker only** — Windows local dev usa `--update-snapshots` y reviewer valida en CI-equivalent Linux. 5 medidas anti-flake mandatory en first plan Phase 7.
 - **`pytest-asyncio` mode `strict`** (NO `auto`) + `httpx.AsyncClient(transport=ASGITransport(app=app))` para FastAPI testing.
 - **`@testing-library/react` v16+** — wrappea `act()` internamente, soporta React 19.
+- **06-08 gap closure (handleStreamEvent stale-event guard)** — Shipped Option 1 (defensive `if (!lastMsg?.loading) return prev;` at every in-flight setter inside `handleStreamEvent`, 10 sites) to close 06-UAT BLOCKER race. Predicate exploits shape asymmetry: persisted assistant messages never carry `loading` (UI-ephemeral state, never written to JSON). Deferred Option 2 (AbortController in `handleSelectConversation`) and Option 3 (backend SSE payload includes `conversation_id`, frontend filters by `currentConversationId`) to v2.1+ when multi-tab / multi-stream UX matters. Classification: race is pre-existing (since SSE streaming landed), NOT a Phase 6 regression; Phase 6 SC remain 5/5.
 
 ### Carryover de v1.0 (Decisions still relevant)
 
@@ -122,14 +123,14 @@ Last activity: 2026-05-11 -- Phase 06 planning complete
 
 ### Active Blockers
 
-Ninguno. Roadmap locked, research completo, Phase 5 listo para `/gsd-plan-phase 5`.
+Ninguno. 06-UAT BLOCKER closed structurally by 06-08; manual smoke test pending user (see 06-08-SUMMARY.md §"Manual smoke test — NOT executed by the executor").
 
 ### Active Todos
 
-- [ ] Ejecutar `/gsd-plan-phase 5` para descomponer Phase 5 en plans.
-- [ ] Plan-checker debe forzar la decisión inline-vs-sidecar (CRIT-4) en Phase 5 plan-1.
-- [ ] Verificar OpenRouter `usage.cost` shape antes de Phase 6 plan-1 (5-min spike, log de un response real).
+- [ ] **User-side manual smoke test for 06-08** — 7-step browser DevTools verification (start servers → QR prompt → mid-stream conversation switch → assert no TypeError / no white screen). Required before declaring 06-UAT BLOCKER functionally resolved.
+- [ ] `/gsd-verify-phase 6` to formally close Phase 6 (now 8/8 plans complete including 06-08 gap closure).
 - [ ] Calibration de `stage4_threshold` (carryover v1.0) — Phase 6 SET-02 expone slider; el usuario decide tras 5-10 QR queries reales.
+- [ ] Phase 7 planning (`/gsd-plan-phase 7`): include vitest spec for `handleStreamEvent` stale-event guard as part of TEST-01..03 to lock 06-08 against regression.
 
 ### Notes from Codebase Concerns to Factor In
 
