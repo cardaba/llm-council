@@ -93,7 +93,12 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
   4. `backend/tests/` contiene suite pytest con `conftest.py` (tmp DATA_DIR, dummy API key, monkeypatched `query_model`) cubriendo storage UUID validation + path-traversal rejection, `add_assistant_message` round-trip con metadata + stage4 + external_research, council profile routing, research_strategy critic parser, y el roundtrip v1→v2 migration (el test de mayor valor del milestone); `pytest-asyncio` configurado en mode `strict`.
   5. Frontend tiene `*.test.jsx` co-located usando vitest + RTL v16 + jsdom cubriendo `useTheme`, `useSettings`, `MessageHeader` legacy fallback, `QualityToggle` onChange wiring, `Stage2` de-anonimización, y los helpers puros de `download.js`; el README documenta los 3 comandos (`uv run pytest backend/tests/ -v`, `npm test --prefix frontend`, `npx playwright test --config frontend/visual-tests/playwright.config.ts`) sin CI (tagged como v2.1 backlog).
 
-**Plans**: TBD
+**Plans:** 5 plans
+- [ ] 07-01-PLAN.md — Responsive substrate: --touch-target-min token, viewport-fit=cover, safe-area-inset threading (MOBL-01 + MOBL-03), Wave 1
+- [ ] 07-02-PLAN.md — Mobile drawer: SidebarDrawer (<dialog>+showModal) + useTouchSwipe hook + hamburger button + inert main (MOBL-02 + MOBL-04), Wave 1, depends on 07-01
+- [ ] 07-03-PLAN.md — Playwright VRT: 8 specs × 2 themes = 16 baselines, Docker-only, 5 anti-flake measures (VRT-01 + VRT-02 + VRT-03), Wave 2
+- [ ] 07-04-PLAN.md — Backend pytest suite: conftest isolation + storage / parser / profile-routing / v1→v2 migration tests (TEST-01), Wave 2
+- [ ] 07-05-PLAN.md — Frontend vitest suite + README ## Testing section (TEST-02 + TEST-03), Wave 2
 **UI hint**: yes
 
 ## Progress
@@ -106,7 +111,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
 | 4. Visual Identity Implementation | v1.0 | 4/4 | Complete | 2026-05-10 |
 | 5. Critique mode + Schema migration + In-conversation navigation | v2.0 | 5/5 | Implemented (pending verify) | 2026-05-10 |
 | 6. Persistence completeness + Cost analytics + Settings panel | v2.0 | 8/8 | Implemented (06-UAT BLOCKER closed by 06-08; pending user smoke test + `/gsd-verify-phase 6`) | 2026-05-11 |
-| 7. Mobile responsive + Visual regression + Tests | v2.0 | 0/0 | Not started | — |
+| 7. Mobile responsive + Visual regression + Tests | v2.0 | 0/5 | Planned (2 waves; Wave 1 MOBL → Wave 2 VRT ∥ TEST per D-04) | — |
 
 ## Cross-Phase Notes (v2.0)
 
