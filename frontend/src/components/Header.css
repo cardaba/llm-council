@@ -31,7 +31,14 @@
   letter-spacing: -0.005em;
 }
 
-.app-header__theme-toggle {
+.app-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.app-header__theme-toggle,
+.app-header__settings-toggle {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
@@ -47,12 +54,14 @@
     color var(--motion-duration-base) var(--motion-easing-out);
 }
 
-.app-header__theme-toggle:hover {
+.app-header__theme-toggle:hover,
+.app-header__settings-toggle:hover {
   background: var(--color-bg-secondary);
   color: var(--color-fg-primary);
 }
 
-.app-header__theme-toggle:focus-visible {
+.app-header__theme-toggle:focus-visible,
+.app-header__settings-toggle:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
