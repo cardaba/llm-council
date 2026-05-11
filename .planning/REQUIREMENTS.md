@@ -77,7 +77,7 @@
 
 **Goal:** Backend pytest + frontend vitest covering ~60% of critical paths, runnable locally. CI is out of scope for v2.0.
 
-- [ ] **TEST-01**: `backend/tests/` contains pytest suite with `conftest.py` fixtures (tmp DATA_DIR, dummy `OPENROUTER_API_KEY`, monkeypatched `query_model`) and tests for: storage UUID validation + canonicalisation + path-traversal rejection, `add_assistant_message` round-trip with metadata + stage4 + external_research, council profile routing branches, research_strategy critic parser tolerance to malformed responses, and the v1→v2 migration helper roundtrip. `pytest-asyncio` configured in mode `strict` per `pyproject.toml`. Source: ARCHITECTURE.md §6.1 + PITFALLS.md §MOD-6.
+- [x] **TEST-01**: `backend/tests/` contains pytest suite with `conftest.py` fixtures (tmp DATA_DIR, dummy `OPENROUTER_API_KEY`, monkeypatched `query_model`) and tests for: storage UUID validation + canonicalisation + path-traversal rejection, `add_assistant_message` round-trip with metadata + stage4 + external_research, council profile routing branches, research_strategy critic parser tolerance to malformed responses, and the v1→v2 migration helper roundtrip. `pytest-asyncio` configured in mode `strict` per `pyproject.toml`. Source: ARCHITECTURE.md §6.1 + PITFALLS.md §MOD-6.
 - [ ] **TEST-02**: Frontend co-located `*.test.jsx` files use vitest + `@testing-library/react` v16+ + jsdom env to test: `useTheme` (matchMedia + localStorage round-trip), `useSettings` (same pattern), `MessageHeader` legacy fallback rendering, `QualityToggle` onChange wiring, `Stage2` de-anonymization rendering, and `download.js` pure helpers. Source: ARCHITECTURE.md §6.2 + PITFALLS.md §MOD-7.
 - [ ] **TEST-03**: README documents the three test commands (`uv run pytest backend/tests/ -v`, `npm test --prefix frontend`, `npx playwright test --config frontend/visual-tests/playwright.config.ts`) so the user can run them locally. NO CI configuration in v2.0; tagged as backlog for v2.1. Source: ARCHITECTURE.md §6.4.
 
@@ -143,7 +143,7 @@
 | VRT-01 | Phase 7 | Pending |
 | VRT-02 | Phase 7 | Pending |
 | VRT-03 | Phase 7 | Pending |
-| TEST-01 | Phase 7 | Pending |
+| TEST-01 | Phase 7 | Complete |
 | TEST-02 | Phase 7 | Pending |
 | TEST-03 | Phase 7 | Pending |
 
