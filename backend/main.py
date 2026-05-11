@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Literal, Optional
 import uuid
 import json
+import sys
 import asyncio
 
 from . import stats
@@ -617,8 +618,15 @@ async def critique_stream(
                     title = await generate_conversation_title(critique_instruction)
                     storage.update_conversation_title(conversation_id, title)
                     await queue.put({"type": "title_complete", "data": {"title": title}})
-                except Exception:
-                    pass  # fresh-prompt path also tolerates title failure
+                except Exception as e:
+                    # Bug E (260511-mqt) — surface the cause instead of swallowing
+                    # silently. Fresh-prompt path also tolerates title failure;
+                    # we just log it now so future failures are diagnosable in
+                    # backend stderr.
+                    print(
+                        f"[critique title] generation failed for conversation {conversation_id}: {e!r}",
+                        file=sys.stderr,
+                    )
 
                 # Persist with external_research so reload hydration finds the files.
                 # Phase 6 COST-01: same per-stage accumulation as the fresh path.

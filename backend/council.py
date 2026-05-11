@@ -444,6 +444,13 @@ async def generate_conversation_title(user_query: str) -> str:
     Returns:
         A short title (3-5 words)
     """
+    # Bug E (260511-mqt) — critique instructions can be long; cap at 1500
+    # chars so the title model doesn't get a wall of text. Fresh-prompt
+    # questions are rarely this long; this is cheap insurance against
+    # input-quirk failure modes for either flow.
+    if user_query and len(user_query) > 1500:
+        user_query = user_query[:1500].rstrip() + "..."
+
     title_prompt = f"""Generate a very short title (3-5 words maximum) that summarizes the following question.
 The title should be concise and descriptive. Do not use quotes or punctuation in the title.
 
@@ -464,6 +471,13 @@ Title:"""
 
     # Clean up the title - remove quotes, limit length
     title = title.strip('"\'')
+
+    # Bug E (260511-mqt) — empty-string fallback. gemini-2.5-flash sometimes
+    # returns just a newline / empty string after .strip(); without this
+    # guard update_conversation_title("") would land an empty title and
+    # the sidebar would silently show nothing useful.
+    if not title:
+        return "New Conversation"
 
     # Truncate if too long
     if len(title) > 50:
