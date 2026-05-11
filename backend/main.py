@@ -23,6 +23,24 @@ MAX_CRITIQUE_FILE_BYTES = 750 * 1024     # 750KB cap per slot (D-04 lock)
 PREFLIGHT_TOKEN_CAP = 150_000             # CONTEXT.md lock — 150K total tokens
 HEURISTIC_TOKENS_PER_CHAR = 0.25          # PITFALLS.md §CRIT-1 — 4 chars/token estimate
 
+# Detached deliberation tasks. The SSE handlers run their council work
+# inside an asyncio.Task that's registered here so it survives client
+# disconnect (closes Plan 06-09: when the browser tab navigates away
+# or the user switches conversations, uvicorn cancels the SSE response
+# generator — but the deliberation task remains alive, completes the
+# council, and calls storage.add_assistant_message before exiting).
+# Tasks self-discard via add_done_callback so the set never leaks.
+_BACKGROUND_DELIBERATIONS: set = set()
+
+
+def _spawn_background_deliberation(coro):
+    """Run `coro` as a detached task that survives client disconnect."""
+    task = asyncio.create_task(coro)
+    _BACKGROUND_DELIBERATIONS.add(task)
+    task.add_done_callback(_BACKGROUND_DELIBERATIONS.discard)
+    return task
+
+
 app = FastAPI(title="LLM Council API")
 
 # Enable CORS for local development
@@ -221,155 +239,178 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
     is_first_message = len(conversation["messages"]) == 0
 
     async def event_generator():
-        try:
-            # Add user message
-            storage.add_user_message(conversation_id, request.content)
+        # Plan 06-09: deliberation runs in a detached asyncio.Task fed through
+        # this queue. If the SSE client disconnects, uvicorn cancels the
+        # generator (the `await queue.get()` below) but the deliberation task
+        # is registered in _BACKGROUND_DELIBERATIONS and keeps running until it
+        # finishes and persists via storage.add_assistant_message.
+        queue: asyncio.Queue = asyncio.Queue()
 
-            # Start title generation in parallel for ALL profiles (don't await yet).
-            # Started here (before the QR branch) so the title call runs concurrently
-            # with the long QR pipeline (~30-60s total).
-            title_task = None
-            if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(request.content))
+        async def deliberation():
+            try:
+                # Add user message
+                storage.add_user_message(conversation_id, request.content)
 
-            # SSE event order for quality_research:
-            #   stage1_start → stage1_complete{data}
-            #   stage2_start → stage2_complete{data, metadata}
-            #   stage3_start → stage3_complete{data}
-            #   critic_complete{data: {score, concern}}
-            #   [optional] stage4_start → stage4_complete{data}
-            #   [optional] title_complete{data}
-            #   message_metadata{data}
-            #   complete
-            if request.profile == "quality_research":
-                # Strategy module owns the full QR pipeline (D-01 thick API).
-                # Pass-through every event whose type does NOT start with '_';
-                # the underscore-prefixed '_final' event carries the consolidated
-                # tuple shape used to persist the message.
-                final_stage1: List[Dict[str, Any]] = []
-                final_stage2: List[Dict[str, Any]] = []
-                final_stage3: Dict[str, Any] = {}
-                final_stage4: Any = None
-                final_message_metadata: Dict[str, Any] = {}
+                # Start title generation in parallel for ALL profiles (don't await yet).
+                # Started here (before the QR branch) so the title call runs concurrently
+                # with the long QR pipeline (~30-60s total).
+                title_task = None
+                if is_first_message:
+                    title_task = asyncio.create_task(generate_conversation_title(request.content))
 
-                async for event in research_strategy.run(
-                    request.content, PROFILES["quality_research"],
-                    threshold_override=request.stage4_threshold,
-                ):
-                    if event["type"] == "_final":
-                        final_stage1 = event["stage1"]
-                        final_stage2 = event["stage2"]
-                        final_stage3 = event["stage3"]
-                        final_stage4 = event["stage4"]
-                        final_message_metadata = event["message_metadata"]
-                    else:
-                        yield f"data: {json.dumps(event)}\n\n"
+                # SSE event order for quality_research:
+                #   stage1_start → stage1_complete{data}
+                #   stage2_start → stage2_complete{data, metadata}
+                #   stage3_start → stage3_complete{data}
+                #   critic_complete{data: {score, concern}}
+                #   [optional] stage4_start → stage4_complete{data}
+                #   [optional] title_complete{data}
+                #   message_metadata{data}
+                #   complete
+                if request.profile == "quality_research":
+                    # Strategy module owns the full QR pipeline (D-01 thick API).
+                    # Pass-through every event whose type does NOT start with '_';
+                    # the underscore-prefixed '_final' event carries the consolidated
+                    # tuple shape used to persist the message.
+                    final_stage1: List[Dict[str, Any]] = []
+                    final_stage2: List[Dict[str, Any]] = []
+                    final_stage3: Dict[str, Any] = {}
+                    final_stage4: Any = None
+                    final_message_metadata: Dict[str, Any] = {}
 
-                # Title generation (parallel — started before the strategy ran).
-                if title_task is not None:
+                    async for event in research_strategy.run(
+                        request.content, PROFILES["quality_research"],
+                        threshold_override=request.stage4_threshold,
+                    ):
+                        if event["type"] == "_final":
+                            final_stage1 = event["stage1"]
+                            final_stage2 = event["stage2"]
+                            final_stage3 = event["stage3"]
+                            final_stage4 = event["stage4"]
+                            final_message_metadata = event["message_metadata"]
+                        else:
+                            await queue.put(event)
+
+                    # Title generation (parallel — started before the strategy ran).
+                    if title_task is not None:
+                        title = await title_task
+                        storage.update_conversation_title(conversation_id, title)
+                        await queue.put({"type": "title_complete", "data": {"title": title}})
+
+                    # Persist with stage4 (only when critic gated refinement).
+                    storage.add_assistant_message(
+                        conversation_id,
+                        final_stage1,
+                        final_stage2,
+                        final_stage3,
+                        metadata=final_message_metadata,
+                        stage4=final_stage4,
+                    )
+
+                    # Emit message_metadata so the frontend hydrates the saved-message
+                    # header with profile/models/chairman/critic/stage4_triggered.
+                    await queue.put({"type": "message_metadata", "data": final_message_metadata})
+                    await queue.put({"type": "complete"})
+                    return
+
+                # Resolve profile config once for fast / quality
+                config = PROFILES[request.profile]
+                council_models = config["council_models"]
+                chairman_model = config["chairman_model"]
+
+                # Stage 1: Collect responses
+                await queue.put({"type": "stage1_start"})
+                stage1_results = await stage1_collect_responses(request.content, council_models)
+                await queue.put({"type": "stage1_complete", "data": stage1_results})
+
+                # Stage 2: Collect rankings
+                await queue.put({"type": "stage2_start"})
+                stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results, council_models)
+                aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+                await queue.put({
+                    "type": "stage2_complete",
+                    "data": stage2_results,
+                    "metadata": {"label_to_model": label_to_model, "aggregate_rankings": aggregate_rankings},
+                })
+
+                # Stage 3: Synthesize final answer
+                await queue.put({"type": "stage3_start"})
+                stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results, chairman_model)
+                await queue.put({"type": "stage3_complete", "data": stage3_result})
+
+                # Wait for title generation if it was started
+                if title_task:
                     title = await title_task
                     storage.update_conversation_title(conversation_id, title)
-                    yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                    await queue.put({"type": "title_complete", "data": {"title": title}})
 
-                # Persist with stage4 (only when critic gated refinement).
+                # Build per-message metadata (D-25 shape) — Fast / Quality only.
+                # Plan 03-04 owns the quality_research path and will emit the
+                # extended shape (with critic + stage4_triggered keys) from the
+                # research_strategy module.
+                # Phase 6 PERS-01: persist label_to_model + aggregate_rankings
+                # here too (analog of the critique branch at the bottom of this
+                # file) so reload hydrates de-anonymized Stage 2 tabs instead of
+                # falling back to the "Quality (legacy)" header.
+                # Phase 6 COST-01: accumulate per-stage cost from the per-item
+                # 'cost' dicts embedded by the council helpers. stage4=None here
+                # (Fast / Quality never run refinement). Failed sub-queries
+                # contribute 0.0 via the helpers' safe-default cost sub-dict.
+                stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
+                stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
+                stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
+                stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
+                stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
+                stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
+                message_metadata = {
+                    "profile": request.profile,
+                    "models": council_models,
+                    "chairman": chairman_model,
+                    "label_to_model": label_to_model,
+                    "aggregate_rankings": aggregate_rankings,
+                    "cost": {
+                        "stage1": stage1_fee,
+                        "stage2": stage2_fee,
+                        "stage3": stage3_fee,
+                        "stage4": None,
+                        "total": stage1_fee + stage2_fee + stage3_fee,
+                        "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
+                        "currency": "USD",
+                    },
+                }
+
+                # Save complete assistant message with profile metadata
                 storage.add_assistant_message(
                     conversation_id,
-                    final_stage1,
-                    final_stage2,
-                    final_stage3,
-                    metadata=final_message_metadata,
-                    stage4=final_stage4,
+                    stage1_results,
+                    stage2_results,
+                    stage3_result,
+                    metadata=message_metadata,
                 )
 
-                # Emit message_metadata so the frontend hydrates the saved-message
-                # header with profile/models/chairman/critic/stage4_triggered.
-                yield f"data: {json.dumps({'type': 'message_metadata', 'data': final_message_metadata})}\n\n"
-                yield f"data: {json.dumps({'type': 'complete'})}\n\n"
-                return
+                # Emit metadata event so the frontend can hydrate the saved
+                # message header BEFORE the `complete` event closes the stream.
+                await queue.put({"type": "message_metadata", "data": message_metadata})
 
-            # Resolve profile config once for fast / quality
-            config = PROFILES[request.profile]
-            council_models = config["council_models"]
-            chairman_model = config["chairman_model"]
+                # Send completion event
+                await queue.put({"type": "complete"})
 
-            # Stage 1: Collect responses
-            yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content, council_models)
-            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
+            except storage.ConversationNotFoundError:
+                await queue.put({"type": "error", "kind": "not_found", "message": "Conversation not found"})
+            except Exception as e:
+                # Send error event
+                await queue.put({"type": "error", "message": str(e)})
+            finally:
+                # Sentinel — tells the SSE drain loop to exit cleanly.
+                await queue.put(None)
 
-            # Stage 2: Collect rankings
-            yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
-            stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results, council_models)
-            aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
-            yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
+        _spawn_background_deliberation(deliberation())
 
-            # Stage 3: Synthesize final answer
-            yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results, chairman_model)
-            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
-
-            # Wait for title generation if it was started
-            if title_task:
-                title = await title_task
-                storage.update_conversation_title(conversation_id, title)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-
-            # Build per-message metadata (D-25 shape) — Fast / Quality only.
-            # Plan 03-04 owns the quality_research path and will emit the
-            # extended shape (with critic + stage4_triggered keys) from the
-            # research_strategy module.
-            # Phase 6 PERS-01: persist label_to_model + aggregate_rankings
-            # here too (analog of the critique branch at the bottom of this
-            # file) so reload hydrates de-anonymized Stage 2 tabs instead of
-            # falling back to the "Quality (legacy)" header.
-            # Phase 6 COST-01: accumulate per-stage cost from the per-item
-            # 'cost' dicts embedded by the council helpers. stage4=None here
-            # (Fast / Quality never run refinement). Failed sub-queries
-            # contribute 0.0 via the helpers' safe-default cost sub-dict.
-            stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
-            stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
-            stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
-            stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
-            stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
-            stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
-            message_metadata = {
-                "profile": request.profile,
-                "models": council_models,
-                "chairman": chairman_model,
-                "label_to_model": label_to_model,
-                "aggregate_rankings": aggregate_rankings,
-                "cost": {
-                    "stage1": stage1_fee,
-                    "stage2": stage2_fee,
-                    "stage3": stage3_fee,
-                    "stage4": None,
-                    "total": stage1_fee + stage2_fee + stage3_fee,
-                    "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
-                    "currency": "USD",
-                },
-            }
-
-            # Save complete assistant message with profile metadata
-            storage.add_assistant_message(
-                conversation_id,
-                stage1_results,
-                stage2_results,
-                stage3_result,
-                metadata=message_metadata,
-            )
-
-            # Emit metadata event so the frontend can hydrate the saved
-            # message header BEFORE the `complete` event closes the stream.
-            yield f"data: {json.dumps({'type': 'message_metadata', 'data': message_metadata})}\n\n"
-
-            # Send completion event
-            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
-
-        except storage.ConversationNotFoundError:
-            yield f"data: {json.dumps({'type': 'error', 'kind': 'not_found', 'message': 'Conversation not found'})}\n\n"
-        except Exception as e:
-            # Send error event
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        while True:
+            event = await queue.get()
+            if event is None:
+                break
+            yield f"data: {json.dumps(event)}\n\n"
 
     return StreamingResponse(
         event_generator(),
@@ -502,93 +543,115 @@ async def critique_stream(
         )
 
     async def event_generator():
-        try:
-            # Persist user message — the critique instruction.
-            storage.add_user_message(conversation_id, critique_instruction)
+        # Plan 06-09: same detached-task pattern as send_message_stream.
+        # The critique deliberation runs to completion even if the client
+        # disconnects (closes the tab, switches conversations, network blip)
+        # so the assistant message + per-file external_research entry is
+        # always persisted via storage.add_assistant_message.
+        queue: asyncio.Queue = asyncio.Queue()
 
-            # Stage 1 — per-model critique prompts via external_context.
-            yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(
-                critique_instruction,
-                active_council_models,
-                external_context=external_context,
-            )
-            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
-
-            # Stage 2 — anonymize + truncate; n=1 emits empty payload so the
-            # existing React reducer drains without any frontend change (D-05).
-            yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
-            if len(stage1_results) <= 1:
-                stage2_results: List[Dict[str, Any]] = []
-                label_to_model: Dict[str, str] = {}
-                aggregate_rankings: List[Dict[str, Any]] = []
-            else:
-                stage2_results, label_to_model = await stage2_collect_rankings(
-                    critique_instruction,
-                    stage1_results,
-                    active_council_models,
-                    anonymize_critiques=True,
-                    truncate_per_response_tokens=600,
-                )
-                aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
-            yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
-
-            # Stage 3 — chairman synthesises across the (un-anonymized) Stage 1
-            # results and the Stage 2 rankings (which were computed from the
-            # anonymized copy but stored verbatim from the model).
-            yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(
-                critique_instruction, stage1_results, stage2_results, chairman_model
-            )
-            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
-
-            # Title generation — best-effort; non-fatal on failure.
+        async def deliberation():
             try:
-                title = await generate_conversation_title(critique_instruction)
-                storage.update_conversation_title(conversation_id, title)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-            except Exception:
-                pass  # fresh-prompt path also tolerates title failure
+                # Persist user message — the critique instruction.
+                storage.add_user_message(conversation_id, critique_instruction)
 
-            # Persist with external_research so reload hydration finds the files.
-            # Phase 6 COST-01: same per-stage accumulation as the fresh path.
-            # Critique never runs Stage 4 refine in Phase 5 → stage4: None.
-            stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
-            stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
-            stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
-            stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
-            stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
-            stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
-            metadata = {
-                "label_to_model": label_to_model,
-                "aggregate_rankings": aggregate_rankings,
-                "mode": "critique",
-                "cost": {
-                    "stage1": stage1_fee,
-                    "stage2": stage2_fee,
-                    "stage3": stage3_fee,
-                    "stage4": None,
-                    "total": stage1_fee + stage2_fee + stage3_fee,
-                    "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
-                    "currency": "USD",
-                },
-            }
-            storage.add_assistant_message(
-                conversation_id,
-                stage1_results,
-                stage2_results,
-                stage3_result,
-                metadata=metadata,
-                external_research=external_context,
-            )
+                # Stage 1 — per-model critique prompts via external_context.
+                await queue.put({"type": "stage1_start"})
+                stage1_results = await stage1_collect_responses(
+                    critique_instruction,
+                    active_council_models,
+                    external_context=external_context,
+                )
+                await queue.put({"type": "stage1_complete", "data": stage1_results})
 
-            yield f"data: {json.dumps({'type': 'message_metadata', 'data': metadata})}\n\n"
-            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+                # Stage 2 — anonymize + truncate; n=1 emits empty payload so the
+                # existing React reducer drains without any frontend change (D-05).
+                await queue.put({"type": "stage2_start"})
+                if len(stage1_results) <= 1:
+                    stage2_results: List[Dict[str, Any]] = []
+                    label_to_model: Dict[str, str] = {}
+                    aggregate_rankings: List[Dict[str, Any]] = []
+                else:
+                    stage2_results, label_to_model = await stage2_collect_rankings(
+                        critique_instruction,
+                        stage1_results,
+                        active_council_models,
+                        anonymize_critiques=True,
+                        truncate_per_response_tokens=600,
+                    )
+                    aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+                await queue.put({
+                    "type": "stage2_complete",
+                    "data": stage2_results,
+                    "metadata": {"label_to_model": label_to_model, "aggregate_rankings": aggregate_rankings},
+                })
 
-        except storage.ConversationNotFoundError:
-            yield f"data: {json.dumps({'type': 'error', 'kind': 'not_found', 'message': 'Conversation not found'})}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                # Stage 3 — chairman synthesises across the (un-anonymized) Stage 1
+                # results and the Stage 2 rankings (which were computed from the
+                # anonymized copy but stored verbatim from the model).
+                await queue.put({"type": "stage3_start"})
+                stage3_result = await stage3_synthesize_final(
+                    critique_instruction, stage1_results, stage2_results, chairman_model
+                )
+                await queue.put({"type": "stage3_complete", "data": stage3_result})
+
+                # Title generation — best-effort; non-fatal on failure.
+                try:
+                    title = await generate_conversation_title(critique_instruction)
+                    storage.update_conversation_title(conversation_id, title)
+                    await queue.put({"type": "title_complete", "data": {"title": title}})
+                except Exception:
+                    pass  # fresh-prompt path also tolerates title failure
+
+                # Persist with external_research so reload hydration finds the files.
+                # Phase 6 COST-01: same per-stage accumulation as the fresh path.
+                # Critique never runs Stage 4 refine in Phase 5 → stage4: None.
+                stage1_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage1_results), 0.0)
+                stage1_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage1_results), 0.0)
+                stage2_fee = sum((r.get("cost", {}).get("openrouter_fee_usd", 0.0) for r in stage2_results), 0.0)
+                stage2_upstream = sum((r.get("cost", {}).get("upstream_usd", 0.0) for r in stage2_results), 0.0)
+                stage3_fee = stage3_result.get("cost", {}).get("openrouter_fee_usd", 0.0)
+                stage3_upstream = stage3_result.get("cost", {}).get("upstream_usd", 0.0)
+                metadata = {
+                    "label_to_model": label_to_model,
+                    "aggregate_rankings": aggregate_rankings,
+                    "mode": "critique",
+                    "cost": {
+                        "stage1": stage1_fee,
+                        "stage2": stage2_fee,
+                        "stage3": stage3_fee,
+                        "stage4": None,
+                        "total": stage1_fee + stage2_fee + stage3_fee,
+                        "upstream_total": stage1_upstream + stage2_upstream + stage3_upstream,
+                        "currency": "USD",
+                    },
+                }
+                storage.add_assistant_message(
+                    conversation_id,
+                    stage1_results,
+                    stage2_results,
+                    stage3_result,
+                    metadata=metadata,
+                    external_research=external_context,
+                )
+
+                await queue.put({"type": "message_metadata", "data": metadata})
+                await queue.put({"type": "complete"})
+
+            except storage.ConversationNotFoundError:
+                await queue.put({"type": "error", "kind": "not_found", "message": "Conversation not found"})
+            except Exception as e:
+                await queue.put({"type": "error", "message": str(e)})
+            finally:
+                await queue.put(None)
+
+        _spawn_background_deliberation(deliberation())
+
+        while True:
+            event = await queue.get()
+            if event is None:
+                break
+            yield f"data: {json.dumps(event)}\n\n"
 
     return StreamingResponse(
         event_generator(),
