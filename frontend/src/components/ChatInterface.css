@@ -20,6 +20,9 @@
   flex: 1;
   overflow-y: auto;
   padding: var(--space-5);
+  /* MOBL-04 prerequisite — allow vertical scroll, reserve horizontal for the
+     07-02 swipe-to-close drawer hook. */
+  touch-action: pan-y;
 }
 
 /* NAV-02: ensure chip clicks land below the sticky StageNavigationStrip
@@ -160,7 +163,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-5);
+  /* max() keeps existing padding-bottom on non-notched devices; on iOS with a
+     home indicator, env(safe-area-inset-bottom) raises the composer above it.
+     Top/left/right keep the original --space-5 rhythm. */
+  padding: var(--space-5) max(env(safe-area-inset-right), var(--space-5)) max(env(safe-area-inset-bottom), var(--space-5)) max(env(safe-area-inset-left), var(--space-5));
   border-top: 1px solid var(--color-border-subtle);
   background: var(--color-bg-secondary);
 }

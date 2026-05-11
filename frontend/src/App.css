@@ -51,26 +51,29 @@
   min-height: 0;
 }
 
-/* Mobile drawer (W23): basic — Sidebar collapses to fixed overlay below the
-   header, opens via a future hamburger control wiring up data-open. The
-   transition uses --motion-easing-out and is automatically suppressed by
-   the global prefers-reduced-motion override in index.css. */
+/* Mobile (≤768px): grid collapses to a single column. The desktop sidebar is
+   hidden — the native <dialog> drawer lands in 07-02 and takes over the
+   navigation surface. The transform-based overlay drawer was retired here. */
 @media (max-width: 768px) {
   .app {
     grid-template-columns: 1fr;
   }
   .app > .sidebar {
-    position: fixed;
-    inset: var(--layout-header-h) 0 0 0;
-    z-index: 10;
-    transform: translateX(-100%);
-    transition: transform 200ms var(--motion-easing-out);
-    background: var(--color-bg-secondary);
-  }
-  .app > .sidebar[data-open="true"] {
-    transform: translateX(0);
+    display: none;
   }
   .app > .app__main-with-banner {
     grid-column: 1;
+  }
+  /* MOBL-01 touch-target floor — broad selector list so "every interactive
+     control" requirement holds without component-by-component opt-in. */
+  button,
+  [role='button'],
+  a,
+  input[type='radio'],
+  input[type='checkbox'],
+  .conversation-item,
+  .quality-option {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
   }
 }

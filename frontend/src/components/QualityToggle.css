@@ -75,3 +75,11 @@
 .quality-option input:disabled ~ .quality-cost {
   opacity: 0.5;
 }
+
+/* MOBL-01 touch-target floor (defensive co-location — App.css already covers
+   .quality-option, mirrored here for consistency with the convention). */
+@media (max-width: 768px) {
+  .quality-option {
+    min-height: var(--touch-target-min);
+  }
+}

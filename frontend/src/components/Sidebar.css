@@ -344,3 +344,15 @@
   background: var(--color-warn);
   transition: width var(--motion-duration-base) var(--motion-easing-out);
 }
+
+/* MOBL-01 touch-target floor (defensive co-location — App.css already covers
+   .conversation-item via a broad selector, but Sidebar-owned controls live
+   here too). */
+@media (max-width: 768px) {
+  .new-conversation-btn,
+  .conversation-item,
+  .content-search-affordance,
+  .conversation-item .menu-trigger {
+    min-height: var(--touch-target-min);
+  }
+}
