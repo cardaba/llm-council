@@ -9,6 +9,7 @@ import uuid
 import json
 import asyncio
 
+from . import stats
 from . import storage
 from . import research_strategy
 from .config import PROFILES
@@ -84,6 +85,12 @@ async def root():
 async def list_conversations():
     """List all conversations (metadata only)."""
     return storage.list_conversations()
+
+
+@app.get("/api/stats/cost")
+async def get_cost_stats():
+    """Aggregate current-month cost stats — read-only walk over conversation files."""
+    return stats.aggregate_current_month()
 
 
 @app.post("/api/conversations", response_model=Conversation)
