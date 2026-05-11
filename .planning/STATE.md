@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
 status: shipped
-last_updated: "2026-05-11T13:00:00.000Z"
-last_activity: 2026-05-11 -- v2.0 milestone shipped and archived (3 phases, 19 plans, 33 reqs satisfied, 101 tests + 16 VRT baselines)
+last_updated: "2026-05-11T15:00:00.000Z"
+last_activity: 2026-05-11 -- quick-task 260511-l5w shipped (NAV-01 sticky stage header ghost-strip fix, 2 CSS files, +8/-1)
 progress:
   total_phases: 3
   completed_phases: 3
@@ -167,6 +167,12 @@ Ninguno. 06-UAT BLOCKER closed structurally by 06-08; manual smoke test pending 
 *State initialized: 2026-05-09 (v1.0 milestone start)*
 *Last updated: 2026-05-10 after v2.0 ROADMAP.md created (3 phases, coarse granularity, override de SUMMARY.md por user directive "ir a saco"). Phase 5 ready for /gsd-plan-phase.*
 *Last updated: 2026-05-10 after v1.0 milestone close (21/21 v1 requirements satisfied; Phase 4 Plan 04-04 cerrado; tag v1.0; archive en milestones/).*
+
+## Quick Tasks Completed
+
+| Quick ID | Date | Description | Files | Commit | Notes |
+|----------|------|-------------|-------|--------|-------|
+| 260511-l5w | 2026-05-11 | NAV-01 sticky stage header ghost-strip fix (drop `.messages-container` `padding-top`, add soft `box-shadow` to `.stage-nav-strip`) | `frontend/src/components/ChatInterface.css`, `frontend/src/components/StageNavigationStrip.css` | (see commit log) | Manual smoke flagged for user. VRT baseline regeneration deferred to v2.1 phase 1 (24 PNGs × 4 viewports will diff-fail — expected). |
 
 ## Operator Next Steps
 

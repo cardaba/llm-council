@@ -19,7 +19,12 @@
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-5);
+  /* NAV-01 fix (2026-05-11 quick-task 260511-l5w): no padding-top —
+     the scroll container shares its top edge with the sticky
+     .stage-nav-strip so nothing scrolls above the sticky chrome.
+     Horizontal + bottom rhythm preserved. */
+  padding-inline: var(--space-5);
+  padding-bottom: var(--space-5);
   /* MOBL-04 prerequisite — allow vertical scroll, reserve horizontal for the
      07-02 swipe-to-close drawer hook. */
   touch-action: pan-y;
