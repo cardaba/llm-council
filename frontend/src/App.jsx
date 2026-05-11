@@ -4,7 +4,9 @@ import ChatInterface from './components/ChatInterface';
 import Header from './components/Header';
 import ErrorBanner from './components/ErrorBanner';
 import SettingsPanel from './components/SettingsPanel';
+import SidebarDrawer from './components/SidebarDrawer';
 import { useSettings } from './hooks/useSettings';
+import { useTouchSwipe } from './hooks/useTouchSwipe';
 import { api } from './api';
 import './App.css';
 
@@ -22,6 +24,17 @@ function App() {
   // trigger: a single integer prop, no context, no event bus.
   const [costStatsRefreshTrigger, setCostStatsRefreshTrigger] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // Phase 7 / MOBL-02 + MOBL-04 — drawer state shared between the hamburger
+  // (tap-to-open) and the useTouchSwipe hook (left-edge swipe-right to open,
+  // swipe-left to close). The drawer is mobile-only via the @media guard in
+  // SidebarDrawer.css; on desktop these handlers are inert (the dialog has
+  // display: none, so showModal()/close() round-trips a no-op visually).
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const swipe = useTouchSwipe({
+    isOpen: drawerOpen,
+    onOpen: () => setDrawerOpen(true),
+    onClose: () => setDrawerOpen(false),
+  });
   // SET-03 — read the live slider value so the NEXT quality_research request
   // honors the user's choice. Fast / Quality requests ignore this (api.js
   // gates the body extension on `profile === 'quality_research'`).
@@ -490,9 +503,42 @@ function App() {
   }, []);
 
   return (
-    <div className="app">
-      <Header onSettingsOpen={() => setSettingsOpen(true)} />
+    // Touch handlers attach to the shell root (NOT to <main>) so left-edge
+    // swipe-right is caught regardless of which inner element the gesture
+    // lands on. The .messages-container `touch-action: pan-y` rule from
+    // 07-01 still lets vertical scrolls bypass the swipe path entirely.
+    <div className="app" {...swipe}>
+      <Header
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onMenuOpen={() => setDrawerOpen(true)}
+      />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      {/* Mobile-only drawer. The desktop <Sidebar> below stays mounted; the
+       * @media (min-width: 769px) rules in SidebarDrawer.css + Sidebar.css
+       * decide which one is visible at any given breakpoint. The drawer
+       * embeds its OWN <Sidebar> instance with the same props as desktop,
+       * plus tap-to-dismiss wrappers around the navigation callbacks. */}
+      <SidebarDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Sidebar
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          onSelectConversation={(id) => {
+            handleSelectConversation(id);
+            setDrawerOpen(false);
+          }}
+          onNewConversation={() => {
+            handleNewConversation();
+            setDrawerOpen(false);
+          }}
+          onNewCritiqueConversation={() => {
+            handleNewCritiqueConversation();
+            setDrawerOpen(false);
+          }}
+          onDeleteConversation={handleDeleteConversation}
+          onRenameConversation={handleRenameConversation}
+          refreshTrigger={costStatsRefreshTrigger}
+        />
+      </SidebarDrawer>
       <Sidebar
         conversations={conversations}
         currentConversationId={currentConversationId}
@@ -503,7 +549,14 @@ function App() {
         onRenameConversation={handleRenameConversation}
         refreshTrigger={costStatsRefreshTrigger}
       />
-      <div className="app__main-with-banner">
+      {/* inert is a React 19 prop. Passing '' enables the attribute; passing
+       * undefined removes it. This makes the main panel non-focusable and
+       * non-interactive while the drawer is open (browser-native focus trap
+       * in conjunction with the <dialog> showModal() inside SidebarDrawer). */}
+      <div
+        className="app__main-with-banner"
+        inert={drawerOpen ? '' : undefined}
+      >
         {streamError && (
           <ErrorBanner
             stageNumber={streamError.stageNumber}
