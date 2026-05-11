@@ -43,7 +43,8 @@
 }
 
 .app-header__theme-toggle,
-.app-header__settings-toggle {
+.app-header__settings-toggle,
+.app-header__menu-toggle {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
@@ -59,14 +60,31 @@
     color var(--motion-duration-base) var(--motion-easing-out);
 }
 
+/* MOBL-02 — the ≤768px touch-target floor. Co-located here (vs the broad-
+ * stroke App.css rule from 07-01) so the contract survives App.css refactors. */
+.app-header__menu-toggle {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+}
+
 .app-header__theme-toggle:hover,
-.app-header__settings-toggle:hover {
+.app-header__settings-toggle:hover,
+.app-header__menu-toggle:hover {
   background: var(--color-bg-secondary);
   color: var(--color-fg-primary);
 }
 
 .app-header__theme-toggle:focus-visible,
-.app-header__settings-toggle:focus-visible {
+.app-header__settings-toggle:focus-visible,
+.app-header__menu-toggle:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
+}
+
+/* Hamburger is mobile-only — desktop keeps the persistent Sidebar in the
+ * existing grid column, so the menu button has nothing to open. */
+@media (min-width: 769px) {
+  .app-header__menu-toggle {
+    display: none;
+  }
 }
