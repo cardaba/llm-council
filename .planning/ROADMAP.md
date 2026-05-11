@@ -94,7 +94,7 @@ Audit: [v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — PASSED 
   5. Frontend tiene `*.test.jsx` co-located usando vitest + RTL v16 + jsdom cubriendo `useTheme`, `useSettings`, `MessageHeader` legacy fallback, `QualityToggle` onChange wiring, `Stage2` de-anonimización, y los helpers puros de `download.js`; el README documenta los 3 comandos (`uv run pytest backend/tests/ -v`, `npm test --prefix frontend`, `npx playwright test --config frontend/visual-tests/playwright.config.ts`) sin CI (tagged como v2.1 backlog).
 
 **Plans:** 5 plans
-- [ ] 07-01-PLAN.md — Responsive substrate: --touch-target-min token, viewport-fit=cover, safe-area-inset threading (MOBL-01 + MOBL-03), Wave 1
+- [x] 07-01-PLAN.md — Responsive substrate: --touch-target-min token, viewport-fit=cover, safe-area-inset threading (MOBL-01 + MOBL-03), Wave 1
 - [ ] 07-02-PLAN.md — Mobile drawer: SidebarDrawer (<dialog>+showModal) + useTouchSwipe hook + hamburger button + inert main (MOBL-02 + MOBL-04), Wave 1, depends on 07-01
 - [ ] 07-03-PLAN.md — Playwright VRT: 8 specs × 2 themes = 16 baselines, Docker-only, 5 anti-flake measures (VRT-01 + VRT-02 + VRT-03), Wave 2
 - [ ] 07-04-PLAN.md — Backend pytest suite: conftest isolation + storage / parser / profile-routing / v1→v2 migration tests (TEST-01), Wave 2

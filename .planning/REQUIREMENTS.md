@@ -60,9 +60,9 @@
 
 **Goal:** Make the app fully usable on tablet and phone (≤768px), beyond v1.0's basic drawer-only support.
 
-- [ ] **MOBL-01**: Touch targets across the entire UI (buttons, sidebar items, QualityToggle segments, attachment chips, file pickers) are ≥44×44px on viewports ≤768px, enforced via a `--touch-target-min: 44px` CSS variable consumed in component CSS. Source: ARCHITECTURE.md §5.1 + WCAG 2.5.5.
+- [x] **MOBL-01**: Touch targets across the entire UI (buttons, sidebar items, QualityToggle segments, attachment chips, file pickers) are ≥44×44px on viewports ≤768px, enforced via a `--touch-target-min: 44px` CSS variable consumed in component CSS. Source: ARCHITECTURE.md §5.1 + WCAG 2.5.5.
 - [ ] **MOBL-02**: The mobile sidebar drawer uses the native `<dialog>` element with `showModal()` for focus trap + ESC-to-close + native modal semantics, plus the `inert` attribute on the main content while open. NO hand-rolled focus trap, NO library dependency. Source: PITFALLS.md §MOD-4.
-- [ ] **MOBL-03**: `index.html` declares `viewport-fit=cover` in its viewport meta, and CSS uses `env(safe-area-inset-*)` for header / drawer / message input padding to respect notched devices and the iOS home indicator. Source: PITFALLS.md §MOD-3.
+- [x] **MOBL-03**: `index.html` declares `viewport-fit=cover` in its viewport meta, and CSS uses `env(safe-area-inset-*)` for header / drawer / message input padding to respect notched devices and the iOS home indicator. Source: PITFALLS.md §MOD-3.
 - [ ] **MOBL-04**: A custom `useTouchSwipe` hook (~30 LOC) opens the sidebar drawer on left-edge swipe-right and closes it on swipe-left, with `touch-action: pan-y` on `.messages-container` to prevent gesture conflicts with vertical scroll. **Scope-cut candidate** if Phase 8 budget is tight — tap-to-open via hamburger button is the floor. Source: ARCHITECTURE.md §5.1 + PITFALLS.md §MOD-5.
 
 ### Visual regression testing (VRT) — feature F
@@ -136,9 +136,9 @@
 | SET-02 | Phase 6 | Pending |
 | SET-03 | Phase 6 | Pending |
 | SET-04 | Phase 6 | Pending |
-| MOBL-01 | Phase 7 | Pending |
+| MOBL-01 | Phase 7 | Complete |
 | MOBL-02 | Phase 7 | Pending |
-| MOBL-03 | Phase 7 | Pending |
+| MOBL-03 | Phase 7 | Complete |
 | MOBL-04 | Phase 7 | Pending |
 | VRT-01 | Phase 7 | Pending |
 | VRT-02 | Phase 7 | Pending |

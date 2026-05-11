@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Council as External Critic + Hardening
-status: completed
-last_updated: "2026-05-11T10:20:00.000Z"
-last_activity: 2026-05-11 -- Phase 07 context gathered (4 gray areas resolved, 5 decisions captured)
+status: Phase 07 Plan 01 complete — responsive substrate landed (--touch-target-min token, viewport-fit=cover, safe-area-inset wired through Header/composer/App.css). Plan 02 (drawer) ready to start.
+last_updated: "2026-05-11T11:37:41Z"
+last_activity: 2026-05-11 -- Phase 07 Plan 01 complete (2 tasks, 7 files, 2 commits c0ca438 + f325b09)
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 14
-  completed_plans: 14
-  percent: 100
+  total_plans: 19
+  completed_plans: 16
+  percent: 84
 ---
 
 # State: LLM Council — Personal Edition
@@ -36,10 +36,10 @@ progress:
 
 ## Current Position
 
-Phase: 07 (mobile-responsive-visual-regression-tests) — CONTEXT GATHERED
-Plan: 0 of TBD (planning next via /gsd-plan-phase 7)
-Status: CONTEXT.md written. 4 gray areas discussed → 5 decisions (D-01 MOBL-04 ships, D-02 VRT 8 surfaces, D-02b hero states, D-03 Docker-only, D-04 Wave 1 mobile → Wave 2 VRT∥TEST).
-Last activity: 2026-05-11 -- Phase 07 context gathered (4 gray areas resolved, 5 decisions captured)
+Phase: 07 (mobile-responsive-visual-regression-tests) — IN PROGRESS
+Plan: 1 of 5 complete (07-01 responsive substrate)
+Status: Plan 01 done — `--touch-target-min: 44px` token + viewport-fit=cover meta + safe-area-inset threaded through Header / composer / App.css. Zero .jsx touched. Plan 02 (mobile drawer) is wave 2, depends on this substrate.
+Last activity: 2026-05-11 -- Phase 07 Plan 01 complete (2 tasks, 7 files, MOBL-01 + MOBL-03 satisfied)
 
 ## Phase Progression
 
@@ -51,7 +51,7 @@ Last activity: 2026-05-11 -- Phase 07 context gathered (4 gray areas resolved, 5
 | 4 | Visual Identity Implementation | v1.0 | All 4 plans complete (closed 2026-05-10) |
 | 5 | Critique mode + Schema migration + In-conversation navigation | v2.0 | Not started — 13 reqs (CRIT-01..08, PERS-03, NAV-01..04) |
 | 6 | Persistence completeness + Cost analytics + Settings panel | v2.0 | Not started — 10 reqs (PERS-01..02, COST-01..04, SET-01..04) |
-| 7 | Mobile responsive + Visual regression + Tests | v2.0 | Not started — 10 reqs (MOBL-01..04, VRT-01..03, TEST-01..03) |
+| 7 | Mobile responsive + Visual regression + Tests | v2.0 | 1/5 plans complete — 07-01 done (MOBL-01 + MOBL-03 satisfied) |
 
 ## Performance Metrics
 
@@ -68,8 +68,8 @@ Last activity: 2026-05-11 -- Phase 07 context gathered (4 gray areas resolved, 5
 
 - Phases planned: 3
 - Phases complete: 0
-- Plans complete: 0
-- Requirements coverage: 33/33 mapped (100%)
+- Plans complete: 1 (07-01 responsive substrate)
+- Requirements coverage: 33/33 mapped (100%); MOBL-01 + MOBL-03 complete
 - Cadencia: 1-2 sesiones/semana
 
 ## Accumulated Context
