@@ -1,4 +1,4 @@
-"""parse_critic_score test matrix.
+r"""parse_critic_score test matrix.
 
 Behavior verified empirically against backend.research_strategy.parse_critic_score
 BEFORE encoding assertions ("tests document reality" guard from plan).
