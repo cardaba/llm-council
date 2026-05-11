@@ -475,6 +475,7 @@ Title:"""
 async def run_full_council(
     user_query: str,
     profile: str = "fast",
+    stage4_threshold: Optional[int] = None,
 ) -> Tuple[List, List, Dict, Dict]:
     """
     Run the complete 3-stage council process for the given profile.
@@ -484,6 +485,9 @@ async def run_full_council(
         profile: One of "fast" / "quality" / "quality_research".
                  "quality_research" raises NotImplementedError until Plan 03-04
                  connects the research_strategy module.
+        stage4_threshold: SET-03 — per-request override forwarded to
+            ``research_strategy.run`` when profile is "quality_research".
+            Ignored for fast / quality. None preserves PROFILES default.
 
     Returns:
         Tuple of (stage1_results, stage2_results, stage3_result, metadata)
@@ -504,7 +508,9 @@ async def run_full_council(
         stage3_result: Dict[str, Any] = {}
         stage4_result: Any = None
         message_metadata: Dict[str, Any] = {}
-        async for event in research_strategy.run(user_query, config):
+        async for event in research_strategy.run(
+            user_query, config, threshold_override=stage4_threshold,
+        ):
             if event["type"] == "_final":
                 stage1_results = event["stage1"]
                 stage2_results = event["stage2"]

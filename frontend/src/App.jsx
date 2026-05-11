@@ -4,6 +4,7 @@ import ChatInterface from './components/ChatInterface';
 import Header from './components/Header';
 import ErrorBanner from './components/ErrorBanner';
 import SettingsPanel from './components/SettingsPanel';
+import { useSettings } from './hooks/useSettings';
 import { api } from './api';
 import './App.css';
 
@@ -21,6 +22,10 @@ function App() {
   // trigger: a single integer prop, no context, no event bus.
   const [costStatsRefreshTrigger, setCostStatsRefreshTrigger] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // SET-03 — read the live slider value so the NEXT quality_research request
+  // honors the user's choice. Fast / Quality requests ignore this (api.js
+  // gates the body extension on `profile === 'quality_research'`).
+  const { stage4Threshold } = useSettings();
 
   // Load conversations on mount
   useEffect(() => {
@@ -301,8 +306,15 @@ function App() {
     }
   }, []);
 
-  const handleSendMessage = async (content, profile = 'fast') => {
+  const handleSendMessage = async (content, profile = 'fast', explicitStage4Threshold) => {
     if (!currentConversationId) return;
+    // SET-03 — ChatInterface always passes the live useSettings value as the
+    // 3rd arg; retry (handleRetryError) calls with 2 args, so we fall back
+    // to the closure-captured stage4Threshold when undefined. api.js gates
+    // the body extension on profile === 'quality_research' so passing the
+    // value for fast / quality is harmless.
+    const effectiveThreshold =
+      explicitStage4Threshold !== undefined ? explicitStage4Threshold : stage4Threshold;
 
     setIsLoading(true);
     try {
@@ -340,12 +352,16 @@ function App() {
       }));
 
       // Send message with streaming — dispatch through the shared reducer.
+      // SET-03 — forward the live useSettings stage4Threshold; api.js gates
+      // the body extension on `profile === 'quality_research'` so fast /
+      // quality requests omit the field automatically.
       const errorContext = { originalContent: content, originalProfile: profile };
       await api.sendMessageStream(
         currentConversationId,
         content,
         profile,
-        (eventType, event) => handleStreamEvent(eventType, event, errorContext)
+        (eventType, event) => handleStreamEvent(eventType, event, errorContext),
+        effectiveThreshold
       );
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -472,6 +488,7 @@ function App() {
           onSendMessage={handleSendMessage}
           onSubmitCritique={handleSubmitCritique}
           isLoading={isLoading}
+          stage4Threshold={stage4Threshold}
         />
       </div>
     </div>

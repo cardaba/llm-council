@@ -66,8 +66,16 @@ export const api = {
    * @param {string} conversationId
    * @param {string} content
    * @param {'fast'|'quality'|'quality_research'} [profile='fast'] — Quality dial.
+   * @param {number|null} [stage4Threshold=null] — SET-03 per-request override.
+   *   Only included in the body when `profile === 'quality_research'` AND
+   *   `stage4Threshold !== null`. v1 callers that omit the parameter send
+   *   the legacy body shape (backward-compat at the JS layer too).
    */
-  async sendMessage(conversationId, content, profile = 'fast') {
+  async sendMessage(conversationId, content, profile = 'fast', stage4Threshold = null) {
+    const body = { content, profile };
+    if (stage4Threshold !== null && profile === 'quality_research') {
+      body.stage4_threshold = stage4Threshold;
+    }
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message`,
       {
@@ -75,7 +83,7 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content, profile }),
+        body: JSON.stringify(body),
       }
     );
     if (!response.ok) {
@@ -90,9 +98,17 @@ export const api = {
    * @param {string} content - The message content
    * @param {'fast'|'quality'|'quality_research'} profile - Quality dial profile
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
+   * @param {number|null} [stage4Threshold=null] — SET-03 per-request override.
+   *   Only included in the body when `profile === 'quality_research'` AND
+   *   `stage4Threshold !== null`. Fast / Quality / Critique requests MUST
+   *   NOT send the field; the profile guard here enforces that contract.
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, profile, onEvent) {
+  async sendMessageStream(conversationId, content, profile, onEvent, stage4Threshold = null) {
+    const body = { content, profile };
+    if (stage4Threshold !== null && profile === 'quality_research') {
+      body.stage4_threshold = stage4Threshold;
+    }
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
@@ -100,7 +116,7 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content, profile }),
+        body: JSON.stringify(body),
       }
     );
 

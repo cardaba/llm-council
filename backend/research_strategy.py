@@ -147,6 +147,7 @@ def parse_critic_score(text: str) -> Tuple[Optional[int], Optional[str]]:
 async def run(
     user_query: str,
     profile_config: Dict[str, Any],
+    threshold_override: Optional[int] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Async generator that yields stage event dicts for the quality_research pipeline.
@@ -172,11 +173,16 @@ async def run(
         profile_config: PROFILES["quality_research"] dict — passed in by the
             caller so this module never imports `PROFILES` directly
             (RSCH-04 isolation).
+        threshold_override: SET-03 — per-request override for the critic
+            gating threshold. When None, falls back to
+            ``profile_config["stage4_threshold"]`` (Pitfall 3 fix: the
+            ``is not None`` check is mandatory so v1 callers that omit the
+            kwarg never hit ``None < threshold`` TypeError).
     """
     council_models = profile_config["council_models"]
     chairman_model = profile_config["chairman_model"]
     critic_model = profile_config["critic_model"]
-    threshold = profile_config["stage4_threshold"]
+    threshold = threshold_override if threshold_override is not None else profile_config["stage4_threshold"]
 
     # ------------------------------------------------------------------
     # Stage 1: 4 reasoning models with `:online` + reasoning=True

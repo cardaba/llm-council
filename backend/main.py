@@ -52,6 +52,9 @@ class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
     profile: Literal["fast", "quality", "quality_research"] = "fast"
+    # SET-03 — quality_research-only override of PROFILES["quality_research"]["stage4_threshold"].
+    # Optional + None default keeps v1 clients green (Pitfall 2 backward-compat).
+    stage4_threshold: Optional[int] = Field(None, ge=1, le=10)
 
 
 class ConversationMetadata(BaseModel):
@@ -144,9 +147,13 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         title = await generate_conversation_title(request.content)
         storage.update_conversation_title(conversation_id, title)
 
-    # Run the 3-stage council process for the selected profile
+    # Run the 3-stage council process for the selected profile.
+    # SET-03 — forward optional stage4_threshold so the non-streaming endpoint
+    # honors the slider override on quality_research; v1 clients (no field)
+    # pass None and fall back to PROFILES default.
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
         request.content, request.profile,
+        stage4_threshold=request.stage4_threshold,
     )
 
     # Build per-message metadata (D-25 shape) — persisted verbatim alongside
@@ -246,7 +253,8 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
                 final_message_metadata: Dict[str, Any] = {}
 
                 async for event in research_strategy.run(
-                    request.content, PROFILES["quality_research"]
+                    request.content, PROFILES["quality_research"],
+                    threshold_override=request.stage4_threshold,
                 ):
                     if event["type"] == "_final":
                         final_stage1 = event["stage1"]
