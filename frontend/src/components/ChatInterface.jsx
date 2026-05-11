@@ -39,6 +39,7 @@ export default function ChatInterface({
   onSendMessage,
   onSubmitCritique,
   isLoading,
+  stage4Threshold = null,
 }) {
   const [input, setInput] = useState('');
   const [profile, setProfile] = useState('fast');
@@ -103,7 +104,10 @@ export default function ChatInterface({
     e.preventDefault();
     if (input.trim() && !isLoading) {
       const fullPrompt = buildPromptWithAttachments(input, attachments);
-      onSendMessage(fullPrompt, profile);
+      // SET-03 — forward stage4Threshold so App.handleSendMessage passes it
+      // to api.sendMessageStream. Fast / Quality profiles are filtered at
+      // the api.js layer (body extension gated on profile === quality_research).
+      onSendMessage(fullPrompt, profile, stage4Threshold);
       setInput('');
       setAttachments([]);
       setAttachError(null);
