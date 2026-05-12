@@ -56,7 +56,10 @@ Requirements archive: [v2.0-REQUIREMENTS.md](milestones/v2.0-REQUIREMENTS.md) (3
   3. User looking at the StageNavigationStrip sees the active tab joined to the panel below by a continuous 2px bottom border (Direction A calm contrast preserved), and does NOT see a redundant H2 "Stage X: …" below the active tab; screen-reader heading structure is preserved via `aria-labelledby` or an `sr-only` heading.
   4. User scanning the sidebar identifies the active conversation by a 3px left accent border (in addition to background tint, surviving hover/focus), sees items grouped under subdued date headers (`Hoy` / `Esta semana` / `Este mes` / `Más antiguo`), and reads the `N messages` metadata as a demoted icon + smaller line below the title (never re-flowing above the title).
   5. User scrolls a long page; the floating scroll-to-top button appears only after >600px scroll, carries `aria-label="Volver al inicio"`, passes WCAG AA contrast in both themes, fades in/out, and the fade collapses to instant under `prefers-reduced-motion: reduce`.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 08-01-PLAN.md — Sticky breadcrumb + chip IDs + H3 drop + aria-labelledby (NAV-V2.1-01/02/03 + IA-V2.1-01)
+- [ ] 08-02-PLAN.md — Sidebar date grouping + meta demote + active-border verify (IA-V2.1-02/03/04)
+- [ ] 08-03-PLAN.md — Scroll-to-top a11y baseline: threshold + contrast (A11Y-V2.1-01)
 **UI hint**: yes
 
 ### Phase 9: Cost footer relocation + ADR D-02 revisit
