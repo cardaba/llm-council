@@ -2,15 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: UX Polish + IA Gaps
-status: planning
-last_updated: "2026-05-12T03:00:00.000Z"
-last_activity: 2026-05-12
+status: Ready for `/gsd-plan-phase 8` (08-CONTEXT.md committed)
+last_updated: "2026-05-12T03:30:00.000Z"
+last_activity: 2026-05-12 — 08-CONTEXT.md captured (12 decisions, 2 EN-copy overrides)
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 0
 ---
 
 # State: LLM Council — Personal Edition
@@ -39,10 +38,10 @@ P3 scroll-spy, CI pipeline (mantener D-04b lock), y PDF/DOCX critique upload exp
 
 ## Current Position
 
-Phase: Phase 8 (next — Sticky/IA polish bundle)
+Phase: Phase 8 (in progress — Sticky/IA polish bundle, context gathered)
 Plan: —
-Status: Ready for `/gsd-plan-phase 8`
-Last activity: 2026-05-12 — v2.1 roadmap created (3 phases, 11/11 reqs mapped)
+Status: Ready for `/gsd-plan-phase 8` (08-CONTEXT.md committed `60e3335`)
+Last activity: 2026-05-12 — 08-CONTEXT.md + 08-DISCUSSION-LOG.md captured (12 decisions D-01..D-12)
 
 ## Phase Progression
 
@@ -116,7 +115,7 @@ Last activity: 2026-05-12 — v2.1 roadmap created (3 phases, 11/11 reqs mapped)
 
 - **Phase 9: relocation target for cost block** — popover vs Settings sub-section vs dedicated route. Decided in `/gsd-discuss-phase 9` ADR.
 - **Phase 10: App.test.jsx strategy** — pure-reducer extraction (refactor `handleStreamEvent` out of App.jsx into a tested module) vs full `<App />` mount with mocked SSE. Decided in `/gsd-discuss-phase 10`.
-- **Phase 8: breadcrumb content rule for IA-V2.1-01** — show conversation title always, or switch to active Stage 1 model name when reading a specific Stage 1 response? Plan-time decision.
+- ~~**Phase 8: breadcrumb content rule for IA-V2.1-01**~~ — **RESOLVED 2026-05-12 in 08-CONTEXT.md D-01**: conversation title only, constante durante todo el scroll.
 
 ### Tech Debt (heredado, no resuelto en v2.1 scope)
 
@@ -132,7 +131,7 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ### Active Todos
 
-- [ ] **Run `/gsd-plan-phase 8`** to decompose Phase 8 (Sticky/IA polish bundle, 8 reqs) into atomic plans. Plan-time MUST honor the close/verify scope of NAV-V2.1-01 (partial fix already shipped in 260511-l5w).
+- [ ] **Run `/gsd-plan-phase 8`** to decompose Phase 8 (Sticky/IA polish bundle, 8 reqs) into atomic plans. **Primary input:** `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md` (12 decisions D-01..D-12, two English-copy overrides D-05/D-10). Plan-time MUST NOT re-implement `260511-l5w` and MUST NOT touch VRT baselines (Phase 10 owns regen).
 - [ ] User-side manual smoke test for 06-08 (carry-over from v2.0) — 7-step browser DevTools verification. Recommended before Phase 8 work begins so the baseline state is known-good.
 - [ ] Calibration de `stage4_threshold` (carryover v1.0/v2.0) — slider en place; el usuario decide tras 5-10 QR queries reales.
 
@@ -145,7 +144,9 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ## Session Continuity
 
-**Current session (2026-05-12, planning):** gsd-roadmapper creó `.planning/ROADMAP.md` para v2.1 (3 phases, continúa numeración desde v2.0 Phase 7 → Phases 8/9/10). Actualizó `REQUIREMENTS.md` traceability (11/11 reqs mapped). Actualizó este STATE.md con `total_phases: 3` y la nueva Phase Progression. Granularity `coarse` aplicada consistentemente con v2.0 ("ir a saco"). Decisión clave: Phase 10 (VRT regen) DEBE ser último por diseño — regen anterior congelaría baselines incorrectas.
+**Current session (2026-05-12, Phase 8 context):** `/gsd-discuss-phase 8` completado. 4 áreas grises discutidas (breadcrumb scope+host, sidebar date grouping field+copy, demote N messages, tab-to-panel border vs strip shadow). 12 decisiones D-01..D-12 capturadas en `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md`. Dos **overrides conscientes de copy**: D-05 cambia headers de fecha de español ("Hoy/Esta semana/…") a inglés ("Today/This week/…"); D-10 mantiene `aria-label="Back to top"` (inglés, override de REQUIREMENTS.md:39 literal). Ambos por consistencia con el sidebar EN-only. NAV-V2.1-01 confirmado como close/verify (no re-implementar `260511-l5w`). NAV-V2.1-02 y IA-V2.1-02 confirmados como structurally-shipped + verify. Commit `60e3335`.
+
+**Previous session (2026-05-12, roadmap):** gsd-roadmapper creó `.planning/ROADMAP.md` para v2.1 (3 phases, continúa numeración desde v2.0 Phase 7 → Phases 8/9/10). Actualizó `REQUIREMENTS.md` traceability (11/11 reqs mapped). Granularity `coarse` aplicada consistentemente con v2.0 ("ir a saco"). Decisión clave: Phase 10 (VRT regen) DEBE ser último por diseño — regen anterior congelaría baselines incorrectas.
 
 **Previous session (2026-05-11):** v2.0 milestone shipped. 33/33 reqs satisfied across Phases 5-7. Manual smoke surfaced v2.1 backlog (`v2.1-BACKLOG-FROM-MANUAL-SMOKE.md`). Quick-task `260511-l5w` shipped partial sticky-header fix; baseline regen deferida a v2.1.
 
@@ -153,16 +154,19 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 **Next session should start by:**
 
-1. Reading this STATE.md + `.planning/ROADMAP.md` (v2.1 phase details for 8/9/10) + `REQUIREMENTS.md` traceability table.
-2. Running `/gsd-plan-phase 8` to decompose the Sticky/IA polish bundle.
-3. Reviewing `v2.1-BACKLOG-FROM-MANUAL-SMOKE.md` for Phase 8 plan-time context — especially the user's diagnosis of the sticky-header layering bug and the "Suggested v2.1 milestone scoping" section.
-4. Confirming with the user that the partial fix from quick-task `260511-l5w` is the floor for NAV-V2.1-01 (no re-implementation).
+1. Reading `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md` (12 decisions D-01..D-12, two English-copy overrides) — primary input for the planner.
+2. Reading this STATE.md + `.planning/ROADMAP.md` §"Phase 8" + `REQUIREMENTS.md` lines 12-39.
+3. Running `/gsd-plan-phase 8` to decompose the Sticky/IA polish bundle.
+4. Honour the close/verify scope of NAV-V2.1-01 + structurally-shipped status of NAV-V2.1-02 and IA-V2.1-02 (do NOT re-implement).
+5. Honour the **English copy overrides** in D-05 (date headers) and D-10 (aria-label) — even though REQUIREMENTS.md says Spanish literally.
 
 **Files most recently touched by GSD tooling:**
 
+- `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md` (created — 12 decisions)
+- `.planning/phases/08-sticky-ia-polish-bundle/08-DISCUSSION-LOG.md` (created — audit trail)
+- `.planning/STATE.md` (this file — Current Position bumped to "context gathered", session continuity appended)
 - `.planning/ROADMAP.md` (v2.1 Phases 8-10 added; v1.0 + v2.0 collapsed in details)
 - `.planning/REQUIREMENTS.md` (traceability table filled with phase mappings 8/9/10)
-- `.planning/STATE.md` (this file — v2.1 phase progression added, total_phases updated)
 
 ---
 *State initialized: 2026-05-09 (v1.0 milestone start)*
@@ -179,5 +183,6 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 8` to decompose Phase 8 (Sticky/IA polish bundle: NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01) into plans.
-- Verify with user that the partial fix from quick-task `260511-l5w` is the floor for NAV-V2.1-01 (plan-time should close/verify, not re-implement).
+- Run `/gsd-plan-phase 8` to decompose Phase 8 (Sticky/IA polish bundle: NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01) into plans, taking `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md` as the primary input.
+- Honour the close/verify scope of NAV-V2.1-01 (partial fix already shipped in `260511-l5w`) and the structurally-shipped status of NAV-V2.1-02 + IA-V2.1-02.
+- Honour the **English-copy overrides** (D-05 date headers, D-10 aria-label) — REQUIREMENTS.md literal Spanish is intentionally overridden in CONTEXT.md.
