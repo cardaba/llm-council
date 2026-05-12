@@ -1,0 +1,6 @@
+[crit-diag] event_generator: spawned background task, entering drain loop
+[crit-diag] deliberation START conv=54f3321e-847a-40eb-947d-bf06f1de0119
+[crit-diag] user_message persisted
+[crit-diag] stage1_start put on queue, about to await stage1_collect_responses
+[crit-diag] stage1_collect_responses DONE (3 results)
+[crit-diag] deliberation FINALLY (will put None sentinel)

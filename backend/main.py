@@ -666,6 +666,16 @@ async def critique_stream(
             except storage.ConversationNotFoundError:
                 await queue.put({"type": "error", "kind": "not_found", "message": "Conversation not found"})
             except Exception as e:
+                # Bug F (260511-qrx) safety net: surface deliberation failures
+                # to stderr so future critique disconnect/OpenRouter transient
+                # issues leave a diagnostic breadcrumb. Same pattern as the
+                # Bug E [critique title] log directly above.
+                import traceback
+                print(
+                    f"[critique deliberation] failed for conversation {conversation_id}: {type(e).__name__}: {e}",
+                    file=sys.stderr,
+                )
+                traceback.print_exc(file=sys.stderr)
                 await queue.put({"type": "error", "message": str(e)})
             finally:
                 await queue.put(None)
