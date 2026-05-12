@@ -77,8 +77,6 @@ export default function Stage1({ responses, defaultCollapsed = false }) {
 
   return (
     <div className="stage stage1">
-      <h3 className="stage-title">Stage 1: Individual Responses</h3>
-
       <div className="tabs">
         {responses.map((resp, index) => {
           const failed = resp == null || resp.response == null || resp.failed === true;

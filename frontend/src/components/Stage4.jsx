@@ -26,8 +26,7 @@ export default function Stage4({ stage4 }) {
   return (
     // data-stage="stage4" so NAV-02 StageNavigationStrip's IntersectionObserver
     // can find this sub-section (Stage4 lives inside Stage3's DOM tree).
-    <div className="stage stage4" data-stage="stage4">
-      <h3 className="stage-title">Stage 4: Refinement</h3>
+    <div className="stage stage4" data-stage="stage4" aria-labelledby="stage-nav-chip-stage4">
       <div className="stage4-meta">
         <div className="critic-score">
           Critic scored synthesis <strong>{score}/10</strong> — refinement triggered
