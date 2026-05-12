@@ -117,9 +117,11 @@ function ConversationItem({
                 <span className="conversation-pill">Critique</span>
               )}
             </div>
-            <div className="conversation-meta">
-              {conv.message_count} messages
-            </div>
+            {conv.message_count > 0 && (
+              <div className="conversation-meta">
+                • {conv.message_count}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -137,6 +139,40 @@ function ConversationItem({
       )}
     </div>
   );
+}
+
+// Date bucket math runs entirely in local time. Bucket boundaries (D-04):
+// - Today: same calendar day as `now`
+// - This week: previous 6 calendar days (i.e. now-6d .. now-1d, exclusive of today)
+// - This month: rest of the current calendar month (before the 7-day window above)
+// - Older: anything else
+function bucketFor(createdAtIso, now) {
+  const d = new Date(createdAtIso);
+  if (Number.isNaN(d.getTime())) return 'Older';
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const created = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayMs = 24 * 60 * 60 * 1000;
+  const diffDays = Math.floor((today - created) / dayMs);
+  if (diffDays <= 0) return 'Today';
+  if (diffDays <= 6) return 'This week';
+  if (created.getFullYear() === today.getFullYear() && created.getMonth() === today.getMonth()) return 'This month';
+  return 'Older';
+}
+
+const BUCKET_ORDER = ['Today', 'This week', 'This month', 'Older'];
+
+function groupByDateBucket(conversations, now) {
+  const map = new Map();
+  for (const conv of conversations) {
+    const bucket = bucketFor(conv.created_at, now);
+    if (!map.has(bucket)) map.set(bucket, []);
+    map.get(bucket).push(conv);
+  }
+  // Preserve `BUCKET_ORDER` ordering; within a bucket, keep the input order
+  // (the backend already returns conversations sorted desc by created_at).
+  return BUCKET_ORDER
+    .filter((b) => map.has(b))
+    .map((b) => ({ bucket: b, items: map.get(b) }));
 }
 
 export default function Sidebar({
@@ -256,6 +292,14 @@ export default function Sidebar({
     debouncedQuery,
   ]);
 
+  // IA-V2.1-03 — date-bucket grouping over the post-filter list. Reads
+  // `Date.now()` once per render; stale `now` only matters at midnight when
+  // the user is presumably not actively reading.
+  const groupedConversations = useMemo(
+    () => groupByDateBucket(filteredConversations, new Date()),
+    [filteredConversations]
+  );
+
   // D-11 lazy load: fetch every conversation body in parallel, keep them in a
   // per-session Map. ~10-100 conversations × ~50KB each = ~500KB, viable
   // client-side. Once loaded the flag stays true so subsequent queries reuse
@@ -357,38 +401,43 @@ export default function Sidebar({
               : 'No conversations yet'}
           </div>
         ) : (
-          filteredConversations.map((conv) => (
-            <ConversationItem
-              key={conv.id}
-              conv={conv}
-              isActive={conv.id === currentConversationId}
-              isEditing={conv.id === editingId}
-              isMenuOpen={openMenuFor?.id === conv.id}
-              onSelect={() => onSelectConversation(conv.id)}
-              onContextMenu={(e) => {
-                // Per RESEARCH §Pitfall 5: must call preventDefault to
-                // suppress the native browser context menu.
-                e.preventDefault();
-                e.stopPropagation();
-                setOpenMenuFor({ id: conv.id, x: e.clientX, y: e.clientY });
-              }}
-              onMenuTriggerClick={(e) => {
-                // Stop the row's onClick from selecting the conversation
-                // when the user only meant to open its menu.
-                e.stopPropagation();
-                const rect = e.currentTarget.getBoundingClientRect();
-                setOpenMenuFor({
-                  id: conv.id,
-                  x: rect.right,
-                  y: rect.bottom + 4,
-                });
-              }}
-              onCommitRename={(id, newTitle) => {
-                setEditingId(null);
-                onRenameConversation(id, newTitle);
-              }}
-              onCancelRename={() => setEditingId(null)}
-            />
+          groupedConversations.map((group) => (
+            <div key={group.bucket} className="conversation-group">
+              <h2 className="conversation-group-header">{group.bucket}</h2>
+              {group.items.map((conv) => (
+                <ConversationItem
+                  key={conv.id}
+                  conv={conv}
+                  isActive={conv.id === currentConversationId}
+                  isEditing={conv.id === editingId}
+                  isMenuOpen={openMenuFor?.id === conv.id}
+                  onSelect={() => onSelectConversation(conv.id)}
+                  onContextMenu={(e) => {
+                    // Per RESEARCH §Pitfall 5: must call preventDefault to
+                    // suppress the native browser context menu.
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpenMenuFor({ id: conv.id, x: e.clientX, y: e.clientY });
+                  }}
+                  onMenuTriggerClick={(e) => {
+                    // Stop the row's onClick from selecting the conversation
+                    // when the user only meant to open its menu.
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setOpenMenuFor({
+                      id: conv.id,
+                      x: rect.right,
+                      y: rect.bottom + 4,
+                    });
+                  }}
+                  onCommitRename={(id, newTitle) => {
+                    setEditingId(null);
+                    onRenameConversation(id, newTitle);
+                  }}
+                  onCancelRename={() => setEditingId(null)}
+                />
+              ))}
+            </div>
           ))
         )}
       </div>
