@@ -39,7 +39,7 @@ Requirements archive: [v2.0-REQUIREMENTS.md](milestones/v2.0-REQUIREMENTS.md) (3
 
 **Granularity:** coarse (`.planning/config.json`). 11 reqs en 3 phases siguiendo la pauta de v2.0 ("ir a saco"). Las phases están ordenadas para que la regeneración de baselines VRT (Phase 10) llegue DESPUÉS de todo el trabajo que toca pixels — regenerar antes congelaría las baselines incorrectas.
 
-- [ ] Phase 8: Sticky/IA polish bundle (NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01) — 8 reqs
+- [x] Phase 8: Sticky/IA polish bundle (NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01) — 8 reqs ✅ closed 2026-05-12
 - [ ] Phase 9: Cost footer relocation + ADR D-02 revisit (COST-V2.1-01) — 1 req, heavyweight decision
 - [ ] Phase 10: Quality lock — App.test.jsx + VRT baseline regen (TEST-V2.1-01 + VRT-V2.1-01) — 2 reqs
 
@@ -57,9 +57,9 @@ Requirements archive: [v2.0-REQUIREMENTS.md](milestones/v2.0-REQUIREMENTS.md) (3
   4. User scanning the sidebar identifies the active conversation by a 3px left accent border (in addition to background tint, surviving hover/focus), sees items grouped under subdued date headers (`Hoy` / `Esta semana` / `Este mes` / `Más antiguo`), and reads the `N messages` metadata as a demoted icon + smaller line below the title (never re-flowing above the title).
   5. User scrolls a long page; the floating scroll-to-top button appears only after >600px scroll, carries `aria-label="Volver al inicio"`, passes WCAG AA contrast in both themes, fades in/out, and the fade collapses to instant under `prefers-reduced-motion: reduce`.
 **Plans**: 3 plans
-- [ ] 08-01-PLAN.md — Sticky breadcrumb + chip IDs + H3 drop + aria-labelledby (NAV-V2.1-01/02/03 + IA-V2.1-01)
-- [ ] 08-02-PLAN.md — Sidebar date grouping + meta demote + active-border verify (IA-V2.1-02/03/04)
-- [ ] 08-03-PLAN.md — Scroll-to-top a11y baseline: threshold + contrast (A11Y-V2.1-01)
+- [x] 08-01-PLAN.md — Sticky breadcrumb + chip IDs + H3 drop + aria-labelledby (NAV-V2.1-01/02/03 + IA-V2.1-01) ✅
+- [x] 08-02-PLAN.md — Sidebar date grouping + meta demote + active-border verify (IA-V2.1-02/03/04) ✅
+- [x] 08-03-PLAN.md — Scroll-to-top a11y baseline: threshold + contrast (A11Y-V2.1-01) ✅
 **UI hint**: yes
 
 ### Phase 9: Cost footer relocation + ADR D-02 revisit
@@ -91,9 +91,9 @@ Requirements archive: [v2.0-REQUIREMENTS.md](milestones/v2.0-REQUIREMENTS.md) (3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 8. Sticky/IA polish bundle | 0/? | Not started | - |
+| 8. Sticky/IA polish bundle | 3/3 | Closed | 2026-05-12 |
 | 9. Cost footer relocation + ADR | 0/? | Not started | - |
 | 10. Quality lock — tests + VRT regen | 0/? | Not started | - |
 
 ---
-*Last updated: 2026-05-12 — v2.1 roadmap created (3 phases, coarse granularity, continues phase numbering from v2.0 Phase 7). 11/11 requirements mapped. Phase 8 ready for /gsd-plan-phase 8.*
+*Last updated: 2026-05-12 — Phase 8 closed (3/3 plans, 8/8 reqs). Wave 1 parallel-safe execution: 3 gsd-executor agents in worktrees → 3 no-ff merges into master → 3 user smokes approved. Next: /gsd-plan-phase 9 (cost footer ADR-gated) or /gsd-verify-phase 8.*

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: UX Polish + IA Gaps
-status: Ready for `/gsd-execute-phase 8` (3 plans committed)
-last_updated: "2026-05-12T05:40:00.000Z"
-last_activity: 2026-05-12 — Phase 8 planned (3 plans, Wave 1 parallel, plan-checker PASSED)
+status: Phase 8 closed (3/3 plans, 8/8 reqs). Next — `/gsd-verify-phase 8` or `/gsd-plan-phase 9`
+last_updated: "2026-05-12T08:00:00.000Z"
+last_activity: 2026-05-12 — Phase 8 executed (3 parallel gsd-executors, 3 smokes approved, 8 reqs closed)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 0
+  completed_plans: 3
 ---
 
 # State: LLM Council — Personal Edition
@@ -30,7 +30,7 @@ progress:
 
 ## Current Focus
 
-**v2.1 milestone — roadmap created. 3 phases, 11 reqs mapped, ready for `/gsd-plan-phase 8`.** v2.0 shipped 2026-05-11 (3 phases, 19 plans, 33 reqs, 98 commits, 101 local tests + 16 VRT baselines). v2.1 ataca la deuda UX/IA del manual smoke en 3 phases (coarse granularity, "ir a saco"): Phase 8 bundle Sticky+IA+A11Y (8 reqs), Phase 9 cost footer relocation con ADR D-02 revisit (1 req decision-gated), Phase 10 quality lock — App.test.jsx + VRT baseline regen (2 reqs, ordenado al final por diseño).
+**v2.1 milestone — Phase 8 closed 2026-05-12. 1/3 phases complete, 8/11 reqs closed.** Phase 8 (Sticky+IA+A11Y bundle) shipped vía 3 gsd-executor en paralelo (worktrees aislados → 3 merges --no-ff a master → 3 user smokes approved). Pendiente Phase 9 (cost footer relocation, decision-gated por ADR D-02 revisit) y Phase 10 (App.test.jsx + VRT baseline regen, ordenado al final por diseño).
 
 Carry-overs explícitos: TEST-V2.1-01 viene de 07-05 deferred; VRT-V2.1-01 cierra el flag de 260511-l5w (partial sticky fix shipped, baseline regen deferida).
 
@@ -38,10 +38,10 @@ P3 scroll-spy, CI pipeline (mantener D-04b lock), y PDF/DOCX critique upload exp
 
 ## Current Position
 
-Phase: Phase 8 (in progress — Sticky/IA polish bundle, planned)
-Plan: 3 plans created (08-01, 08-02, 08-03 — all Wave 1, parallel)
-Status: Ready for `/gsd-execute-phase 8` (plans committed `a042c45`, plan-checker VERIFICATION PASSED)
-Last activity: 2026-05-12 — 3 PLAN.md files created, plan-checker passed (8/8 reqs, 5/5 success criteria mapped)
+Phase: Phase 8 (closed 2026-05-12 — Sticky/IA polish bundle, 3/3 plans, 8/8 reqs)
+Plan: 3 plans executed in Wave 1 (parallel-safe, zero file overlap, 3 worktrees merged --no-ff)
+Status: Ready for `/gsd-verify-phase 8` (goal-backward verifier) o `/gsd-plan-phase 9` (cost footer ADR-gated)
+Last activity: 2026-05-12 — 3 gsd-executors completed auto tasks + SUMMARY.md, user smokes approved, REQUIREMENTS.md + ROADMAP.md sync
 
 ## Phase Progression
 
@@ -54,7 +54,7 @@ Last activity: 2026-05-12 — 3 PLAN.md files created, plan-checker passed (8/8 
 | 5 | Critique mode + Schema migration + In-conversation navigation | v2.0 | All 5 plans complete — 13 reqs satisfied (CRIT-01..08 critique pipeline + ExternalResearchPanel, PERS-03 schema_version migration, NAV-01..04 sticky headers + nav strip + show-more + back-to-top) |
 | 6 | Persistence completeness + Cost analytics + Settings panel | v2.0 | All 9 plans complete — 10 reqs satisfied + 2 gap closures (06-08 frontend stale-event guard, 06-09 detached SSE deliberations) |
 | 7 | Mobile responsive + Visual regression + Tests | v2.0 | 5/5 plans complete — all 10 reqs satisfied (MOBL-01..04, VRT-01..03, TEST-01..03); pytest 46 + vitest 55 = 101 tests green; Playwright VRT 24 baselines × 4 viewports |
-| 8 | Sticky/IA polish bundle | v2.1 | Not started — 8 reqs (NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01); NAV-V2.1-01 is a close/verify of quick-task 260511-l5w partial fix |
+| 8 | Sticky/IA polish bundle | v2.1 | All 3 plans complete — 8 reqs closed (NAV-V2.1-01 verify + NAV-V2.1-02 verify + NAV-V2.1-03 + IA-V2.1-01 + IA-V2.1-02 verify + IA-V2.1-03 + IA-V2.1-04 + A11Y-V2.1-01); 3 user smokes approved 2026-05-12 |
 | 9 | Cost footer relocation + ADR D-02 revisit | v2.1 | Not started — 1 req (COST-V2.1-01); decision-gated, ADR required before implementation |
 | 10 | Quality lock — App.test.jsx + VRT baseline regen | v2.1 | Not started — 2 reqs (TEST-V2.1-01 + VRT-V2.1-01); ordered last by design (baseline regen MUST come after all pixel-changing work) |
 
@@ -81,9 +81,9 @@ Last activity: 2026-05-12 — 3 PLAN.md files created, plan-checker passed (8/8 
 ### v2.1 (active)
 
 - Phases planned: 3 (Phases 8-10)
-- Phases complete: 0
-- Plans complete: 0/0 (plans not yet decomposed — awaiting `/gsd-plan-phase 8`)
-- Requirements coverage: 11/11 mapped (100%)
+- Phases complete: 1 (Phase 8 closed 2026-05-12)
+- Plans complete: 3/3 (Wave 1 parallel: 08-01 + 08-02 + 08-03)
+- Requirements coverage: 8/11 closed (NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01); 3 pending (COST-V2.1-01, TEST-V2.1-01, VRT-V2.1-01)
 - Cadencia: 1-2 sesiones/semana per constraint
 
 ## Accumulated Context
@@ -131,8 +131,9 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ### Active Todos
 
-- [ ] **Run `/gsd-execute-phase 8`** to execute Phase 8 plans (3 plans, all Wave 1 parallel — no file overlap). Plan-checker PASSED with one minor NIT (closed inline). User-side manual smoke checkpoint is the final task of each plan; executor will pause for human-verify before committing the closing checkpoint.
-- [ ] User-side manual smoke test for 06-08 (carry-over from v2.0) — 7-step browser DevTools verification. Recommended before Phase 8 work begins so the baseline state is known-good.
+- [ ] **Run `/gsd-verify-phase 8`** for goal-backward verification (sonnet verifier checks the 5 ROADMAP success criteria against the implementation). Optional but recommended before `/gsd-plan-phase 9`.
+- [ ] **Run `/gsd-plan-phase 9`** to plan cost footer relocation. Phase 9 is **decision-gated** — `/gsd-discuss-phase 9` MUST produce an ADR (or DISCUSS-DECISIONS.md block) before plan-time, citing the v2.0 D-02 dual-column sidebar lock and the relocation target (popover / Settings sub-section / dedicated route).
+- [ ] Pre-existing lint warning en `frontend/src/components/Stage1.jsx:33` (`react-hooks/set-state-in-effect`) — confirmado preexistente, NO introducido en Phase 8. Registrado en `.planning/phases/08-sticky-ia-polish-bundle/deferred-items.md`. Candidato a quick-task v2.1.
 - [ ] Calibration de `stage4_threshold` (carryover v1.0/v2.0) — slider en place; el usuario decide tras 5-10 QR queries reales.
 
 ### Notes from Codebase Concerns to Factor In
@@ -144,7 +145,9 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ## Session Continuity
 
-**Current session (2026-05-12, Phase 8 planned):** `/gsd-plan-phase 8` completado. Skip research + skip UI-SPEC gates (CONTEXT.md ya cubría ambos espacios). 3 plans creados — 08-01 (sticky breadcrumb + H3 drop + chip IDs, 4 tasks), 08-02 (sidebar date groups + meta demote, 3 tasks), 08-03 (scroll-to-top threshold + contrast, 3 tasks). Todos Wave 1, parallel-safe (zero file overlap entre los 3). Plan-checker VERIFICATION PASSED con 1 NIT (orphan `</automated>` tag en 08-01 Task 3, fixed inline antes del commit). 8/8 reqs cubiertos, 5/5 success criteria del ROADMAP mapeados. Commit `a042c45`.
+**Current session (2026-05-12, Phase 8 executed + closed):** `/gsd-execute-phase 8` completado. 3 gsd-executor agents lanzados en paralelo con `isolation: "worktree"` (modo paralelo elegido por el usuario sobre opciones secuencial/interactiva). Cada agente ejecutó sus tasks auto + creó SUMMARY.md + se pausó en su `checkpoint:human-verify`. Merges --no-ff a master sin conflictos (parallel-safe confirmado en la práctica): `7db79bd` (08-01), `8ed7345` (08-02), `ebbb525` (08-03). 3 smokes manuales aprobados por el usuario (`approved`) — Sticky strip + breadcrumb + chip border + no-H3 (08-01), Sidebar date groups + meta bullet + active border (08-02), Back-to-top threshold 600 + AA contrast (08-03). REQUIREMENTS.md: 8 reqs `[x]` + tabla traceability Closed. ROADMAP.md: Phase 8 checkbox + 3 plans checkbox + progress 3/3 Closed. 1 nota pendiente: el agente 08-03 documentó que el contraste AA del back-to-top quedó "code-complete pero pending devtools verify" — el usuario aprobó vía smoke real, así que cuenta como cerrado (sin necesidad de escalada a `--color-bg-secondary`).
+
+**Previous session (2026-05-12, Phase 8 planned):** `/gsd-plan-phase 8` completado. Skip research + skip UI-SPEC gates (CONTEXT.md ya cubría ambos espacios). 3 plans creados — 08-01 (sticky breadcrumb + H3 drop + chip IDs, 4 tasks), 08-02 (sidebar date groups + meta demote, 3 tasks), 08-03 (scroll-to-top threshold + contrast, 3 tasks). Todos Wave 1, parallel-safe (zero file overlap entre los 3). Plan-checker VERIFICATION PASSED con 1 NIT (orphan `</automated>` tag en 08-01 Task 3, fixed inline antes del commit). 8/8 reqs cubiertos, 5/5 success criteria del ROADMAP mapeados. Commit `a042c45`.
 
 **Previous session (2026-05-12, Phase 8 context):** `/gsd-discuss-phase 8` completado. 4 áreas grises discutidas (breadcrumb scope+host, sidebar date grouping field+copy, demote N messages, tab-to-panel border vs strip shadow). 12 decisiones D-01..D-12 capturadas en `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md`. Dos **overrides conscientes de copy**: D-05 cambia headers de fecha de español ("Hoy/Esta semana/…") a inglés ("Today/This week/…"); D-10 mantiene `aria-label="Back to top"` (inglés, override de REQUIREMENTS.md:39 literal). Ambos por consistencia con el sidebar EN-only. NAV-V2.1-01 confirmado como close/verify (no re-implementar `260511-l5w`). NAV-V2.1-02 y IA-V2.1-02 confirmados como structurally-shipped + verify. Commit `60e3335`.
 
@@ -156,25 +159,25 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 **Next session should start by:**
 
-1. Reading `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md` (12 decisions) and the 3 PLAN.md files (08-01, 08-02, 08-03) — primary inputs for the executor.
-2. Running `/gsd-execute-phase 8` to execute all 3 plans in Wave 1 (parallel-safe).
-3. The executor will pause at the final `checkpoint:human-verify` task of each plan — expect 3 manual smoke checkpoints (sticky+breadcrumb, sidebar IA, scroll-to-top).
-4. After execution: `/gsd-verify-phase 8` (or `/gsd-plan-phase 9` to continue v2.1).
-5. **DO NOT** regenerate VRT baselines during Phase 8 execution — Phase 10 owns that.
+1. Optional: `/gsd-verify-phase 8` (sonnet goal-backward checker contra los 5 success criteria del ROADMAP) — cheap insurance antes de Phase 9.
+2. `/gsd-discuss-phase 9` to produce the ADR (D-02 revisit + relocation target choice) — decision-gated PRE-condition antes de poder llamar `/gsd-plan-phase 9`.
+3. `/gsd-plan-phase 9` once the ADR is locked.
+4. **DO NOT** regenerate VRT baselines yet — Phase 10 owns that.
 
 **Files most recently touched by GSD tooling:**
 
-- `.planning/phases/08-sticky-ia-polish-bundle/08-01-PLAN.md` (created — 4 tasks, sticky+breadcrumb+H3 drop)
-- `.planning/phases/08-sticky-ia-polish-bundle/08-02-PLAN.md` (created — 3 tasks, sidebar IA)
-- `.planning/phases/08-sticky-ia-polish-bundle/08-03-PLAN.md` (created — 3 tasks, scroll-to-top a11y)
-- `.planning/ROADMAP.md` (Phase 8 Plans section updated from "TBD" to the 3 plan filenames)
-- `.planning/phases/08-sticky-ia-polish-bundle/08-CONTEXT.md` (created earlier — 12 decisions)
-- `.planning/phases/08-sticky-ia-polish-bundle/08-DISCUSSION-LOG.md` (created earlier — audit trail)
-- `.planning/STATE.md` (this file — Current Position bumped to "planned")
+- `.planning/phases/08-sticky-ia-polish-bundle/08-01-SUMMARY.md` (executor — 4 reqs closed, deviations)
+- `.planning/phases/08-sticky-ia-polish-bundle/08-02-SUMMARY.md` (executor — 3 reqs closed, deviations)
+- `.planning/phases/08-sticky-ia-polish-bundle/08-03-SUMMARY.md` (executor — A11Y-V2.1-01 + contrast notes)
+- `.planning/phases/08-sticky-ia-polish-bundle/deferred-items.md` (Stage1.jsx:33 lint warning carry)
+- `.planning/REQUIREMENTS.md` (8 checkboxes flipped + Pending → Closed in traceability table)
+- `.planning/ROADMAP.md` (Phase 8 + 3 plans checkboxes + Progress 3/3 Closed)
+- `.planning/STATE.md` (this file — Current Position bumped to "closed", session continuity logged)
+- `frontend/src/components/StageNavigationStrip.{jsx,css}`, `ChatInterface.jsx`, `Stage1.jsx`, `Stage2.jsx`, `Stage3.jsx`, `Stage4.jsx`, `Sidebar.{jsx,css}`, `BackToTopButton.{jsx,css}` (8 source files modified across 3 plans, zero overlap)
 
 ---
 *State initialized: 2026-05-09 (v1.0 milestone start)*
-*Last updated: 2026-05-12 after v2.1 ROADMAP.md created (3 phases, coarse granularity, continues phase numbering from v2.0 Phase 7). 11/11 reqs mapped. Phase 8 ready for /gsd-plan-phase.*
+*Last updated: 2026-05-12 after Phase 8 closed (3/3 plans, 8/8 reqs). Wave 1 parallel via 3 worktree executors + 3 user smokes approved. v2.1 progress: 1/3 phases complete, 8/11 reqs closed.*
 
 ## Quick Tasks Completed
 
@@ -187,7 +190,8 @@ Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ## Operator Next Steps
 
-- Run `/gsd-execute-phase 8` to execute the 3 plans (Wave 1 parallel). Executor will pause for 3 manual smoke checkpoints (one per plan).
-- After execution: run `/gsd-verify-phase 8` (goal-backward check of phase deliverable) or proceed to `/gsd-plan-phase 9` (cost footer relocation, ADR-gated).
-- **NO VRT baseline regeneration in Phase 8** — Phase 10 owns that.
-- Honour the **English-copy overrides** (D-05 date headers, D-10 aria-label) — already explicitly locked in the plans' acceptance criteria.
+- (Optional) `/gsd-verify-phase 8` — goal-backward sonnet verifier against the 5 ROADMAP success criteria.
+- `/gsd-discuss-phase 9` — required PRE-condition for Phase 9. Must produce ADR (D-02 revisit + relocation target).
+- `/gsd-plan-phase 9` — only after the ADR is locked.
+- **NO VRT baseline regeneration yet** — Phase 10 owns that. Phase 9 pixel changes will join the regen scope.
+- Stage1.jsx:33 lint warning continúa preexistente; queda en `deferred-items.md`.

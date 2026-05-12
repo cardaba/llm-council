@@ -13,18 +13,18 @@
 
 **Goal:** Resolve the P0 sticky-header regression flagged in the v2.0 manual smoke, eliminate the tabs+H2 redundancy, and connect the active tab visually to the content panel below.
 
-- [ ] **NAV-V2.1-01**: User scrolling a long Stage response sees the sticky header bar (tabs + title context) anchored to the top of the main panel with no visible strip of underlying content above it. Quick-task `260511-l5w` shipped the partial fix (drop `.messages-container` `padding-top`, add `box-shadow` to `.stage-nav-strip`); this requirement formalises the close, verifies under all 3 stages × both themes × 4 viewports, and regenerates VRT baselines (see `VRT-V2.1-01`).
-- [ ] **NAV-V2.1-02**: The active tab in the StageNavigationStrip carries a 2px bottom border that connects visually to the content panel below (standard "tab connected to panel" pattern), preserving the Direction A calm contrast level.
-- [ ] **NAV-V2.1-03**: User does not see a redundant H2 ("Stage 1: Individual Responses") immediately below the active tab label ("Stage 1 · 4 responses"). The active tab carries the semantic identity for the stage; the H2 is removed without losing screen-reader heading structure (use `aria-labelledby` or an `sr-only` heading if needed).
+- [x] **NAV-V2.1-01**: User scrolling a long Stage response sees the sticky header bar (tabs + title context) anchored to the top of the main panel with no visible strip of underlying content above it. Quick-task `260511-l5w` shipped the partial fix (drop `.messages-container` `padding-top`, add `box-shadow` to `.stage-nav-strip`); this requirement formalises the close, verifies under all 3 stages × both themes × 4 viewports, and regenerates VRT baselines (see `VRT-V2.1-01`).
+- [x] **NAV-V2.1-02**: The active tab in the StageNavigationStrip carries a 2px bottom border that connects visually to the content panel below (standard "tab connected to panel" pattern), preserving the Direction A calm contrast level.
+- [x] **NAV-V2.1-03**: User does not see a redundant H2 ("Stage 1: Individual Responses") immediately below the active tab label ("Stage 1 · 4 responses"). The active tab carries the semantic identity for the stage; the H2 is removed without losing screen-reader heading structure (use `aria-labelledby` or an `sr-only` heading if needed).
 
 ### Information architecture (IA)
 
 **Goal:** Restore conversation/model context at long-scroll positions, and re-rank the sidebar so the active item, recent dates, and metadata read at the right priority.
 
-- [ ] **IA-V2.1-01**: User scrolling past the assistant message header still sees the conversation title (or active model name when reading a specific Stage 1 response) inside the sticky bar as a breadcrumb / sub-context line. Sticky bar layout must not jump on stick / unstick.
-- [ ] **IA-V2.1-02**: The active conversation item in the sidebar carries a 3px left border in the accent color in addition to the existing background tint. The border survives hover/focus states.
-- [ ] **IA-V2.1-03**: Sidebar conversation items are grouped by relative date — "Hoy", "Esta semana", "Este mes", "Más antiguo" (or equivalent Direction A copy). Group headers are visually subdued (uppercase small caps, muted color) and do not steal weight from item titles.
-- [ ] **IA-V2.1-04**: The "N messages" metadata under each sidebar item is demoted: rendered as an icon + smaller font size on a single line below the title, and never re-flows above the title.
+- [x] **IA-V2.1-01**: User scrolling past the assistant message header still sees the conversation title (or active model name when reading a specific Stage 1 response) inside the sticky bar as a breadcrumb / sub-context line. Sticky bar layout must not jump on stick / unstick.
+- [x] **IA-V2.1-02**: The active conversation item in the sidebar carries a 3px left border in the accent color in addition to the existing background tint. The border survives hover/focus states.
+- [x] **IA-V2.1-03**: Sidebar conversation items are grouped by relative date — "Hoy", "Esta semana", "Este mes", "Más antiguo" (or equivalent Direction A copy). Group headers are visually subdued (uppercase small caps, muted color) and do not steal weight from item titles.
+- [x] **IA-V2.1-04**: The "N messages" metadata under each sidebar item is demoted: rendered as an icon + smaller font size on a single line below the title, and never re-flows above the title.
 
 ### Cost UI (COST)
 
@@ -36,7 +36,7 @@
 
 **Goal:** The back-to-top button shipped structurally in v2.0 NAV-04 but failed manual smoke on contrast + missing accessible label + premature visibility. Bring it to a11y baseline without breaking Direction A calm tone.
 
-- [ ] **A11Y-V2.1-01**: The scroll-to-top floating button carries `aria-label="Volver al inicio"` (or equivalent localised string), passes WCAG AA contrast against the page background in both themes, appears only after the user has scrolled past 600px (not earlier), and fades in/out with `prefers-reduced-motion` honored (cross-fade collapses to instant when motion is reduced).
+- [x] **A11Y-V2.1-01**: The scroll-to-top floating button carries `aria-label="Volver al inicio"` (or equivalent localised string), passes WCAG AA contrast against the page background in both themes, appears only after the user has scrolled past 600px (not earlier), and fades in/out with `prefers-reduced-motion` honored (cross-fade collapses to instant when motion is reduced).
 
 ### Test coverage (TEST)
 
@@ -80,15 +80,15 @@
 
 | REQ-ID | Category | Phase | Status |
 |--------|----------|-------|--------|
-| NAV-V2.1-01 | Navigation | Phase 8 | Pending |
-| NAV-V2.1-02 | Navigation | Phase 8 | Pending |
-| NAV-V2.1-03 | Navigation | Phase 8 | Pending |
-| IA-V2.1-01 | IA | Phase 8 | Pending |
-| IA-V2.1-02 | IA | Phase 8 | Pending |
-| IA-V2.1-03 | IA | Phase 8 | Pending |
-| IA-V2.1-04 | IA | Phase 8 | Pending |
+| NAV-V2.1-01 | Navigation | Phase 8 | Closed |
+| NAV-V2.1-02 | Navigation | Phase 8 | Closed |
+| NAV-V2.1-03 | Navigation | Phase 8 | Closed |
+| IA-V2.1-01 | IA | Phase 8 | Closed |
+| IA-V2.1-02 | IA | Phase 8 | Closed |
+| IA-V2.1-03 | IA | Phase 8 | Closed |
+| IA-V2.1-04 | IA | Phase 8 | Closed |
 | COST-V2.1-01 | Cost UI | Phase 9 | Pending |
-| A11Y-V2.1-01 | A11Y | Phase 8 | Pending |
+| A11Y-V2.1-01 | A11Y | Phase 8 | Closed |
 | TEST-V2.1-01 | Test | Phase 10 | Pending |
 | VRT-V2.1-01 | VRT | Phase 10 | Pending |
 
