@@ -52,7 +52,7 @@ function buildChips(msg) {
   return chips;
 }
 
-export default function StageNavigationStrip({ assistantMsg, scrollContainerRef }) {
+export default function StageNavigationStrip({ assistantMsg, scrollContainerRef, conversationTitle }) {
   const chips = useMemo(() => buildChips(assistantMsg), [assistantMsg]);
   const [activeId, setActiveId] = useState(null);
 
@@ -98,20 +98,28 @@ export default function StageNavigationStrip({ assistantMsg, scrollContainerRef 
 
   return (
     <div className="stage-nav-strip" role="navigation" aria-label="Stage navigation">
-      {chips.map((chip) => {
-        const isActive = activeId === chip.id;
-        return (
-          <button
-            key={chip.id}
-            type="button"
-            className={`stage-nav-strip__chip${isActive ? ' is-active' : ''}`}
-            onClick={() => handleChipClick(chip.id)}
-            aria-current={isActive ? 'true' : undefined}
-          >
-            {chip.label}
-          </button>
-        );
-      })}
+      {conversationTitle ? (
+        <div className="stage-nav-strip__breadcrumb" title={conversationTitle}>
+          {conversationTitle}
+        </div>
+      ) : null}
+      <div className="stage-nav-strip__chips">
+        {chips.map((chip) => {
+          const isActive = activeId === chip.id;
+          return (
+            <button
+              key={chip.id}
+              id={`stage-nav-chip-${chip.id}`}
+              type="button"
+              className={`stage-nav-strip__chip${isActive ? ' is-active' : ''}`}
+              onClick={() => handleChipClick(chip.id)}
+              aria-current={isActive ? 'true' : undefined}
+            >
+              {chip.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
