@@ -3,8 +3,8 @@ import './BackToTopButton.css';
 
 /**
  * BackToTopButton (NAV-04) — floating round button anchored bottom-right of
- * `.chat-interface`. Becomes visible when `.messages-container.scrollTop > 800`;
- * click smooth-scrolls the container to top.
+ * `.chat-interface`. Becomes visible when `.messages-container.scrollTop > 600`
+ * (A11Y-V2.1-01 / D-12); click smooth-scrolls the container to top.
  *
  * `prefers-reduced-motion` is re-checked PER-CLICK via `matchMedia` (Safari
  * does not auto-honor `scrollTo({behavior})`, RESEARCH §5.5).
@@ -15,7 +15,7 @@ export default function BackToTopButton({ scrollContainerRef }) {
   useEffect(() => {
     const el = scrollContainerRef?.current;
     if (!el) return;
-    const onScroll = () => setVisible(el.scrollTop > 800);
+    const onScroll = () => setVisible(el.scrollTop > 600);
     el.addEventListener('scroll', onScroll, { passive: true });
     // Run once in case the container is already scrolled (e.g. after a
     // re-render when the user was deep in a previous message).
