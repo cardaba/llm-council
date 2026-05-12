@@ -164,6 +164,23 @@
   font-feature-settings: "tnum" 1;
 }
 
+/* IA-V2.1-03 — sidebar date-group header. Subdued: uppercase tracking, muted color,
+   microcopy size, no own background. Renders above each bucket of rows. Direction A calmo. */
+.conversation-group {
+  margin-bottom: var(--space-3);
+}
+
+.conversation-group-header {
+  margin: var(--space-2) 0 var(--space-1) var(--space-2);
+  padding: 0;
+  color: var(--color-fg-muted);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-microcopy);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 /* Three-dot trigger — visible on hover, focus-within, active row, or while
    its menu is open. Active row keeps the trigger visible permanently
    (UI-SPEC line 344 — deliberate divergence justified by F-16 / H6-02). */
