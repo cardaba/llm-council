@@ -1,8 +1,9 @@
 ---
 phase: 08-sticky-ia-polish-bundle
 verified: 2026-05-12T00:00:00Z
-status: human_needed
-score: 4/5
+status: passed
+score: 5/5
+human_resolution: 2026-05-12 — user smoke approved all 3 plans
 overrides_applied: 0
 human_verification:
   - test: "Smoke visual NAV-V2.1-01: usuario scrollea un Stage 3 largo y confirma que el sticky stage-nav-strip no deja ninguna franja de contenido subyacente visible por encima, en los 3 stages × 2 temas × 4 viewports"
@@ -150,5 +151,22 @@ No hay blockers de código. La única brecha material es el ratio de contraste n
 
 ---
 
+## Human Resolution (post-verifier)
+
+**Date:** 2026-05-12 (same session)
+**Source:** orchestrator-coordinated user smoke after verifier ran
+
+El usuario ejecutó los 3 smokes manuales descritos en cada PLAN.md (3 stages × light + dark × desktop + mobile-portrait para 08-01; sidebar grouping + meta bullet + active border para 08-02; threshold @ 600 + WCAG AA contrast en devtools + aria-label `Back to top` + prefers-reduced-motion para 08-03) y respondió **`approved`** para los tres.
+
+Esto resuelve el único `WARNING` del verifier (SC-5, ratio WCAG AA medido vía devtools por el usuario):
+- Si el ratio hubiera quedado < 4.5:1 en algún tema, el usuario habría reportado el fallo y se habría aplicado la escalada D-11 step 2 (background → `--color-bg-secondary`). El `approved` implica que el swap a `--color-fg-primary` por sí solo cumple AA en ambos temas. No se aplica escalada de background.
+
+**Verdict update (final):** `human_needed` → **`PASSED`** (5/5 SC verificados: 4 por código, 1 por smoke humano).
+
+Tabla traceability en REQUIREMENTS.md y checkboxes de ROADMAP.md actualizados en commit `776013c` (anterior a este doc — el orchestrator cerró los reqs sobre la base del smoke aprobado; el verifier lo confirma retroactivamente).
+
+---
+
 _Verified: 2026-05-12_
 _Verifier: claude-sonnet-4-6 (gsd-verifier)_
+_Human resolution: 2026-05-12 (orchestrator-coordinated smoke)_
