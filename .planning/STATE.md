@@ -1,45 +1,46 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Council as External Critic + Hardening
-status: shipped
-last_updated: "2026-05-11T15:00:00.000Z"
-last_activity: 2026-05-11 -- quick-task 260511-l5w shipped (NAV-01 sticky stage header ghost-strip fix, 2 CSS files, +8/-1)
+milestone: v2.1
+milestone_name: UX Polish + IA Gaps
+status: planning
+last_updated: "2026-05-12T02:08:37.092Z"
+last_activity: 2026-05-12
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: LLM Council — Personal Edition
 
-**Last updated:** 2026-05-10
+**Last updated:** 2026-05-12
 
 ## Project Reference
 
 - **Project:** LLM Council — Personal Edition
 - **Core value:** The Quality dial works as advertised at every level. A `Fast` query returns a useful answer in seconds at near-zero cost; a `Quality+Research` query returns a well-reasoned, web-grounded response that would have taken 10+ minutes of manual work to produce.
 - **Project doc:** `.planning/PROJECT.md`
-- **Requirements:** `.planning/REQUIREMENTS.md` (33 v2 requirements, 100% mapped)
-- **Roadmap:** `.planning/ROADMAP.md` (3 coarse phases, mvp mode — "ir a saco")
-- **Research:** `.planning/research/{STACK,FEATURES,ARCHITECTURE,PITFALLS,SUMMARY}.md`
+- **Requirements:** `.planning/REQUIREMENTS.md` (will be rewritten for v2.1)
+- **Roadmap:** `.planning/ROADMAP.md` (will be rewritten for v2.1 — continues phase numbering from v2.0 Phase 7)
+- **Research:** `.planning/research/{STACK,FEATURES,ARCHITECTURE,PITFALLS,SUMMARY}.md` (v2.0 research, still referenced)
+- **Backlog:** `.planning/v2.1-BACKLOG-FROM-MANUAL-SMOKE.md` (source of v2.1 scope)
 - **Codebase maps:** `.planning/codebase/` (ARCHITECTURE.md, STACK.md, CONCERNS.md, STRUCTURE.md)
-- **Config:** `.planning/config.json` (granularity: coarse, mode: yolo, parallelization: true)
+- **Config:** `.planning/config.json`
 
 ## Current Focus
 
-**v2.0 milestone started — roadmap just locked.** v1.0 cerró 2026-05-10 con 21/21 requirements satisfied y audit PASSED. v2.0 introduce la headline feature "External Deep Research Critique" (parallel entry point al fresh-prompt flow), cierra el backlog acumulado (persistence completeness, cost analytics, settings panel, mobile responsive completo), y añade quality lock vía visual regression + suite de tests mínima.
+**v2.1 milestone started — defining requirements.** v2.0 shipped 2026-05-11 (3 phases, 19 plans, 33 reqs, 98 commits, 101 local tests + 16 VRT baselines). v2.1 ataca la deuda UX/IA del manual smoke: regresión P0 sticky header, redundancia tabs+H2, pérdida de prompt/modelo al scrollear, jerarquía del sidebar, reubicación del cost footer (revisita lock D-02 Phase 6), a11y del scroll-to-top, y conexión visual tab↔panel. Carry-overs: App.test.jsx para handleStreamEvent + regen baselines VRT post sticky fix.
 
-3 fases planeadas (override de las 6 propuestas por SUMMARY.md por user directive "ir a saco" + granularity coarse en config). Phase 5 es la más cargada (13 requirements, mandatory bundling de schema migration con critique por PITFALLS.md §CRIT-3).
+P3 scroll-spy, CI pipeline (mantener D-04b lock), y PDF/DOCX critique upload explícitamente fuera de scope.
 
 ## Current Position
 
-Phase: 07 (mobile-responsive-visual-regression-tests) — ALL 5 PLANS COMPLETE
-Plan: 5 of 5 complete (07-01 responsive substrate, 07-02 mobile patterns, 07-03 Playwright VRT, 07-04 pytest TEST-01, 07-05 vitest TEST-02 + README ## Testing TEST-03)
-Status: Ready for `/gsd-verify-phase 7`
-Last activity: 2026-05-11
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-12 — Milestone v2.1 started
 
 ## Phase Progression
 

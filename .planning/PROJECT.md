@@ -49,15 +49,27 @@ G. **Automated test suite (minimum)** — shipped in Phase 7 Plans 04 + 05. 46 p
 
 </details>
 
-## Next Milestone Goals (v2.1 — not yet scoped)
+## Current Milestone: v2.1 UX Polish + IA Gaps
 
-`/gsd-new-milestone` will define v2.1 formally. Inbound items captured from v2.0 manual-smoke findings (`.planning/v2.1-BACKLOG-FROM-MANUAL-SMOKE.md`) and v2.0 deferred decisions:
+**Goal:** Cerrar la deuda UX/IA detectada en el manual smoke de v2.0 — regresión P0 del sticky header, redundancias y pérdida de contexto al scrollear, jerarquía del sidebar, reubicación del cost footer, y a11y del scroll-to-top. Eliminar la fricción residual antes de añadir cualquier feature nueva.
 
-- **P0 regression-class:** sticky stage header positioning fix (NAV-V2.1-01). NAV-01 letter satisfied in v2.0; spirit violated (ghost strip of scrolling code above sticky bar).
-- **P1 IA gaps:** drop redundant H2 vs active tab; surface conversation context in sticky bar; sidebar item hierarchy (active-item left border, date grouping, demote N-messages metadata).
-- **P2 polish:** cost footer relocation (revisit Phase 6 D-02 dual-column lock); scroll-to-top button contrast + `aria-label`; tab active-state visually connected to panel.
-- **P3 enhancement:** scroll-spy in sticky.
-- **Carry-over from v2.0:** `App.test.jsx` for `handleStreamEvent` regression; Option 2 (AbortController) + Option 3 (per-event conversation_id SSE scoping) — downgraded to UX polish after 06-09; CI pipeline (GitHub Actions) tagged as TEST-V2.1-XX; PDF/DOCX critique upload + auto-detect model attribution.
+**Target features:**
+
+- **P0 Sticky header fix** — formalizar el cierre de NAV-V2.1-01 (solución parcial ya aplicada en quick-task 260511-l5w: drop `.messages-container` `padding-top` + box-shadow en `.stage-nav-strip`). Regenerar baselines VRT.
+- **P1 Information architecture** — drop H2 redundante con tabs; surface conversation/model context en sticky bar (breadcrumb); sidebar item hierarchy (3px left border activo + date grouping "Hoy" / "Esta semana" + demote `N messages` a icon + smaller font).
+- **P2 Cost footer relocation** — revisitar formalmente el lock D-02 de Phase 6 (sidebar dual-column). Mover a popover desde icono o sub-sección en Settings panel.
+- **P2 Scroll-to-top a11y** — `aria-label="Volver al inicio"`, contraste raised (Direction A calmo ≠ invisible), umbral >600px scroll + fade-in.
+- **P2 Tab active-state visual connection** — 2px bottom border continuo conectando tab activo con panel ("tab connected" pattern).
+- **Carry-over v2.0** — `App.test.jsx` para `handleStreamEvent` stale-event guard regression (deferido formalmente desde 07-05); VRT baseline regeneration (24 PNGs × 4 viewports diff-fail esperado tras sticky fix).
+
+**Out of scope for v2.1 (defer):**
+
+- **P3 scroll-spy en sticky** → v2.2 (enhancement, no fix).
+- **CI pipeline GitHub Actions** → mantener lock D-04b. Decisión consciente de no automatizar tests en CI dado posture single-user.
+- **PDF/DOCX critique upload + auto-detect model attribution** → v2.2 si surge necesidad.
+- **Option 2 (AbortController) + Option 3 (per-event conversation_id SSE scoping)** → downgraded a UX polish post-06-09; no entran salvo regresión observada.
+
+**Source backlog:** `.planning/v2.1-BACKLOG-FROM-MANUAL-SMOKE.md` (capturado 2026-05-11 durante manual smoke de v2.0).
 
 ## Requirements
 
@@ -94,9 +106,17 @@ G. **Automated test suite (minimum)** — shipped in Phase 7 Plans 04 + 05. 46 p
 
 ### Active
 
-<!-- Reset for v2.1 — populate via /gsd-new-milestone. -->
+<!-- v2.1 milestone scope. REQ-IDs assigned in REQUIREMENTS.md; traceability mapped by gsd-roadmapper. -->
 
-(Empty — v2.0 closed, v2.1 not yet scoped. See "Next Milestone Goals" section above for inbound backlog.)
+- ☐ **NAV-V2.1-01**: Sticky stage header sin ghost-strip (regresión P0). Solución parcial aplicada en quick-task 260511-l5w; v2.1 cierra formalmente el requirement + regenera baselines VRT.
+- ☐ **IA-V2.1-01**: Drop H2 "Stage X: ..." redundante con tabs activas; tabs cargan el semantic.
+- ☐ **IA-V2.1-02**: Surface prompt/conversation/model context en sticky bar como breadcrumb persistente al scrollear.
+- ☐ **IA-V2.1-03**: Sidebar item hierarchy — active-item 3px left border, date grouping ("Hoy" / "Esta semana"), demote `N messages` a icon + smaller font.
+- ☐ **COST-V2.1-01**: Cost footer relocation — popover desde icono "spending" o sub-sección en Settings panel. Revisitar formalmente lock D-02 Phase 6.
+- ☐ **A11Y-V2.1-01**: Scroll-to-top button — `aria-label`, contraste raised, threshold >600px + fade-in.
+- ☐ **NAV-V2.1-02**: Tab active-state 2px bottom border continuo conectando con panel.
+- ☐ **TEST-V2.1-01**: App.test.jsx para `handleStreamEvent` stale-event guard regression (carry-over de 07-05).
+- ☐ **VRT-V2.1-01**: Regenerar baselines VRT (24 PNGs × 4 viewports) tras sticky fix + IA changes.
 
 ### Out of Scope
 
@@ -165,4 +185,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-11 after v2.0 milestone close. v2.1 not yet scoped — run `/gsd-new-milestone` when ready.*
+*Last updated: 2026-05-12 after v2.1 milestone start (UX Polish + IA Gaps). 9 active requirements pending roadmap mapping.*
