@@ -80,20 +80,25 @@
 
 | REQ-ID | Category | Phase | Status |
 |--------|----------|-------|--------|
-| NAV-V2.1-01 | Navigation | TBD | Pending |
-| NAV-V2.1-02 | Navigation | TBD | Pending |
-| NAV-V2.1-03 | Navigation | TBD | Pending |
-| IA-V2.1-01 | IA | TBD | Pending |
-| IA-V2.1-02 | IA | TBD | Pending |
-| IA-V2.1-03 | IA | TBD | Pending |
-| IA-V2.1-04 | IA | TBD | Pending |
-| COST-V2.1-01 | Cost UI | TBD | Pending |
-| A11Y-V2.1-01 | A11Y | TBD | Pending |
-| TEST-V2.1-01 | Test | TBD | Pending |
-| VRT-V2.1-01 | VRT | TBD | Pending |
+| NAV-V2.1-01 | Navigation | Phase 8 | Pending |
+| NAV-V2.1-02 | Navigation | Phase 8 | Pending |
+| NAV-V2.1-03 | Navigation | Phase 8 | Pending |
+| IA-V2.1-01 | IA | Phase 8 | Pending |
+| IA-V2.1-02 | IA | Phase 8 | Pending |
+| IA-V2.1-03 | IA | Phase 8 | Pending |
+| IA-V2.1-04 | IA | Phase 8 | Pending |
+| COST-V2.1-01 | Cost UI | Phase 9 | Pending |
+| A11Y-V2.1-01 | A11Y | Phase 8 | Pending |
+| TEST-V2.1-01 | Test | Phase 10 | Pending |
+| VRT-V2.1-01 | VRT | Phase 10 | Pending |
 
-**Coverage:** 0/11 mapped (will be 11/11 after roadmap approval).
+**Coverage:** 11/11 mapped.
+
+**Per-phase counts:**
+- Phase 8 (Sticky/IA polish bundle): 8 reqs (NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01)
+- Phase 9 (Cost footer relocation + ADR): 1 req (COST-V2.1-01)
+- Phase 10 (Quality lock — tests + VRT regen): 2 reqs (TEST-V2.1-01 + VRT-V2.1-01)
 
 ---
 
-*Last updated: 2026-05-12 at milestone start. Traceability table will be filled by roadmapper.*
+*Last updated: 2026-05-12 after roadmapper produced v2.1 ROADMAP.md. Traceability filled; 11/11 reqs mapped across Phases 8-10.*

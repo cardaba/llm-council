@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: UX Polish + IA Gaps
 status: planning
-last_updated: "2026-05-12T02:08:37.092Z"
+last_updated: "2026-05-12T03:00:00.000Z"
 last_activity: 2026-05-12
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -22,8 +22,8 @@ progress:
 - **Project:** LLM Council — Personal Edition
 - **Core value:** The Quality dial works as advertised at every level. A `Fast` query returns a useful answer in seconds at near-zero cost; a `Quality+Research` query returns a well-reasoned, web-grounded response that would have taken 10+ minutes of manual work to produce.
 - **Project doc:** `.planning/PROJECT.md`
-- **Requirements:** `.planning/REQUIREMENTS.md` (will be rewritten for v2.1)
-- **Roadmap:** `.planning/ROADMAP.md` (will be rewritten for v2.1 — continues phase numbering from v2.0 Phase 7)
+- **Requirements:** `.planning/REQUIREMENTS.md` (v2.1 — 11 reqs, all mapped)
+- **Roadmap:** `.planning/ROADMAP.md` (v2.1 Phases 8-10, continues phase numbering from v2.0 Phase 7)
 - **Research:** `.planning/research/{STACK,FEATURES,ARCHITECTURE,PITFALLS,SUMMARY}.md` (v2.0 research, still referenced)
 - **Backlog:** `.planning/v2.1-BACKLOG-FROM-MANUAL-SMOKE.md` (source of v2.1 scope)
 - **Codebase maps:** `.planning/codebase/` (ARCHITECTURE.md, STACK.md, CONCERNS.md, STRUCTURE.md)
@@ -31,16 +31,18 @@ progress:
 
 ## Current Focus
 
-**v2.1 milestone started — defining requirements.** v2.0 shipped 2026-05-11 (3 phases, 19 plans, 33 reqs, 98 commits, 101 local tests + 16 VRT baselines). v2.1 ataca la deuda UX/IA del manual smoke: regresión P0 sticky header, redundancia tabs+H2, pérdida de prompt/modelo al scrollear, jerarquía del sidebar, reubicación del cost footer (revisita lock D-02 Phase 6), a11y del scroll-to-top, y conexión visual tab↔panel. Carry-overs: App.test.jsx para handleStreamEvent + regen baselines VRT post sticky fix.
+**v2.1 milestone — roadmap created. 3 phases, 11 reqs mapped, ready for `/gsd-plan-phase 8`.** v2.0 shipped 2026-05-11 (3 phases, 19 plans, 33 reqs, 98 commits, 101 local tests + 16 VRT baselines). v2.1 ataca la deuda UX/IA del manual smoke en 3 phases (coarse granularity, "ir a saco"): Phase 8 bundle Sticky+IA+A11Y (8 reqs), Phase 9 cost footer relocation con ADR D-02 revisit (1 req decision-gated), Phase 10 quality lock — App.test.jsx + VRT baseline regen (2 reqs, ordenado al final por diseño).
+
+Carry-overs explícitos: TEST-V2.1-01 viene de 07-05 deferred; VRT-V2.1-01 cierra el flag de 260511-l5w (partial sticky fix shipped, baseline regen deferida).
 
 P3 scroll-spy, CI pipeline (mantener D-04b lock), y PDF/DOCX critique upload explícitamente fuera de scope.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 8 (next — Sticky/IA polish bundle)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-12 — Milestone v2.1 started
+Status: Ready for `/gsd-plan-phase 8`
+Last activity: 2026-05-12 — v2.1 roadmap created (3 phases, 11/11 reqs mapped)
 
 ## Phase Progression
 
@@ -52,7 +54,10 @@ Last activity: 2026-05-12 — Milestone v2.1 started
 | 4 | Visual Identity Implementation | v1.0 | All 4 plans complete (closed 2026-05-10) |
 | 5 | Critique mode + Schema migration + In-conversation navigation | v2.0 | All 5 plans complete — 13 reqs satisfied (CRIT-01..08 critique pipeline + ExternalResearchPanel, PERS-03 schema_version migration, NAV-01..04 sticky headers + nav strip + show-more + back-to-top) |
 | 6 | Persistence completeness + Cost analytics + Settings panel | v2.0 | All 9 plans complete — 10 reqs satisfied + 2 gap closures (06-08 frontend stale-event guard, 06-09 detached SSE deliberations) |
-| 7 | Mobile responsive + Visual regression + Tests | v2.0 | 5/5 plans complete — all 10 reqs satisfied (MOBL-01..04, VRT-01..03, TEST-01..03); pytest 46 + vitest 55 = 101 tests green; Playwright VRT 24 baselines × 4 viewports; ready for /gsd-verify-phase 7 |
+| 7 | Mobile responsive + Visual regression + Tests | v2.0 | 5/5 plans complete — all 10 reqs satisfied (MOBL-01..04, VRT-01..03, TEST-01..03); pytest 46 + vitest 55 = 101 tests green; Playwright VRT 24 baselines × 4 viewports |
+| 8 | Sticky/IA polish bundle | v2.1 | Not started — 8 reqs (NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01); NAV-V2.1-01 is a close/verify of quick-task 260511-l5w partial fix |
+| 9 | Cost footer relocation + ADR D-02 revisit | v2.1 | Not started — 1 req (COST-V2.1-01); decision-gated, ADR required before implementation |
+| 10 | Quality lock — App.test.jsx + VRT baseline regen | v2.1 | Not started — 2 reqs (TEST-V2.1-01 + VRT-V2.1-01); ordered last by design (baseline regen MUST come after all pixel-changing work) |
 
 ## Performance Metrics
 
@@ -65,118 +70,114 @@ Last activity: 2026-05-12 — Milestone v2.1 started
 - ~140 archivos, +33,406 / −606 LOC, 33 feat commits
 - Audit: PASSED
 
-### v2.0 (active)
+### v2.0 (shipped 2026-05-11)
 
-- Phases planned: 3
-- Phases complete: 0 (Phase 7 ready for /gsd-verify-phase)
-- Plans complete: 19/19 in Phase 7 alone is 5/5 (07-01..05); Phases 5 + 6 also complete prior to Phase 7
-- Requirements coverage: 33/33 mapped (100%); Phase 7 closes the last 10 (MOBL-01..04, VRT-01..03, TEST-01..03)
-- Cadencia: 1-2 sesiones/semana
+- Phases planned: 3 (Phases 5-7)
+- Phases complete: 3
+- Plans complete: 19 (14 original + 2 gap closures Phase 6 + 5 Phase 7) — 21 wave-tracked, 19 unique PLAN.md
+- Requirements coverage: 33/33 (100%)
+- ~98 commits, 160 files, +8K LOC net, 101 local tests + 16 VRT baselines
+- Cadencia: ~36h wall-clock end-to-end ("ir a saco")
+
+### v2.1 (active)
+
+- Phases planned: 3 (Phases 8-10)
+- Phases complete: 0
+- Plans complete: 0/0 (plans not yet decomposed — awaiting `/gsd-plan-phase 8`)
+- Requirements coverage: 11/11 mapped (100%)
+- Cadencia: 1-2 sesiones/semana per constraint
 
 ## Accumulated Context
 
-### v2.0 Decisions Logged at Roadmap Time
+### v2.1 Decisions Logged at Roadmap Time
 
-- **Bundling agresivo en 3 phases (vs 6 propuestas por SUMMARY.md):** granularity coarse en config + user directive explícita "pocas fases, ir a saco". El ordenamiento blast-radius de SUMMARY.md se respeta (schema/critique → observability/polish → quality lock); solo se bundlea más dentro de cada bucket.
-- **Phase 5 bundle mandatory** — PERS-03 (schema_version + lazy migration) DEBE landar con CRIT-01..08 en el mismo phase por PITFALLS.md §CRIT-3. Splitting invita `TypeError` cascade en 100% de conversaciones v1.0 al recargar. NAV-01..04 se bundle aquí porque toca ChatInterface/message rendering y es lo que hace legible la output larga del critique mode.
-- **Phase 6 bundle** — PERS-01..02 + COST-01..04 + SET-01..04 narrativa coherente "tooling alrededor del motor de deliberación". Los 3 tocan `metadata` shape, `MessageHeader`, y nueva UI sidebar/Header.
-- **Phase 7 bundle** — MOBL + VRT + TEST son "freeze the surface" work. Mobile va antes que snapshots para que las baselines incluyan ≤768px.
-- **Endpoint dedicado `/critique/stream`** — multipart no convive con Pydantic BaseModel body. SSE protocol downstream idéntico al fresh flow (sin nuevos events salvo cosmético opcional `external_research_attached`).
-- **`stage1_collect_responses` parametrizado con `external_context: Dict[model_id, {filename, content}]`** — NO `backend/critique.py` aislado. PROJECT.md lock explícito: "no new strategy module isolated".
-- **Files inline en JSON (not sidecar)** con cap 750KB/file Pydantic-enforced. Decisión tentativa de SUMMARY.md; plan-checker debe forzarla en Phase 5 plan-1 antes de execute.
-- **`schema_version` desde primer write v2 + `migrate_message_v1_to_v2` lazy server-side en `get_conversation`.** El test que asserta v1 JSON sin metadata hidrata en v2 sin lanzar es el test de mayor valor del milestone (PITFALLS.md §CRIT-3).
-- **Persistence completeness pack en `metadata` dict (PERS-01)** — cero cambio de signatura en `add_assistant_message`; mergear `legacy_metadata` + `message_metadata` antes de persistir.
-- **Cost analytics: dual-column** OpenRouter fee vs upstream BYOK cost. Display estático post-deliberación (NO ticker animado — anti-pattern AA2 viola Direction A "calmo").
-- **Settings: slide-out panel 380px desde la derecha** + gear icon en Header. NO React Router. `useState` boolean en `App.jsx`. Hook `useSettings()` ~30 LOC mirror de `useTheme`.
-- **`stage4_threshold` viaja en request body** con Pydantic `ge=1, le=10`; el resto de settings 100% client-side localStorage.
-- **`<dialog>` element + `showModal()` para focus trap mobile** — native, NO `focus-trap-react`, NO hand-roll. `inert` attribute en main content.
-- **Visual regression Linux-Docker only** — Windows local dev usa `--update-snapshots` y reviewer valida en CI-equivalent Linux. 5 medidas anti-flake mandatory en first plan Phase 7.
-- **`pytest-asyncio` mode `strict`** (NO `auto`) + `httpx.AsyncClient(transport=ASGITransport(app=app))` para FastAPI testing.
-- **`@testing-library/react` v16+** — wrappea `act()` internamente, soporta React 19.
-- **06-08 gap closure (handleStreamEvent stale-event guard)** — Shipped Option 1 (defensive `if (!lastMsg?.loading) return prev;` at every in-flight setter inside `handleStreamEvent`, 10 sites) to close 06-UAT BLOCKER race. Predicate exploits shape asymmetry: persisted assistant messages never carry `loading` (UI-ephemeral state, never written to JSON). Deferred Option 2 (AbortController in `handleSelectConversation`) and Option 3 (backend SSE payload includes `conversation_id`, frontend filters by `currentConversationId`) to v2.1+ when multi-tab / multi-stream UX matters. Classification: race is pre-existing (since SSE streaming landed), NOT a Phase 6 regression; Phase 6 SC remain 5/5.
-- **07-05 vitest + RTL v16 + jsdom 29 frontend harness** — 55 tests / 6 co-located files covering useTheme, useSettings, MessageHeader legacy fallback + cost gating, QualityToggle onChange wiring, Stage2 de-anonymization, download.js helpers. Three structural choices: (a) `matchMedia` polyfill via `Object.defineProperty(window, 'matchMedia', ...)` in setupFiles — jsdom 29 resists direct assignment. (b) vitest discovery scoped to `src/**/*.{test,spec}.{js,jsx}` so `visual-tests/*.spec.ts` (07-03 Playwright) is not crawled and crashed by vitest. (c) `deAnonymizeText` extracted from Stage2.jsx to `frontend/src/utils/deAnonymizeText.js` so the test imports a pure helper AND Stage2.jsx stays eslint-clean against `react-refresh/only-export-components`. App.test.jsx for the handleStreamEvent stale-event guard regression is **deferred to v2.1** — App.jsx's `handleStreamEvent` is a useCallback (not exported) and behavioural testing would require either extracting it to a pure reducer module or mounting full <App /> with a mocked SSE stream (brittle). 06-08 already documented the guard structurally; manual smoke test remains the user-side validation gate.
-- **07-05 README ## Testing section (TEST-03)** — three locally-runnable test commands documented in a single section between "Running the Application" and "Tech Stack" (README.md:82). Direction A "calmo" tone preserved: one framing paragraph + three fenced blocks + one note on Playwright first-run binary cache and `--update-snapshots` regeneration. No CI mention beyond explicit "v2.1 backlog" framing per D-04b — no `.github/workflows/`, no CI badge, no separate `TESTING.md`.
+- **3-phase split (Phase 8/9/10), coarse granularity** — consistent with v2.0 "ir a saco" posture. 11 reqs in 3 phases (avg ~3.7 reqs/phase) follows the same heuristic as v2.0 (33 reqs in 3 phases). Larger phases would over-bundle the ADR-gated cost relocation; smaller phases would fragment the sticky/IA work that shares surface.
+- **Phase 8 bundles Sticky + IA + A11Y (8 reqs)** — all touch the same surfaces (`StageNavigationStrip`, `Sidebar`, `ChatInterface`, `BackToTopButton`) and the same Direction A constraints. Splitting them invites multiple VRT regen rounds and parallel CSS conflict risk. The partial fix from quick-task `260511-l5w` is the close/verify floor for NAV-V2.1-01 — plan-time MUST NOT re-implement the `.messages-container` padding-top drop or the `.stage-nav-strip` box-shadow.
+- **Phase 9 isolates COST-V2.1-01 (1 req)** — small in code but heavyweight in decision: it explicitly revisits the v2.0 Phase 6 D-02 dual-column sidebar lock. The phase is **decision-gated**: an ADR (or `DISCUSS-DECISIONS.md` block) MUST exist in `.planning/phases/phase-9/` before any code change. `/gsd-discuss-phase 9` is the natural producer. Acceptable relocation targets are bounded: popover from spending icon in Header, sub-section inside Settings panel, or dedicated route.
+- **Phase 10 is intentionally last (TEST + VRT regen)** — VRT-V2.1-01 ordering is non-negotiable. Regenerating baselines BEFORE the UI changes ship would lock the wrong pixels (bugged sticky header, redundant H2, disconnected cost footer). TEST-V2.1-01 lands in the same phase because it shares the "no functional code changes" posture — it's quality-lock work, not feature work. Strategy for App.test.jsx (pure-reducer extraction vs full `<App />` mount with mocked SSE) deferred to `/gsd-discuss-phase 10`.
+- **Phase 8 → 9 → 10 dependency ordering**: Phase 9 depends on Phase 8 because IA-V2.1-02..04 settles the sidebar's own hierarchy before deciding what to remove from the sidebar footer. Phase 10 depends on Phase 8 + 9 because both phases change pixels in baselined surfaces.
+- **`metadata.cost` shape is invariant** — COST-V2.1-01 is a pure presentation move. No `metadata.cost` schema change, no `/api/stats/cost` endpoint signature change. If plan-time discovers schema work is needed, surface it as a separate decision; do not silently widen the requirement.
+
+### Carryover de v2.0 (Decisions still relevant)
+
+- **`metadata` opaque-dict contract** — preserved through v2.1. COST-V2.1-01 relocation does NOT touch the persisted shape, only the UI surface that reads it.
+- **No CI in this milestone (D-04b lock preserved)** — three local test commands (pytest / vitest / playwright) documented in README. VRT-V2.1-01 regenerates baselines locally; user runs `npx playwright test --update-snapshots` then commits.
+- **Direction A "calmo" tone is binding** — A11Y-V2.1-01 raises scroll-to-top contrast; "calmo" ≠ "invisible". NAV-V2.1-02 tab-to-panel border preserves the calm contrast level. No new design tokens introduced.
+- **Plan-checker cost-effective** — keep enabled for v2.1. Phase 9 is the highest-value plan-checker target (ADR-gated decision; cheap to catch a missing ADR cite at plan-check time vs at execute time).
+- **Direction A Research notebook** — locked since v1.0 Phase 2; v2.1 polish stays inside existing palette + typography + spacing tokens.
 
 ### Carryover de v1.0 (Decisions still relevant)
 
 - **`:thinking` suffix override**: no existe en OpenRouter; reasoning vía payload `{"reasoning": {"enabled": true}}`. Confirmado en v1.0 Phase 3.
-- **Direction A "Research notebook"**: serif body (Source Serif 4) + max-width 65ch. Cockpit y Minimal descartadas con rationale en redesign-proposal.
-- **Plan-checker cost-effective**: 3 blockers detectados en Phase 4, fixed antes de execute → ROI 5x. Mantener para v2.0.
-- **3-stage waves grupadas por surface**: estado intermedio funcional reduce blast radius vs big-bang refactor.
 - **PROFILES dict como single source of truth para Quality dial.** Aliases-as-views.
-- **`metadata` opaque dict persisted verbatim** — Phase 6 PERS-01 reusa este contract sin cambiar signatura.
-- **`research_strategy.py` aislado de `council.py`** — verified zero `critic_model` / `stage4_threshold` / `CRITIC_RUBRIC` en council. v2.0 NO debe regresarlo.
-- **ReasoningDisclosure pattern** (`grid-template-rows: 0fr → 1fr` CSS-only accordion) — reusado en CRIT-08 (file chips expand) + NAV-03 (Stage 1 collapse "Show more").
+- **`research_strategy.py` aislado de `council.py`** — verified zero `critic_model` / `stage4_threshold` / `CRITIC_RUBRIC` en council. v2.1 NO debe regresarlo.
 
-### Open Decisions (deferred to plan-time)
+### Open Decisions (deferred to plan-time / discuss-phase)
 
-- Storage shape para critique files (inline confirmado tentativamente, validar en Phase 5 plan-1 con plan-checker).
-- OpenRouter `usage.cost` exact shape (5-min spike antes de Phase 6 plan-1, log de un response real).
-- MOBL-04 swipe gesture (scope-cut candidate si Phase 7 budget aprieta — tap-to-open via hamburger es el suelo).
-- Sidebar mode badge para critique conversations (recomendación tentativa: pill discreta).
-- `:online` deprecation watch (MIN-4): startup ping check al boot del servidor; doc en CONCERNS.md.
+- **Phase 9: relocation target for cost block** — popover vs Settings sub-section vs dedicated route. Decided in `/gsd-discuss-phase 9` ADR.
+- **Phase 10: App.test.jsx strategy** — pure-reducer extraction (refactor `handleStreamEvent` out of App.jsx into a tested module) vs full `<App />` mount with mocked SSE. Decided in `/gsd-discuss-phase 10`.
+- **Phase 8: breadcrumb content rule for IA-V2.1-01** — show conversation title always, or switch to active Stage 1 model name when reading a specific Stage 1 response? Plan-time decision.
 
-### Tech Debt (heredado de v1.0, no resuelto en v2.0)
+### Tech Debt (heredado, no resuelto en v2.1 scope)
 
-- `stage4_threshold = 8` con critic = chairman = Opus puede tener self-preference bias — re-calibrable via PROFILES tras observar 5-10 queries reales (Phase 6 SET-02 expone slider, calibration sigue siendo decisión del usuario).
-- Modal de delete: `time_ago` copy diferida (necesita helper client-side).
-- Favicon ampersand single-theme — `prefers-color-scheme` favicon support inconsistent en browsers 2026.
-- Pre-existing `react-hooks/immutability` lint warnings en `App.jsx:25-29`.
-- IPv4/IPv6 asymmetry (CONCERNS.md MIN-5) — fix incidental en Phase 5 cuando se toque `api.js` para critique-mode endpoints.
+- `stage4_threshold = 8` con critic = chairman = Opus — calibration sigue user-side (slider en place desde v2.0 SET-03).
+- Modal de delete: `time_ago` copy diferida.
+- Favicon ampersand single-theme — `prefers-color-scheme` favicon support inconsistent.
+- Pre-existing lint warnings en `App.jsx:25-29` y `Stage1.jsx:33`.
+- IPv4/IPv6 asymmetry (CONCERNS.md MIN-5) — incidental fix candidate cuando se toque `api.js`.
 
 ### Active Blockers
 
-Ninguno. 06-UAT BLOCKER closed structurally by 06-08; manual smoke test pending user (see 06-08-SUMMARY.md §"Manual smoke test — NOT executed by the executor").
+Ninguno. v2.0 cerrado limpio. v2.1 listo para arrancar Phase 8.
 
 ### Active Todos
 
-- [ ] **User-side manual smoke test for 06-08** — 7-step browser DevTools verification (start servers → QR prompt → mid-stream conversation switch → assert no TypeError / no white screen). Required before declaring 06-UAT BLOCKER functionally resolved.
-- [ ] `/gsd-verify-phase 6` to formally close Phase 6 (now 8/8 plans complete including 06-08 gap closure).
-- [ ] Calibration de `stage4_threshold` (carryover v1.0) — Phase 6 SET-02 expone slider; el usuario decide tras 5-10 QR queries reales.
-- [ ] `/gsd-verify-phase 7` to formally close Phase 7 (5/5 plans complete; all 10 requirements satisfied; pytest 46 + vitest 55 = 101 tests green).
-- [ ] App.test.jsx for `handleStreamEvent` stale-event guard regression — deferred from 07-05 to v2.1 (App.jsx coupling makes a clean behavioural test infeasible without refactor). 06-08 manual smoke test by user remains the validation gate in the meantime.
+- [ ] **Run `/gsd-plan-phase 8`** to decompose Phase 8 (Sticky/IA polish bundle, 8 reqs) into atomic plans. Plan-time MUST honor the close/verify scope of NAV-V2.1-01 (partial fix already shipped in 260511-l5w).
+- [ ] User-side manual smoke test for 06-08 (carry-over from v2.0) — 7-step browser DevTools verification. Recommended before Phase 8 work begins so the baseline state is known-good.
+- [ ] Calibration de `stage4_threshold` (carryover v1.0/v2.0) — slider en place; el usuario decide tras 5-10 QR queries reales.
 
 ### Notes from Codebase Concerns to Factor In
 
-- **Vuln 2 (path traversal)** — addressed in v1.0 Phase 1 (SEC-01).
-- **Metadata not persisted** — directly addressed by v2.0 Phase 6 (PERS-01..02). Phase 5 critique mode debe consumir el shape persistido desde día uno.
-- **Fragile FINAL RANKING parser** — relevant to NAV-02 (scroll-spy chips) y Stage 2 anonimization en CRIT-05; revisitar si plan-1 Phase 5 lo destabilizes.
-- **Stage 2 full-context broadcast cost** — relevant a CRIT-1 token detonation (PITFALLS.md). Phase 5 plan-1 implementa truncate Stage 2 a primeros 600 tokens por critique.
-- **No automated tests** — closed por Phase 7 TEST-01..03 (pytest backend + vitest frontend, ~60% critical paths). CI sigue out of scope.
-- **Phase 2 anticipatory findings** (UX research v1.0) — H1-04, H5-03, H1-05/H6-05/H8-05, H8-06 ya aplicados en v1.0; v2.0 Phase 5 critique entry-point UI debe respetar el mismo brief Direction A "calmo".
+- **Vuln 2 (path traversal)** — addressed in v1.0 Phase 1 (SEC-01). Still closed.
+- **Metadata not persisted** — closed in v2.0 Phase 6 (PERS-01..02). v2.1 must preserve the contract.
+- **No automated tests** — closed in v2.0 Phase 7. v2.1 TEST-V2.1-01 adds App.test.jsx; everything else stays as v2.0 left it.
+- **Phase 2 UX research findings** — H1-04, H5-03, H1-05/H6-05/H8-05, H8-06 ya aplicados en v1.0. v2.1 polish work must respect the same Direction A "calmo" brief.
 
 ## Session Continuity
 
-**Last session (2026-05-10, evening):** gsd-roadmapper creó ROADMAP.md (3 phases v2.0) + actualizó STATE.md (este archivo) + actualizó traceability en REQUIREMENTS.md. Override de SUMMARY.md (6 phases → 3) por user directive "ir a saco" + granularity coarse. Bundling rationale documentado: PITFALLS.md §CRIT-3 fuerza PERS-03 dentro de Phase 5 con CRIT-01..08; NAV bundleado en Phase 5 por surface overlap (ChatInterface/message rendering); Phase 6 narrativa "tooling alrededor del motor"; Phase 7 "freeze the surface".
+**Current session (2026-05-12, planning):** gsd-roadmapper creó `.planning/ROADMAP.md` para v2.1 (3 phases, continúa numeración desde v2.0 Phase 7 → Phases 8/9/10). Actualizó `REQUIREMENTS.md` traceability (11/11 reqs mapped). Actualizó este STATE.md con `total_phases: 3` y la nueva Phase Progression. Granularity `coarse` aplicada consistentemente con v2.0 ("ir a saco"). Decisión clave: Phase 10 (VRT regen) DEBE ser último por diseño — regen anterior congelaría baselines incorrectas.
 
-**Previous session (2026-05-10, afternoon):** v1.0 milestone completed — Phase 04 / Plan 04-04 cerrado. 21/21 v1 requirements satisfied. Audit PASSED. Tag v1.0. Archive de v1.0 ROADMAP/REQUIREMENTS/MILESTONE-AUDIT en `.planning/milestones/`.
+**Previous session (2026-05-11):** v2.0 milestone shipped. 33/33 reqs satisfied across Phases 5-7. Manual smoke surfaced v2.1 backlog (`v2.1-BACKLOG-FROM-MANUAL-SMOKE.md`). Quick-task `260511-l5w` shipped partial sticky-header fix; baseline regen deferida a v2.1.
+
+**Previous session (2026-05-10):** v1.0 milestone closed (21/21 reqs, Audit PASSED, tag v1.0).
 
 **Next session should start by:**
 
-1. Reading this STATE.md + ROADMAP.md + REQUIREMENTS.md (traceability table) para confirmar el estado del milestone.
-2. **Executar `/gsd-plan-phase 5`** para descomponer Phase 5 (Critique mode + Schema migration + In-conversation navigation) en plans atómicos.
-3. PITFALLS.md §CRIT-3 + §CRIT-1 + §CRIT-4 + §MOD-1 + §MOD-2 son lectura obligatoria antes de plan-1 — los 5 critical/moderate pitfalls que Phase 5 debe owner.
-4. Plan-checker debe forzar la decisión inline-vs-sidecar (CRIT-4) en Phase 5 plan-1 ANTES de execute.
+1. Reading this STATE.md + `.planning/ROADMAP.md` (v2.1 phase details for 8/9/10) + `REQUIREMENTS.md` traceability table.
+2. Running `/gsd-plan-phase 8` to decompose the Sticky/IA polish bundle.
+3. Reviewing `v2.1-BACKLOG-FROM-MANUAL-SMOKE.md` for Phase 8 plan-time context — especially the user's diagnosis of the sticky-header layering bug and the "Suggested v2.1 milestone scoping" section.
+4. Confirming with the user that the partial fix from quick-task `260511-l5w` is the floor for NAV-V2.1-01 (no re-implementation).
 
 **Files most recently touched by GSD tooling:**
 
-- `.planning/ROADMAP.md` (v2.0 phases 5-7 added; v1.0 collapsed in details)
-- `.planning/STATE.md` (this file — v2.0 milestone state initialized)
-- `.planning/REQUIREMENTS.md` (traceability table filled with phase mappings 5/6/7)
+- `.planning/ROADMAP.md` (v2.1 Phases 8-10 added; v1.0 + v2.0 collapsed in details)
+- `.planning/REQUIREMENTS.md` (traceability table filled with phase mappings 8/9/10)
+- `.planning/STATE.md` (this file — v2.1 phase progression added, total_phases updated)
 
 ---
 *State initialized: 2026-05-09 (v1.0 milestone start)*
-*Last updated: 2026-05-10 after v2.0 ROADMAP.md created (3 phases, coarse granularity, override de SUMMARY.md por user directive "ir a saco"). Phase 5 ready for /gsd-plan-phase.*
-*Last updated: 2026-05-10 after v1.0 milestone close (21/21 v1 requirements satisfied; Phase 4 Plan 04-04 cerrado; tag v1.0; archive en milestones/).*
+*Last updated: 2026-05-12 after v2.1 ROADMAP.md created (3 phases, coarse granularity, continues phase numbering from v2.0 Phase 7). 11/11 reqs mapped. Phase 8 ready for /gsd-plan-phase.*
 
 ## Quick Tasks Completed
 
 | Quick ID | Date | Description | Files | Commit | Notes |
 |----------|------|-------------|-------|--------|-------|
-| 260511-l5w | 2026-05-11 | NAV-01 sticky stage header ghost-strip fix (drop `.messages-container` `padding-top`, add soft `box-shadow` to `.stage-nav-strip`) | `frontend/src/components/ChatInterface.css`, `frontend/src/components/StageNavigationStrip.css` | (see commit log) | Manual smoke flagged for user. VRT baseline regeneration deferred to v2.1 phase 1 (24 PNGs × 4 viewports will diff-fail — expected). |
+| 260511-l5w | 2026-05-11 | NAV-01 sticky stage header ghost-strip fix (drop `.messages-container` `padding-top`, add soft `box-shadow` to `.stage-nav-strip`) | `frontend/src/components/ChatInterface.css`, `frontend/src/components/StageNavigationStrip.css` | (see commit log) | Manual smoke flagged for user. VRT baseline regeneration deferred to v2.1 Phase 10. **PARTIAL FIX — close/verify is NAV-V2.1-01 in v2.1 Phase 8 (do not re-implement).** |
 | 260511-lcu | 2026-05-11 | Critique source-MD picker + critique-pill reload — Bug B: add `mode: Literal[...]` to `ConversationMetadata` so FastAPI stops filtering it from `/api/conversations`. Bug A: expand DropZoneSlot `<input accept>` to include `text/markdown,text/plain` so Windows native file dialog stops hiding `.md` files (Branch A shipped proactively, no diagnostics). | `backend/main.py`, `frontend/src/components/DropZoneSlot.jsx` | 127134e, 862a536 | **Backend restart required** (uvicorn not `--reload`). Manual smoke flagged for user. If picker still rejects `.md` after restart, Branch A wasn't the cause — iterate to Branch B (`onInput` fallback) or C (`.trim()` ext check). Both bugs classified as Phase 5 carry-over, not v2.0 regressions. |
 | 260511-mqt | 2026-05-11 | Critique-mode parity (Bug C+D+E): download conversation .md now includes `## Source materials` + uses Critique instruction label + Individual Critiques header; final-answer .md uses Critique instruction label; `generate_conversation_title` defensive truncation + empty-string fallback; critique title block logs to stderr instead of `pass`. | `frontend/src/utils/download.js`, `frontend/src/components/ChatInterface.jsx`, `frontend/src/components/Stage3.jsx`, `backend/council.py`, `backend/main.py` | cf6b61b, 4024df4 | **Backend restart required** for Bug E (import sys + new title fallback). Vite HMR covers the frontend. Bug F (critique deliberation lost on disconnect) explicitly OUT OF SCOPE — queued as a separate quick task with --discuss. Fresh-prompt export path verified byte-stable. |
+| 260511-qrx | 2026-05-11 | Safety-net log for critique deliberation exceptions (Bug F triage). | (see commit log) | a4b04c5 | Backend exception logging now surfaces critique-mode failures that were previously silent. |
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 5` to decompose Phase 5 (Critique mode + Schema migration + In-conversation navigation) into plans.
+- Run `/gsd-plan-phase 8` to decompose Phase 8 (Sticky/IA polish bundle: NAV-V2.1-01..03 + IA-V2.1-01..04 + A11Y-V2.1-01) into plans.
+- Verify with user that the partial fix from quick-task `260511-l5w` is the floor for NAV-V2.1-01 (plan-time should close/verify, not re-implement).
