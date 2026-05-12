@@ -24,7 +24,6 @@ export default function Stage3({ finalResponse, question, stage4, mode }) {
   return (
     <div className="stage stage3">
       <div className="stage3-header">
-        <h3 className="stage-title">Stage 3: Final Council Answer</h3>
         <button
           type="button"
           className="download-btn"

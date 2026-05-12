@@ -252,6 +252,7 @@ export default function ChatInterface({
                   <StageNavigationStrip
                     assistantMsg={msg}
                     scrollContainerRef={messagesContainerRef}
+                    conversationTitle={conversation?.title || 'New Conversation'}
                   />
 
                   {/* Stage 1 */}
@@ -262,7 +263,7 @@ export default function ChatInterface({
                     </div>
                   )}
                   {msg.stage1 && (
-                    <section data-stage="stage1">
+                    <section data-stage="stage1" aria-labelledby="stage-nav-chip-stage1">
                       <Stage1 responses={msg.stage1} defaultCollapsed={Boolean(msg.stage3)} />
                     </section>
                   )}
@@ -275,7 +276,7 @@ export default function ChatInterface({
                     </div>
                   )}
                   {msg.stage2 && Array.isArray(msg.stage2) && msg.stage2.length > 0 && (
-                    <section data-stage="stage2">
+                    <section data-stage="stage2" aria-labelledby="stage-nav-chip-stage2">
                       <Stage2
                         rankings={msg.stage2}
                         labelToModel={msg.metadata?.label_to_model}
@@ -300,7 +301,7 @@ export default function ChatInterface({
                     </div>
                   )}
                   {msg.stage3 && (
-                    <section data-stage="stage3">
+                    <section data-stage="stage3" aria-labelledby="stage-nav-chip-stage3">
                       <Stage3
                         finalResponse={msg.stage3}
                         question={findQuestionFor(conversation.messages, index)}
